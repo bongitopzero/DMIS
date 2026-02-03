@@ -1,0 +1,68 @@
+.sidebar {
+  width: 240px;
+  background: linear-gradient(180deg, #1e3a5f 0%, #162d4a 100%);
+  padding: 20px;
+  border-right: 2px solid #0f1f2e;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
+}
+
+.sidebar .brand {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 30px;
+  padding-left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.3px;
+}
+
+.sidebar h2 span {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 12px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #cbd5e1;
+  transition: all 0.3s ease;
+  margin-bottom: 8px;
+}
+
+.sidebar li:hover {
+  background: rgba(15, 245, 215, 0.1);
+  color: #0ff5d7;
+}
+
+.sidebar li.active {
+  background: #0ff5d7;
+  color: #1e3a5f;
+  font-weight: 600;
+  border-left: 3px solid #0ff5d7;
+  padding-left: 9px;
+}
+.sidebar a {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  font-size: 14px;
+}
+
+.sidebar a:visited {
+  color: inherit;
+}
+
+.sidebar li.active a {
+  color: #1e3a5f;
+  font-weight: 600;
+}

@@ -1,0 +1,51 @@
+/* Incident list - minimalist styling */
+
+/* Main container - layout handled in JSX */
+.incident-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Individual incident item */
+.incident-item {
+  border-left: 3px solid #8B7355;
+  padding-left: 12px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.incident-item:last-child {
+  border-bottom: none;
+}
+
+/* Incident type/title */
+.incident-type {
+  font-size: 13px;
+  font-weight: 600;
+  color: #222;
+  margin: 0 0 4px 0;
+}
+
+/* District */
+.incident-district {
+  font-size: 12px;
+  color: #666;
+  margin: 0 0 2px 0;
+  font-weight: 600;
+}
+
+/* Severity and affected */
+.incident-details {
+  font-size: 11px;
+  color: #999;
+  margin: 0;
+}
+
+/* Empty state */
+.incident-empty {
+  font-size: 13px;
+  color: #999;
+  margin: 0;
+}

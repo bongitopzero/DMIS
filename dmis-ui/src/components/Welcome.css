@@ -1,0 +1,97 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.welcome-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0b1d3a, #163a5f);
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+/* NAVBAR */
+.welcome-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px 80px;
+}
+
+.welcome-logo {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.welcome-logo span {
+  font-size: 14px;
+  display: block;
+  opacity: 0.8;
+}
+
+/* HERO */
+.welcome-hero {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 80px;
+}
+
+.welcome-text {
+  max-width: 700px;
+}
+
+.welcome-text h1 {
+  font-size: 52px;
+  margin-bottom: 25px;
+  line-height: 1.2;
+}
+
+.welcome-text h1 span {
+  color: #2db7a3;
+}
+
+.welcome-text p {
+  font-size: 18px;
+  opacity: 0.9;
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+/* BUTTONS */
+.btn-get-started {
+  background: #2db7a3;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary-large {
+  background: #2db7a3;
+  border: none;
+  padding: 18px 60px;
+  border-radius: 35px;
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-primary-large:hover {
+  background: #26a193;
+}
+
+/* FOOTER */
+.welcome-footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  opacity: 0.7;
+}

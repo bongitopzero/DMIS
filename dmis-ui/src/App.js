@@ -1,0 +1,129 @@
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import Welcome from "./components/Welcome";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import Dashboard from "./components/Dashboard";
+import DisasterEvents from "./components/DisasterEvents";
+
+import FundManagement from "./pages/FundManagement.jsx";
+import FinanceDashboard from "./pages/FundManagement.jsx";
+import MapPage from "./pages/MapPage";
+
+import Sidebar from "./components/sidebar";
+import Navbar from "./components/navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+import "./App.css";
+
+/* ================= Layout Wrapper ================= */
+
+function Layout({ children }) {
+  return (
+    <div className="flex min-h-screen bg-slate-50">
+      {/* Sidebar */}
+      <Sidebar />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        <Navbar />
+
+        {/* Page Content */}
+        <main className="flex-1 overflow-y-auto">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+/* ================= App ================= */
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+
+        {/* Public pages */}
+        <Route path="/" element={<Welcome />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Director Dashboard */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["Director"]}>
+              <Layout>
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Finance Officer Dashboard */}
+        <Route
+          path="/finance-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinanceDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Disaster Events */}
+        <Route
+          path="/disaster-events"
+          element={
+            <ProtectedRoute allowedRoles={["Director", "Data Clerk"]}>
+              <Layout>
+                <DisasterEvents />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fund Management */}
+        <Route
+          path="/fund-management"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FundManagement />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* GIS Map */}
+        <Route
+          path="/gis-map"
+          element={
+            <ProtectedRoute allowedRoles={["Director", "Data Clerk"]}>
+              <Layout>
+                <MapPage />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Unauthorized */}
+        <Route
+          path="/unauthorized"
+          element={
+            <div className="p-10 text-red-600">
+              <h2 className="text-xl font-semibold">Access Denied</h2>
+              <p>You do not have permission to view this page.</p>
+            </div>
+          }
+        />
+
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
