@@ -14,6 +14,16 @@ export default function DisasterEvents() {
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [verifyingDisaster, setVerifyingDisaster] = useState(null);
+  const [verificationNotes, setVerificationNotes] = useState("");
+  
+  // Get current user role
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const userRole = currentUser?.user?.role || "";
+  const isCoordinator = userRole === "Coordinator";
+  const isClerk = userRole === "Data Clerk";
+  
   const [formData, setFormData] = useState({
     type: "drought",
     district: "",
@@ -23,7 +33,7 @@ export default function DisasterEvents() {
     damages: "",
     needs: [],
     severity: "medium",
-    status: "active",
+    status: "reported",
   });
   const [customNeed, setCustomNeed] = useState("");
 
@@ -69,9 +79,40 @@ export default function DisasterEvents() {
     { value: "high", label: "High Severity" },
   ];
   const statuses = [
-    { value: "active", label: "Active" },
-    { value: "pending", label: "Pending" },
-    { value: "resolved", label: "Resolved" },
+    { value: "reported", label: "Reported" },
+    { value: "verified", label: "Verified" },
+    { value: "responding", label: "Responding" },
+    { value: "closed", label: "Closed" },
+  ];
+
+  // Districts organized by region
+  const districtsByRegion = {
+    "Lowlands": ["Maseru", "Mafeteng", "Mohale's Hoek", "Quthing"],
+    "Foothills": ["Berea", "Leribe", "Butha-Buthe"],
+    "Highlands": ["Mokhotlong", "Qacha's Nek", "Thaba-Tseka"]
+  };
+
+  // Population intervals
+  const populationIntervals = [
+    { value: "0-50", label: "0 - 50 people" },
+    { value: "51-100", label: "51 - 100 people" },
+    { value: "101-250", label: "101 - 250 people" },
+    { value: "251-500", label: "251 - 500 people" },
+    { value: "501-1000", label: "501 - 1,000 people" },
+    { value: "1001-2500", label: "1,001 - 2,500 people" },
+    { value: "2501-5000", label: "2,501 - 5,000 people" },
+    { value: "5000+", label: "5,000+ people" },
+  ];
+
+  // Household intervals
+  const householdIntervals = [
+    { value: "0-10", label: "0 - 10 households" },
+    { value: "11-25", label: "11 - 25 households" },
+    { value: "26-50", label: "26 - 50 households" },
+    { value: "51-100", label: "51 - 100 households" },
+    { value: "101-250", label: "101 - 250 households" },
+    { value: "251-500", label: "251 - 500 households" },
+    { value: "500+", label: "500+ households" },
   ];
 
   // Fetch disasters on mount
@@ -149,7 +190,7 @@ export default function DisasterEvents() {
       damages: "",
       needs: [],
       severity: "medium",
-      status: "active",
+      status: "reported", // Always start as "reported"
     });
     setShowModal(true);
   };
@@ -185,7 +226,7 @@ export default function DisasterEvents() {
       damages: disaster.damages || "",
       needs: needsArray,
       severity: disaster.severity,
-      status: disaster.status || "active",
+      status: disaster.status || "reported",
     });
     setShowModal(true);
   };
@@ -209,16 +250,30 @@ export default function DisasterEvents() {
 
       const payload = {
         ...formData,
-        affectedPopulation: Number(formData.affectedPopulation),
-        households: Number(formData.households) || 0,
+        affectedPopulation: formData.affectedPopulation,
+        households: formData.households || "0-10",
+        affectedHouses: parseInt(formData.affectedHouses) || 0,
+        damageCost: parseFloat(formData.damageCost) || 0,
         needs: Array.isArray(finalNeeds) ? finalNeeds.join(", ") : finalNeeds,
       };
+
+      // Data Clerks cannot change status - always keep as "reported" for new incidents
+      if (isClerk && !editingId) {
+        payload.status = "reported";
+      }
+      // Data Clerks editing should not change status
+      if (isClerk && editingId) {
+        delete payload.status; // Don't send status in update
+      }
+
+      console.log("Submitting disaster data:", payload);
 
       if (editingId) {
         await API.put(`/disasters/${editingId}`, payload);
         setSuccess("Disaster updated successfully!");
       } else {
-        await API.post("/disasters", payload);
+        const response = await API.post("/disasters", payload);
+        console.log("Disaster created:", response.data);
         setSuccess("Disaster registered successfully!");
       }
 
@@ -226,7 +281,8 @@ export default function DisasterEvents() {
       setCustomNeed("");
       fetchDisasters();
     } catch (err) {
-      setError(err.response?.data?.message || "Operation failed");
+      console.error("Error submitting disaster:", err.response?.data || err);
+      setError(err.response?.data?.message || err.response?.data?.error || "Operation failed");
     }
   };
 
@@ -288,11 +344,67 @@ export default function DisasterEvents() {
 
   const getStatusBadge = (status) => {
     const badges = {
-      active: { label: "Active", bg: "#3B82F6", color: "white" },
-      pending: { label: "Pending", bg: "#F59E0B", color: "white" },
-      resolved: { label: "Resolved", bg: "#10B981", color: "white" },
+      reported: { label: "Reported", bg: "#F59E0B", color: "white" },
+      verified: { label: "Verified", bg: "#3B82F6", color: "white" },
+      responding: { label: "Responding", bg: "#8B5CF6", color: "white" },
+      closed: { label: "Closed", bg: "#10B981", color: "white" },
     };
-    return badges[status] || badges.active;
+    return badges[status] || badges.reported;
+  };
+
+  const handleVerifyIncident = (disaster) => {
+    setVerifyingDisaster(disaster);
+    setVerificationNotes("");
+    setShowVerifyModal(true);
+  };
+
+  const handleStatusUpdate = async (disasterId, newStatus) => {
+    try {
+      await API.put(`/disasters/${disasterId}`, { status: newStatus });
+      setSuccess(`Status updated to ${newStatus}`);
+      fetchDisasters();
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update status");
+      setTimeout(() => setError(""), 5000);
+    }
+  };
+
+  const confirmVerification = async () => {
+    if (!verifyingDisaster) return;
+    
+    try {
+      await API.put(`/disasters/${verifyingDisaster._id}`, {
+        status: "verified",
+        verificationNotes,
+        verifiedBy: currentUser?.user?.id,
+        verifiedAt: new Date().toISOString(),
+      });
+      setSuccess("Incident verified successfully");
+      setShowVerifyModal(false);
+      setVerifyingDisaster(null);
+      fetchDisasters();
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to verify incident");
+      setTimeout(() => setError(""), 5000);
+    }
+  };
+
+  const canEditStatus = (currentStatus) => {
+    if (!isCoordinator) return false;
+    // Coordinator can update status following the workflow
+    return true;
+  };
+
+  const getNextStatus = (currentStatus) => {
+    const workflow = {
+      reported: "verified",
+      verified: "responding",
+      responding: "closed",
+      closed: null,
+    };
+    return workflow[currentStatus];
   };
 
   return (
@@ -389,8 +501,28 @@ export default function DisasterEvents() {
                       <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
                       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
-                    <span>{disaster.affectedPopulation?.toLocaleString() || 0} affected ({disaster.households || 0} households)</span>
+                    <span>{disaster.affectedPopulation || "N/A"} affected ({disaster.households || "N/A"} households)</span>
                   </div>
+
+                  {disaster.affectedHouses > 0 && (
+                    <div className="detail-item">
+                      <svg className="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        <polyline points="9 22 9 12 15 12 15 22" />
+                      </svg>
+                      <span>{disaster.affectedHouses} houses damaged</span>
+                    </div>
+                  )}
+
+                  {disaster.damageCost > 0 && (
+                    <div className="detail-item">
+                      <svg className="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="12" y1="1" x2="12" y2="23" />
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                      </svg>
+                      <span>M {disaster.damageCost.toLocaleString()} damage cost</span>
+                    </div>
+                  )}
 
                   <div className="detail-item">
                     <svg className="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -408,14 +540,42 @@ export default function DisasterEvents() {
                     <span className="severity-badge" style={{ backgroundColor: severity.bg, color: severity.color }}>
                       {severity.label}
                     </span>
+                    <span className="status-badge" style={{ backgroundColor: status.bg, color: status.color }}>
+                      {status.label}
+                    </span>
                   </div>
                   <div className="action-icons">
+                    {isCoordinator && disaster.status === "reported" && (
+                      <button 
+                        className="action-btn verify-btn" 
+                        onClick={() => handleVerifyIncident(disaster)}
+                        title="Verify Incident"
+                      >
+                        ✓
+                      </button>
+                    )}
+                    {isCoordinator && getNextStatus(disaster.status) && (
+                      <button 
+                        className="action-btn status-btn" 
+                        onClick={() => handleStatusUpdate(disaster._id, getNextStatus(disaster.status))}
+                        title={`Move to ${getNextStatus(disaster.status)}`}
+                      >
+                        →
+                      </button>
+                    )}
                     <button className="action-btn" title="View">
                       <Eye className="w-4 h-4" />
                     </button>
-                    <button className="action-btn" onClick={() => openEditModal(disaster)} title="Edit">
-                      <Edit2 className="w-4 h-4" />
-                    </button>
+                    {isCoordinator && (
+                      <button className="action-btn" onClick={() => openEditModal(disaster)} title="Edit">
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                    )}
+                    {isClerk && disaster.status === "reported" && (
+                      <button className="action-btn" onClick={() => openEditModal(disaster)} title="Edit (Reported Only)">
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -436,8 +596,8 @@ export default function DisasterEvents() {
             {error && <div className="alert alert-error">{error}</div>}
 
             <div className="modal-body">
-              {/* Row 1: Type and Severity */}
-              <div className="form-row">
+              {/* Row 1: Type, Severity, and Status */}
+              <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
                 <div className="form-group">
                   <label>Disaster Type</label>
                   <select name="type" value={formData.type} onChange={handleInputChange}>
@@ -458,23 +618,45 @@ export default function DisasterEvents() {
                     ))}
                   </select>
                 </div>
+                {/* Status - Only for Coordinator */}
+                {isCoordinator && (
+                  <div className="form-group">
+                    <label>Status</label>
+                    <select name="status" value={formData.status} onChange={handleInputChange}>
+                      {statuses.map((st) => (
+                        <option key={st.value} value={st.value}>
+                          {st.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {/* Show status for Data Clerk but disabled */}
+                {isClerk && (
+                  <div className="form-group">
+                    <label>Status (Read-only)</label>
+                    <input 
+                      type="text" 
+                      value={statuses.find(s => s.value === formData.status)?.label || "Reported"}
+                      disabled
+                      style={{ backgroundColor: "#f3f4f6", cursor: "not-allowed" }}
+                    />
+                  </div>
+                )}
               </div>
 
-              {/* District */}
+              {/* District with Sections */}
               <div className="form-group">
-                <label>District</label>
+                <label>District (by Region)</label>
                 <select name="district" value={formData.district} onChange={handleInputChange}>
                   <option value="">Select district</option>
-                  <option value="Berea">Berea</option>
-                  <option value="Butha-Buthe">Butha-Buthe</option>
-                  <option value="Leribe">Leribe</option>
-                  <option value="Mafeteng">Mafeteng</option>
-                  <option value="Maseru">Maseru</option>
-                  <option value="Mohale's Hoek">Mohale's Hoek</option>
-                  <option value="Mokhotlong">Mokhotlong</option>
-                  <option value="Qacha's Nek">Qacha's Nek</option>
-                  <option value="Quthing">Quthing</option>
-                  <option value="Thaba-Tseka">Thaba-Tseka</option>
+                  {Object.entries(districtsByRegion).map(([region, districts]) => (
+                    <optgroup key={region} label={region}>
+                      {districts.map(district => (
+                        <option key={district} value={district}>{district}</option>
+                      ))}
+                    </optgroup>
+                  ))}
                 </select>
               </div>
 
@@ -490,26 +672,62 @@ export default function DisasterEvents() {
                 />
               </div>
 
-              {/* Row 2: Affected Population and Households */}
+              {/* Row 2: Affected Population and Households with Intervals */}
               <div className="form-row">
                 <div className="form-group">
                   <label>Affected Population</label>
-                  <input
-                    type="number"
+                  <select
                     name="affectedPopulation"
                     value={formData.affectedPopulation}
                     onChange={handleInputChange}
-                    placeholder="Number of people affected"
-                  />
+                  >
+                    <option value="">Select population range</option>
+                    {populationIntervals.map((interval) => (
+                      <option key={interval.value} value={interval.value}>
+                        {interval.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="form-group">
                   <label>Affected Households</label>
-                  <input
-                    type="number"
+                  <select
                     name="households"
                     value={formData.households}
                     onChange={handleInputChange}
-                    placeholder="Number of households"
+                  >
+                    <option value="">Select household range</option>
+                    {householdIntervals.map((interval) => (
+                      <option key={interval.value} value={interval.value}>
+                        {interval.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Row 3: Exact Numbers for Affected Houses and Damage Cost */}
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Affected Houses (Exact Number)</label>
+                  <input
+                    type="number"
+                    name="affectedHouses"
+                    value={formData.affectedHouses || ""}
+                    onChange={handleInputChange}
+                    placeholder="Enter exact number of affected houses"
+                    min="0"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Damage Cost (Maloti)</label>
+                  <input
+                    type="number"
+                    name="damageCost"
+                    value={formData.damageCost || ""}
+                    onChange={handleInputChange}
+                    placeholder="Enter total damage cost"
+                    min="0"
                   />
                 </div>
               </div>
@@ -609,6 +827,75 @@ export default function DisasterEvents() {
               </button>
               <button className="btn-save" onClick={handleSaveDisaster}>
                 {editingId ? "Update Disaster" : "Register Disaster"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Verification Modal */}
+      {showVerifyModal && verifyingDisaster && (
+        <div className="modal-overlay" onClick={() => setShowVerifyModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Verify Incident</h2>
+              <button className="modal-close" onClick={() => setShowVerifyModal(false)}>×</button>
+            </div>
+
+            <div className="modal-body">
+              <div style={{ marginBottom: "1rem" }}>
+                <strong>Incident Details:</strong>
+                <p>Type: {verifyingDisaster.type.replace(/_/g, " ")}</p>
+                <p>District: {verifyingDisaster.district}</p>
+                <p>Location: {verifyingDisaster.location}</p>
+                <p>Affected Population: {verifyingDisaster.affectedPopulation}</p>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group full-width">
+                  <label>Verification Notes</label>
+                  <textarea
+                    value={verificationNotes}
+                    onChange={(e) => setVerificationNotes(e.target.value)}
+                    placeholder="Add notes about verification checks, data validation, and confirmation..."
+                    rows="4"
+                    style={{
+                      width: "100%",
+                      padding: "8px 12px",
+                      border: "1px solid #d1d5db",
+                      borderRadius: "4px",
+                      fontSize: "14px",
+                      fontFamily: "inherit",
+                      resize: "vertical"
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ 
+                background: "#EFF6FF", 
+                border: "1px solid #BFDBFE", 
+                borderRadius: "6px", 
+                padding: "12px",
+                marginTop: "1rem"
+              }}>
+                <strong style={{ color: "#1E40AF" }}>Verification Checklist:</strong>
+                <ul style={{ marginTop: "8px", paddingLeft: "20px", color: "#1E3A8A" }}>
+                  <li>✓ GIS location verified</li>
+                  <li>✓ Ministry submission cross-checked</li>
+                  <li>✓ Severity assessment validated</li>
+                  <li>✓ Affected population confirmed</li>
+                  <li>✓ No duplicate incidents found</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn-cancel" onClick={() => setShowVerifyModal(false)}>
+                Cancel
+              </button>
+              <button className="btn-save" onClick={confirmVerification}>
+                Confirm Verification
               </button>
             </div>
           </div>

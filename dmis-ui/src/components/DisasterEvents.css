@@ -336,6 +336,42 @@
   border-color: #d1d5db;
 }
 
+.action-btn.verify-btn {
+  background: #10B981;
+  color: white;
+  border-color: #10B981;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.action-btn.verify-btn:hover {
+  background: #059669;
+  border-color: #059669;
+}
+
+.action-btn.status-btn {
+  background: #3B82F6;
+  color: white;
+  border-color: #3B82F6;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.action-btn.status-btn:hover {
+  background: #2563EB;
+  border-color: #2563EB;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;

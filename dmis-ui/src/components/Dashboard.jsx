@@ -63,10 +63,50 @@ export default function Dashboard() {
 
   /* ================= Summary Stats ================= */
   const activeIncidents = disasters.length;
-  const affectedPopulation = disasters.reduce(
-    (sum, d) => sum + (d.affectedPopulation || 0),
-    0
-  );
+  
+  // Calculate statistics from actual data
+  const calculateStats = () => {
+    const stats = {
+      byType: {},
+      byDistrict: {},
+      bySeverity: { low: 0, medium: 0, high: 0 },
+      byStatus: { reported: 0, verified: 0, responding: 0, closed: 0 }
+    };
+
+    disasters.forEach(d => {
+      // Count by type
+      stats.byType[d.type] = (stats.byType[d.type] || 0) + 1;
+      
+      // Count by district
+      stats.byDistrict[d.district] = (stats.byDistrict[d.district] || 0) + 1;
+      
+      // Count by severity
+      if (d.severity) {
+        stats.bySeverity[d.severity] = (stats.bySeverity[d.severity] || 0) + 1;
+      }
+      
+      // Count by status
+      if (d.status) {
+        stats.byStatus[d.status] = (stats.byStatus[d.status] || 0) + 1;
+      }
+    });
+
+    return stats;
+  };
+
+  const stats = calculateStats();
+  
+  // Get top risk districts (most disasters)
+  const topDistricts = Object.entries(stats.byDistrict)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([district, count]) => ({
+      district,
+      active: count,
+      severity: count > 50 ? 'High' : count > 20 ? 'Moderate' : 'Low',
+      riskColor: count > 50 ? 'critical' : count > 20 ? 'moderate' : 'low'
+    }));
+
   const totalBudget = 9.8; // Example: M 9.8M
   const budgetUtilization = 48; // Example: 48%
 
@@ -81,16 +121,16 @@ export default function Dashboard() {
       {/* Summary Cards - 4 columns */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <SummaryCard
-          title="Active Disasters"
+          title="Total Disasters"
           value={activeIncidents}
-          subtitle={`${activeIncidents} recent events`}
+          subtitle={`${stats.byStatus.verified || 0} verified`}
           icon={<AlertCircle className="w-5 h-5 text-critical" />}
           bgColor="bg-red-50"
         />
         <SummaryCard
-          title="Affected Population"
-          value={affectedPopulation.toLocaleString()}
-          subtitle="Across 10 districts"
+          title="Districts Affected"
+          value={Object.keys(stats.byDistrict).length}
+          subtitle={`${stats.bySeverity.high || 0} high severity`}
           icon={<Users className="w-5 h-5 text-blue-500" />}
           bgColor="bg-blue-50"
         />
@@ -102,9 +142,9 @@ export default function Dashboard() {
           bgColor="bg-green-50"
         />
         <SummaryCard
-          title="Budget Utilization"
-          value={`${budgetUtilization}%`}
-          subtitle="Funds available"
+          title="Active Response"
+          value={stats.byStatus.responding || 0}
+          subtitle={`${stats.byStatus.reported || 0} pending review`}
           icon={<TrendingUp className="w-5 h-5 text-emerald-500" />}
           bgColor="bg-emerald-50"
         />
@@ -259,22 +299,15 @@ export default function Dashboard() {
             <thead>
               <tr className="border-b border-slate-200">
                 <th className="text-left py-2 px-3 text-muted font-medium">DISTRICT</th>
-                <th className="text-left py-2 px-3 text-muted font-medium">ACTIVE DISASTERS</th>
-                <th className="text-left py-2 px-3 text-muted font-medium">AFFECTED POPULATION</th>
+                <th className="text-left py-2 px-3 text-muted font-medium">TOTAL DISASTERS</th>
                 <th className="text-left py-2 px-3 text-muted font-medium">RISK LEVEL</th>
               </tr>
             </thead>
             <tbody>
-              {[
-                { district: "Quthing", active: 1, affected: "82,000", risk: "High", riskColor: "critical" },
-                { district: "Mafeteng", active: 1, affected: "45,000", risk: "High", riskColor: "critical" },
-                { district: "Thaba-Tseka", active: 1, affected: "12,000", risk: "Moderate", riskColor: "moderate" },
-                { district: "Maseru", active: 1, affected: "9,500", risk: "Low", riskColor: "low" },
-              ].map((row, idx) => (
+              {topDistricts.map((row, idx) => (
                 <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="py-3 px-3 text-text">{row.district}</td>
-                  <td className="py-3 px-3 text-text">{row.active}</td>
-                  <td className="py-3 px-3 text-text">{row.affected}</td>
+                  <td className="py-3 px-3 text-text font-medium">{row.district}</td>
+                  <td className="py-3 px-3 text-text">{row.active} incidents</td>
                   <td className="py-3 px-3">
                     <span
                       className={`px-2 py-1 text-xs font-semibold rounded-full text-white`}
@@ -287,7 +320,7 @@ export default function Dashboard() {
                             : "#4E8A64",
                       }}
                     >
-                      {row.risk}
+                      {row.severity}
                     </span>
                   </td>
                 </tr>

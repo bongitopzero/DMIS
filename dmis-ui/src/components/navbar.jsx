@@ -1,8 +1,11 @@
 import { useLocation } from "react-router-dom";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
 import "./navbar.css";
 
 export default function Navbar() {
   const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
 
   const getPageTitle = () => {
     const path = location.pathname;
@@ -33,6 +36,15 @@ export default function Navbar() {
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
           <path d="M13.73 21a2 2 0 0 1-3.46 0" />
         </svg>
+
+        {/* Theme Toggle */}
+        <button
+          className="theme-toggle-btn"
+          onClick={toggleTheme}
+          title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+        >
+          {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
+        </button>
 
         {/* User Profile */}
         <div className="user-avatar">

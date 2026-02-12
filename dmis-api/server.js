@@ -8,6 +8,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.js";
 import disasterRoutes from "./routes/disasters.js";
 import fundRoutes from "./routes/fundRoutes.js";
+import forecastingRoutes from "./routes/forecasting.js";
 
 dotenv.config();
 const app = express();
@@ -26,6 +27,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/disasters", disasterRoutes);
 app.use("/api/funds", fundRoutes);
+app.use("/api/forecasting", forecastingRoutes);
 
 
 // Connect to MongoDB

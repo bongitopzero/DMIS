@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "../leafletFix";
 import API from "../api/axios";
@@ -109,6 +109,36 @@ const MapPage = () => {
     return districtMatch && typeMatch;
   });
 
+  // District coordinates mapping
+  const districtCoordinates = {
+    "berea": [-29.3, 28.3],
+    "buthabuthe": [-28.8, 28.2],
+    "butha-buthe": [-28.8, 28.2],
+    "leribe": [-28.9, 28.0],
+    "mafeteng": [-29.8, 27.5],
+    "maseru": [-29.31, 27.48],
+    "mohale's hoek": [-30.1, 27.5],
+    "mohaleshoek": [-30.1, 27.5],
+    "mokhotlong": [-29.3, 29.1],
+    "qacha's nek": [-30.1, 28.7],
+    "qachasnek": [-30.1, 28.7],
+    "quthing": [-30.4, 27.7],
+    "thaba-tseka": [-29.5, 28.6],
+    "thabatseka": [-29.5, 28.6],
+  };
+
+  // Prepare incidents with coordinates
+  const incidentsWithCoords = filteredIncidents.map((incident) => {
+    const normalizedDistrict = normalize(incident.district);
+    const coords = districtCoordinates[normalizedDistrict] || [-29.6, 28.3];
+    
+    return {
+      ...incident,
+      latitude: incident.latitude || coords[0] + (Math.random() - 0.5) * 0.1,
+      longitude: incident.longitude || coords[1] + (Math.random() - 0.5) * 0.1,
+    };
+  });
+
   return (
     <div className="gis-map-page">
       <div className="gis-controls">
@@ -173,6 +203,59 @@ const MapPage = () => {
             style={styleDistrict}
             onEachFeature={onEachDistrict}
           />
+
+          {/* Incident Markers */}
+          {incidentsWithCoords.map((incident, idx) => (
+            <CircleMarker
+              key={incident._id || idx}
+              center={[incident.latitude, incident.longitude]}
+              radius={8}
+              fillColor={getSeverityColor(incident.severity)}
+              color="#fff"
+              weight={2}
+              opacity={1}
+              fillOpacity={0.8}
+            >
+              <Popup>
+                <div style={{ minWidth: "200px" }}>
+                  <strong style={{ fontSize: "14px", color: "#1e293b" }}>
+                    {incident.type?.replace("_", " ").toUpperCase()}
+                  </strong>
+                  <hr style={{ margin: "6px 0", border: "none", borderTop: "1px solid #e2e8f0" }} />
+                  <p style={{ margin: "4px 0", fontSize: "12px" }}>
+                    <strong>District:</strong> {incident.district}
+                  </p>
+                  <p style={{ margin: "4px 0", fontSize: "12px" }}>
+                    <strong>Location:</strong> {incident.location}
+                  </p>
+                  <p style={{ margin: "4px 0", fontSize: "12px" }}>
+                    <strong>Severity:</strong>{" "}
+                    <span style={{ 
+                      color: getSeverityColor(incident.severity),
+                      fontWeight: "bold",
+                      textTransform: "uppercase"
+                    }}>
+                      {incident.severity}
+                    </span>
+                  </p>
+                  <p style={{ margin: "4px 0", fontSize: "12px" }}>
+                    <strong>Affected:</strong> {incident.households || "N/A"} households
+                  </p>
+                  <p style={{ margin: "4px 0", fontSize: "12px" }}>
+                    <strong>Status:</strong> {incident.status || "reported"}
+                  </p>
+                  {incident.damages && (
+                    <p style={{ margin: "4px 0", fontSize: "11px", color: "#64748b" }}>
+                      {incident.damages.substring(0, 80)}...
+                    </p>
+                  )}
+                </div>
+              </Popup>
+              <Tooltip direction="top" offset={[0, -10]}>
+                {incident.type?.replace("_", " ")} - {incident.district}
+              </Tooltip>
+            </CircleMarker>
+          ))}
         </MapContainer>
       </div>
     </div>

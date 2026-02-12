@@ -1,25 +1,27 @@
 .navbar {
-  background: #ffffff;
+  background: var(--navbar-bg);
   padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-color);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", sans-serif;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .navbar h2 {
-  color: #1e3a5f;
+  color: var(--text-primary);
   font-size: 16px;
   font-weight: 600;
   margin: 0;
   letter-spacing: -0.3px;
+  transition: color 0.3s ease;
 }
 
 .navbar .user {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 18px;
   cursor: pointer;
   transition: color 0.3s ease;
@@ -29,11 +31,11 @@
 }
 
 .navbar .user:hover {
-  color: #0ff5d7;
+  color: var(--primary);
 }
 
 .navbar .icon-btn {
-  color: #64748b;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.3s ease;
   width: 20px;
@@ -41,26 +43,44 @@
 }
 
 .navbar .icon-btn:hover {
-  color: #1e3a5f;
+  color: var(--text-primary);
   stroke-width: 2;
+}
+
+.navbar .theme-toggle-btn {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.navbar .theme-toggle-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .navbar .user-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #f1f5f9;
+  background: var(--bg-tertiary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .navbar .user-avatar:hover {
-  background: #e2e8f0;
-  color: #1e3a5f;
+  background: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .navbar .user-avatar svg {

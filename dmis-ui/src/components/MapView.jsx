@@ -1,6 +1,6 @@
 // src/components/MapView.jsx
 import React, { useState } from "react";
-import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup, Tooltip } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import lesothoDistricts from "../data/gadm41_LSO_1.json";
 
@@ -57,6 +57,11 @@ export default function MapView({ disasters, selectedDisaster }) {
       Incidents: ${incidents.length}
     `);
   };
+
+  // Filter disasters by selected type
+  const filteredDisasters = selectedType === "All" 
+    ? validDisasters 
+    : validDisasters.filter(d => d.type === selectedType);
 
   return (
     <div className="w-full h-full rounded-lg overflow-hidden flex flex-col">
@@ -123,6 +128,48 @@ export default function MapView({ disasters, selectedDisaster }) {
             style={styleDistrict}
             onEachFeature={onEachDistrict}
           />
+
+          {/* Incident Markers */}
+          {filteredDisasters.map((incident, idx) => (
+            <CircleMarker
+              key={incident._id || idx}
+              center={[incident.latitude, incident.longitude]}
+              radius={6}
+              fillColor={getSeverityColor(incident.severity)}
+              color="#fff"
+              weight={2}
+              opacity={1}
+              fillOpacity={0.8}
+            >
+              <Popup>
+                <div style={{ minWidth: "180px" }}>
+                  <strong style={{ fontSize: "13px", color: "#1e293b" }}>
+                    {incident.type?.replace("_", " ").toUpperCase()}
+                  </strong>
+                  <hr style={{ margin: "5px 0", border: "none", borderTop: "1px solid #e2e8f0" }} />
+                  <p style={{ margin: "3px 0", fontSize: "11px" }}>
+                    <strong>District:</strong> {incident.district}
+                  </p>
+                  <p style={{ margin: "3px 0", fontSize: "11px" }}>
+                    <strong>Severity:</strong>{" "}
+                    <span style={{ 
+                      color: getSeverityColor(incident.severity),
+                      fontWeight: "bold",
+                      textTransform: "uppercase"
+                    }}>
+                      {incident.severity}
+                    </span>
+                  </p>
+                  <p style={{ margin: "3px 0", fontSize: "11px" }}>
+                    <strong>Households:</strong> {incident.households || "N/A"}
+                  </p>
+                </div>
+              </Popup>
+              <Tooltip direction="top" offset={[0, -8]}>
+                {incident.district} - {incident.severity}
+              </Tooltip>
+            </CircleMarker>
+          ))}
         </MapContainer>
       </div>
     </div>

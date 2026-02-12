@@ -6,7 +6,7 @@ import API from "../api/axios";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("Director");
+  const [role, setRole] = useState("Coordinator");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -36,9 +36,10 @@ export default function Login() {
 
       localStorage.setItem("user", JSON.stringify(userData));
       const roleRoutes = {
-  Director: "/dashboard",
+  Coordinator: "/dashboard",
   "Finance Officer": "/finance-dashboard",
   "Data Clerk": "/disaster-events",
+  "Administrator": "/admin-dashboard",
 };
 
 navigate(roleRoutes[res.data.role] || "/unauthorized");
@@ -124,9 +125,10 @@ navigate(roleRoutes[res.data.role] || "/unauthorized");
               onChange={(e) => setRole(e.target.value)}
               className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600"
             >
-              <option value="Director">Director</option>
+              <option value="Coordinator">DMA Coordinator</option>
               <option value="Data Clerk">Data Clerk</option>
               <option value="Finance Officer">Finance Officer</option>
+              <option value="Administrator">Administrator</option>
             </select>
           </div>
 

@@ -1,28 +1,31 @@
 .sidebar {
   width: 240px;
-  background: linear-gradient(180deg, #1e3a5f 0%, #162d4a 100%);
+  background: var(--sidebar-bg);
   padding: 20px;
-  border-right: 2px solid #0f1f2e;
+  border-right: 2px solid var(--border-color);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", sans-serif;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .sidebar .brand {
   font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--sidebar-text);
   margin-bottom: 30px;
   padding-left: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
   letter-spacing: -0.3px;
+  transition: color 0.3s ease;
 }
 
 .sidebar h2 span {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 .sidebar ul {
@@ -34,21 +37,21 @@
   padding: 12px 12px;
   border-radius: 8px;
   cursor: pointer;
-  color: #cbd5e1;
+  color: var(--sidebar-text);
   transition: all 0.3s ease;
   margin-bottom: 8px;
 }
 
 .sidebar li:hover {
-  background: rgba(15, 245, 215, 0.1);
-  color: #0ff5d7;
+  background: var(--sidebar-hover);
+  color: var(--primary);
 }
 
 .sidebar li.active {
-  background: #0ff5d7;
-  color: #1e3a5f;
+  background: var(--primary);
+  color: var(--sidebar-bg);
   font-weight: 600;
-  border-left: 3px solid #0ff5d7;
+  border-left: 3px solid var(--primary);
   padding-left: 9px;
 }
 .sidebar a {
@@ -63,6 +66,6 @@
 }
 
 .sidebar li.active a {
-  color: #1e3a5f;
+  color: var(--sidebar-bg);
   font-weight: 600;
 }

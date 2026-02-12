@@ -11,22 +11,26 @@ import FundManagement from "./pages/FundManagement.jsx";
 import FinanceDashboard from "./pages/FundManagement.jsx";
 import MapPage from "./pages/MapPage";
 import Analysis from "./pages/Analysis.jsx";
-import AdminDashboard from "./pages/AdminDashboard.jsx";
-import Forecasting from "./pages/Forecasting.jsx";
 
 import Sidebar from "./components/sidebar";
 import Navbar from "./components/navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { ThemeProvider } from "./contexts/ThemeContext";
 
 import "./App.css";
+
+/* ================= Layout Wrapper ================= */
 
 function Layout({ children }) {
   return (
     <div className="flex min-h-screen bg-slate-50">
+      {/* Sidebar */}
       <Sidebar />
+
+      {/* Main Content */}
       <div className="flex-1 flex flex-col">
         <Navbar />
+
+        {/* Page Content */}
         <main className="flex-1 overflow-y-auto">
           {children}
         </main>
@@ -35,19 +39,23 @@ function Layout({ children }) {
   );
 }
 
+/* ================= App ================= */
+
 function App() {
   return (
-    <ThemeProvider>
-      <Router>
-        <Routes>
+    <Router>
+      <Routes>
+
+        {/* Public pages */}
         <Route path="/" element={<Welcome />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
+        {/* Director Dashboard */}
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute allowedRoles={["Coordinator"]}>
+            <ProtectedRoute allowedRoles={["Director"]}>
               <Layout>
                 <Dashboard />
               </Layout>
@@ -55,6 +63,7 @@ function App() {
           }
         />
 
+        {/* Finance Officer Dashboard */}
         <Route
           path="/finance-dashboard"
           element={
@@ -66,10 +75,11 @@ function App() {
           }
         />
 
+        {/* Disaster Events */}
         <Route
           path="/disaster-events"
           element={
-            <ProtectedRoute allowedRoles={["Coordinator", "Data Clerk"]}>
+            <ProtectedRoute allowedRoles={["Director", "Data Clerk"]}>
               <Layout>
                 <DisasterEvents />
               </Layout>
@@ -77,6 +87,7 @@ function App() {
           }
         />
 
+        {/* Fund Management */}
         <Route
           path="/fund-management"
           element={
@@ -88,10 +99,11 @@ function App() {
           }
         />
 
+        {/* GIS Map */}
         <Route
           path="/gis-map"
           element={
-            <ProtectedRoute allowedRoles={["Coordinator", "Data Clerk"]}>
+            <ProtectedRoute allowedRoles={["Director", "Data Clerk"]}>
               <Layout>
                 <MapPage />
               </Layout>
@@ -99,10 +111,11 @@ function App() {
           }
         />
 
+        {/* Analysis */}
         <Route
           path="/analysis"
           element={
-            <ProtectedRoute allowedRoles={["Coordinator", "Finance Officer", "Data Clerk"]}>
+            <ProtectedRoute allowedRoles={["Director", "Finance Officer", "Data Clerk"]}>
               <Layout>
                 <Analysis />
               </Layout>
@@ -110,28 +123,7 @@ function App() {
           }
         />
 
-        <Route
-          path="/forecasting"
-          element={
-            <ProtectedRoute allowedRoles={["Coordinator"]}>
-              <Layout>
-                <Forecasting />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/admin-dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["Administrator"]}>
-              <Layout>
-                <AdminDashboard />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
+        {/* Unauthorized */
         <Route
           path="/unauthorized"
           element={
@@ -141,9 +133,9 @@ function App() {
             </div>
           }
         />
+
       </Routes>
     </Router>
-    </ThemeProvider>
   );
 }
 
