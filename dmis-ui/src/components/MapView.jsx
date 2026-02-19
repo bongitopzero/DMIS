@@ -16,7 +16,7 @@ export default function MapView({ disasters, selectedDisaster }) {
     : [-29.61, 28.23]; // Lesotho center
 
   const getSeverityColor = (severity) => {
-    switch (severity?.toLowerCase()) {
+    switch ((severity || "").toString().toLowerCase().trim()) {
       case "low": return "#22C55E";       // green (low)
       case "medium": return "#F97316";    // orange (medium)
       case "high": return "#EF4444";      // red (high)
@@ -24,44 +24,92 @@ export default function MapView({ disasters, selectedDisaster }) {
     }
   };
 
-  const normalize = (value) =>
-    value?.toLowerCase().replace(/['-]/g, "").trim();
+  const normalizeType = (value) =>
+    (value || "").toString().toLowerCase().replace(/[\s-]+/g, "_").trim();
+  const normalizeSeverity = (value) =>
+    (value || "").toString().toLowerCase().trim();
+  const severityRank = { low: 1, medium: 2, high: 3 };
+  const getHighestSeverity = (items) => {
+    let highest = null;
+    let highestScore = 0;
+    items.forEach((item) => {
+      const key = normalizeSeverity(item.severity);
+      const score = severityRank[key] || 0;
+      if (score > highestScore) {
+        highestScore = score;
+        highest = key;
+      }
+    });
+    return highest;
+  };
+
+  // Enhanced normalize function to match district names (same as GIS Map page)
+  const normalize = (value) => {
+    if (!value) return "";
+    return value
+      .toLowerCase()
+      .replace(/['\s-]/g, "")  // Remove apostrophes, spaces, and hyphens
+      .trim();
+  };
 
   const styleDistrict = (feature) => {
     const districtName = feature.properties.NAME_1;
+    const normalizedGeoDistrict = normalize(districtName);
 
-    const match = validDisasters.find(
-      (i) =>
-        normalize(i.district) === normalize(districtName) &&
-        (selectedType === "All" || i.type === selectedType)
+    // Find matching disasters for this district
+    const matchingDisasters = validDisasters.filter(
+      (i) => normalize(i.district) === normalizedGeoDistrict
     );
 
+    // Check if there's a match with the current type filter
+    const typeFiltered = selectedType === "All"
+      ? matchingDisasters
+      : matchingDisasters.filter((i) => normalizeType(i.type) === selectedType);
+
+    // Get the highest severity if multiple disasters
+    const highestSeverity = getHighestSeverity(typeFiltered);
+
     return {
-      fillColor: match ? getSeverityColor(match.severity) : "#E5E7EB",
+      fillColor: highestSeverity ? getSeverityColor(highestSeverity) : "#E5E7EB",
       weight: 1.5,
       opacity: 1,
       color: "#1F2937",
-      fillOpacity: match ? 0.7 : 0.4
+      fillOpacity: highestSeverity ? 0.7 : 0.4
     };
   };
 
   const onEachDistrict = (feature, layer) => {
     const districtName = feature.properties.NAME_1;
+    const normalizedGeoDistrict = normalize(districtName);
 
     const incidents = validDisasters.filter(
-      (i) => normalize(i.district) === normalize(districtName)
+      (i) => normalize(i.district) === normalizedGeoDistrict
     );
 
+    // Count by severity
+    const severityCounts = {
+      high: incidents.filter(i => normalizeSeverity(i.severity) === "high").length,
+      medium: incidents.filter(i => normalizeSeverity(i.severity) === "medium").length,
+      low: incidents.filter(i => normalizeSeverity(i.severity) === "low").length
+    };
+
     layer.bindPopup(`
-      <strong>${districtName}</strong><br/>
-      Incidents: ${incidents.length}
+      <div style="font-family: sans-serif; min-width: 150px;">
+        <strong style="font-size: 14px; color: #1e293b;">${districtName}</strong><br/>
+        <div style="margin-top: 8px; font-size: 13px;">
+          <strong>Total Incidents:</strong> ${incidents.length}<br/>
+          ${severityCounts.high > 0 ? `<span style="color: #EF4444;">● High: ${severityCounts.high}</span><br/>` : ''}
+          ${severityCounts.medium > 0 ? `<span style="color: #F97316;">● Medium: ${severityCounts.medium}</span><br/>` : ''}
+          ${severityCounts.low > 0 ? `<span style="color: #22C55E;">● Low: ${severityCounts.low}</span>` : ''}
+        </div>
+      </div>
     `);
   };
 
   // Filter disasters by selected type
   const filteredDisasters = selectedType === "All" 
     ? validDisasters 
-    : validDisasters.filter(d => d.type === selectedType);
+    : validDisasters.filter(d => normalizeType(d.type) === selectedType);
 
   return (
     <div className="w-full h-full rounded-lg overflow-hidden flex flex-col">
@@ -149,6 +197,7 @@ export default function MapView({ disasters, selectedDisaster }) {
                   <hr style={{ margin: "5px 0", border: "none", borderTop: "1px solid #e2e8f0" }} />
                   <p style={{ margin: "3px 0", fontSize: "11px" }}>
                     <strong>District:</strong> {incident.district}
+                    {incident.region && <span> - {incident.region}</span>}
                   </p>
                   <p style={{ margin: "3px 0", fontSize: "11px" }}>
                     <strong>Severity:</strong>{" "}
@@ -166,7 +215,8 @@ export default function MapView({ disasters, selectedDisaster }) {
                 </div>
               </Popup>
               <Tooltip direction="top" offset={[0, -8]}>
-                {incident.district} - {incident.severity}
+                {incident.district}
+                {incident.region && ` (${incident.region})`} - {incident.severity}
               </Tooltip>
             </CircleMarker>
           ))}

@@ -53,9 +53,6 @@
   color: #1f2937;
 }
 
-.search-bar-header input::placeholder {
-  color: #9ca3af;
-}
 
 .icon-btn {
   width: 36px;
@@ -106,9 +103,6 @@
   color: #1f2937;
 }
 
-.search-box input::placeholder {
-  color: #9ca3af;
-}
 
 .search-box svg {
   color: #9ca3af;
@@ -240,6 +234,19 @@
   height: 24px;
 }
 
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-title-row .action-btn {
+  width: auto;
+  height: auto;
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
 .card-title {
   font-size: 16px;
   font-weight: 600;
@@ -340,8 +347,10 @@
   background: #10B981;
   color: white;
   border-color: #10B981;
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+  margin-left: 6px;
 }
 
 .action-btn.verify-btn:hover {
@@ -360,6 +369,17 @@
 .action-btn.status-btn:hover {
   background: #2563EB;
   border-color: #2563EB;
+}
+
+.action-btn.delete-btn {
+  background: #EF4444;
+  color: white;
+  border-color: #EF4444;
+}
+
+.action-btn.delete-btn:hover {
+  background: #DC2626;
+  border-color: #DC2626;
 }
 
 .status-badge {
@@ -452,10 +472,6 @@
   transition: all 0.2s;
 }
 
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-  color: #9ca3af;
-}
 
 .form-group input:focus,
 .form-group select:focus,
@@ -494,6 +510,57 @@
 .btn-cancel:hover {
   background: #f3f4f6;
   border-color: #9ca3af;
+}
+
+/* Dark theme overrides */
+:root[data-theme="dark"] .disaster-events,
+:root[data-theme="dark"] .disaster-card,
+:root[data-theme="dark"] .filters-section,
+:root[data-theme="dark"] .search-box,
+:root[data-theme="dark"] .filter-select,
+:root[data-theme="dark"] .modal-content,
+:root[data-theme="dark"] .modal-header,
+:root[data-theme="dark"] .modal-body {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .card-title,
+:root[data-theme="dark"] .modal-title,
+:root[data-theme="dark"] .view-section-title,
+:root[data-theme="dark"] .view-value,
+:root[data-theme="dark"] .view-label,
+:root[data-theme="dark"] .detail-item,
+:root[data-theme="dark"] .filters-section label {
+  color: var(--text-primary);
+}
+
+:root[data-theme="dark"] .card-location,
+:root[data-theme="dark"] .detail-icon,
+:root[data-theme="dark"] .search-box,
+:root[data-theme="dark"] .filter-select,
+:root[data-theme="dark"] .view-field p {
+  color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .search-box,
+:root[data-theme="dark"] .filter-select,
+:root[data-theme="dark"] .form-group input,
+:root[data-theme="dark"] .form-group select,
+:root[data-theme="dark"] .form-group textarea,
+:root[data-theme="dark"] .modal-content input,
+:root[data-theme="dark"] .modal-content textarea,
+:root[data-theme="dark"] .modal-content select {
+  background: var(--input-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+:root[data-theme="dark"] .btn-cancel {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
 }
 
 .btn-save {
@@ -925,4 +992,44 @@
   .modal-content {
     width: 95%;
   }
+}
+
+/* View Modal Styles */
+.view-field {
+  margin-bottom: 16px;
+}
+
+.view-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.view-value {
+  font-size: 14px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.view-section {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.view-section:last-child {
+  border-bottom: none;
+}
+
+.view-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #667eea;
 }

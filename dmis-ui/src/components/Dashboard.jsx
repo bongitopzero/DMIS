@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import MapView from "./MapView";
 import RecentDisasters from "./RecentDisasters";
 import API from "../api/axios";
@@ -10,38 +11,41 @@ import {
 } from "lucide-react";
 
 export default function Dashboard() {
+  const POPULATION = 2300000;
   const [disasters, setDisasters] = useState([]);
+  const [funds, setFunds] = useState([]);
   const [selectedDisaster, setSelectedDisaster] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [forecastSummary, setForecastSummary] = useState(null);
+  const [forecastError, setForecastError] = useState("");
 
-  useEffect(() => {
-    fetchDisasters();
-    const interval = setInterval(fetchDisasters, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchDisasters = async () => {
-    setLoading(true);
+  const fetchDisasters = useCallback(async () => {
     setError("");
     try {
       const res = await API.get("/disasters");
 
+      // Normalized district coordinates (matching GIS Map page)
       const districtCoordinates = {
         "berea": [-29.3, 28.3],
-        "butha-buthe": [-29.1, 28.7],
-        "leribe": [-29.3, 28.0],
-        "mafeteng": [-29.7, 27.7],
-        "maseru": [-29.6, 27.5],
-        "mohale's hoek": [-30.1, 28.1],
-        "mokhotlong": [-30.4, 29.3],
-        "qacha's nek": [-30.7, 29.1],
-        "quthing": [-30.7, 28.9],
-        "thaba tseka": [-29.5, 29.2],
+        "buthabuthe": [-28.8, 28.2],
+        "leribe": [-28.9, 28.0],
+        "mafeteng": [-29.8, 27.5],
+        "maseru": [-29.31, 27.48],
+        "mohaleshoek": [-30.1, 27.5],
+        "mokhotlong": [-29.3, 29.1],
+        "qachasnek": [-30.1, 28.7],
+        "quthing": [-30.4, 27.7],
+        "thabatseka": [-29.5, 28.6],
+      };
+
+      // Normalize district name helper
+      const normalizeDistrict = (value) => {
+        if (!value) return "";
+        return value.toLowerCase().replace(/['\s-]/g, "").trim();
       };
 
       const transformed = res.data.map((d) => {
-        const key = d.district?.toLowerCase();
+        const key = normalizeDistrict(d.district);
         const coords = districtCoordinates[key] || [-29.6, 27.5];
         return {
           ...d,
@@ -56,8 +60,33 @@ export default function Dashboard() {
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load disasters");
-    } finally {
-      setLoading(false);
+    }
+  }, [selectedDisaster]);
+
+  useEffect(() => {
+    fetchDisasters();
+    fetchFunds();
+    fetchForecastSummary();
+    const interval = setInterval(fetchDisasters, 30000);
+    return () => clearInterval(interval);
+  }, [fetchDisasters]);
+
+  const fetchFunds = async () => {
+    try {
+      const res = await API.get("/funds");
+      setFunds(res.data || []);
+    } catch (err) {
+      // Silent fail to avoid blocking dashboard
+    }
+  };
+
+  const fetchForecastSummary = async () => {
+    setForecastError("");
+    try {
+      const res = await API.get("/forecast/generate");
+      setForecastSummary(res.data);
+    } catch (err) {
+      setForecastError(err.response?.data?.message || "Forecast data unavailable");
     }
   };
 
@@ -66,6 +95,13 @@ export default function Dashboard() {
   
   // Calculate statistics from actual data
   const calculateStats = () => {
+    const normalizeValue = (value) =>
+      (value ?? "").toString().toLowerCase().trim();
+    const normalizeType = (value) =>
+      normalizeValue(value).replace(/[\s-]+/g, "_");
+    const normalizeDistrict = (value) =>
+      normalizeValue(value).replace(/['\s-]/g, "");
+
     const stats = {
       byType: {},
       byDistrict: {},
@@ -73,21 +109,31 @@ export default function Dashboard() {
       byStatus: { reported: 0, verified: 0, responding: 0, closed: 0 }
     };
 
+    const districtLabels = {};
+
     disasters.forEach(d => {
       // Count by type
-      stats.byType[d.type] = (stats.byType[d.type] || 0) + 1;
+      const typeKey = normalizeType(d.type) || "unknown";
+      stats.byType[typeKey] = (stats.byType[typeKey] || 0) + 1;
       
       // Count by district
-      stats.byDistrict[d.district] = (stats.byDistrict[d.district] || 0) + 1;
+      const districtKey = normalizeDistrict(d.district) || "unknown";
+      const districtLabel = districtLabels[districtKey] || d.district || "Unknown";
+      if (!districtLabels[districtKey]) {
+        districtLabels[districtKey] = districtLabel;
+      }
+      stats.byDistrict[districtLabel] = (stats.byDistrict[districtLabel] || 0) + 1;
       
       // Count by severity
-      if (d.severity) {
-        stats.bySeverity[d.severity] = (stats.bySeverity[d.severity] || 0) + 1;
+      if (d.severity != null) {
+        const severityKey = normalizeValue(d.severity) || "low";
+        stats.bySeverity[severityKey] = (stats.bySeverity[severityKey] || 0) + 1;
       }
       
       // Count by status
-      if (d.status) {
-        stats.byStatus[d.status] = (stats.byStatus[d.status] || 0) + 1;
+      if (d.status != null) {
+        const statusKey = normalizeValue(d.status) || "reported";
+        stats.byStatus[statusKey] = (stats.byStatus[statusKey] || 0) + 1;
       }
     });
 
@@ -107,8 +153,94 @@ export default function Dashboard() {
       riskColor: count > 50 ? 'critical' : count > 20 ? 'moderate' : 'low'
     }));
 
-  const totalBudget = 9.8; // Example: M 9.8M
-  const budgetUtilization = 48; // Example: 48%
+  const formatMoney = (value) => {
+    const numeric = Number.isFinite(value) ? value : 0;
+    return numeric.toLocaleString();
+  };
+
+  const totalAllocated = funds.reduce((sum, fund) => sum + (fund.allocatedAmount || 0), 0);
+  const totalSpent = funds.reduce((sum, fund) => sum + (fund.expenses || 0), 0);
+  const fallbackBudget = forecastSummary
+    ? forecastSummary.remainingBudget + Math.max(0, forecastSummary.fundingGap)
+    : 0;
+
+  const budgetValue = totalAllocated > 0
+    ? `M ${formatMoney(totalAllocated)}`
+    : `M ${formatMoney(fallbackBudget)}`;
+  const budgetSubtitle = totalAllocated > 0
+    ? `M ${formatMoney(totalSpent)} spent`
+    : forecastSummary
+      ? `Funding gap: M ${formatMoney(Math.abs(forecastSummary.fundingGap))}`
+      : forecastError || "Forecast pending";
+
+  const districtRiskRows = forecastSummary?.districtForecasts?.length
+    ? forecastSummary.districtForecasts
+        .slice()
+        .sort((a, b) => b.riskScore - a.riskScore)
+        .slice(0, 5)
+        .map((row) => ({
+          district: row.district,
+          active: row.predictedIncidents,
+          severity: row.riskLevel,
+          riskColor: row.riskLevel === "High" ? "critical" : row.riskLevel === "Medium" ? "moderate" : "low",
+        }))
+    : topDistricts;
+
+  const recentMonths = Array.from({ length: 6 }, (_, idx) => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - (5 - idx));
+    return {
+      key: `${date.getFullYear()}-${date.getMonth()}`,
+      label: date.toLocaleString("default", { month: "short" }),
+      year: date.getFullYear(),
+      month: date.getMonth(),
+    };
+  });
+
+  const types = ["drought", "heavy_rainfall", "strong_winds"];
+  const typeColors = {
+    drought: "#f59e0b",
+    heavy_rainfall: "#3b82f6",
+    strong_winds: "#10b981",
+  };
+
+  const monthlyTypeCounts = recentMonths.reduce((acc, month) => {
+    acc[month.key] = {
+      drought: 0,
+      heavy_rainfall: 0,
+      strong_winds: 0,
+      spend: 0,
+    };
+    return acc;
+  }, {});
+
+  disasters.forEach((disaster) => {
+    const incidentDate = new Date(disaster.createdAt || disaster.date || Date.now());
+    const key = `${incidentDate.getFullYear()}-${incidentDate.getMonth()}`;
+    if (!monthlyTypeCounts[key]) return;
+    const typeKey = (disaster.type || "").toString().toLowerCase().replace(/[\s-]+/g, "_");
+    if (types.includes(typeKey)) {
+      monthlyTypeCounts[key][typeKey] += 1;
+    }
+    monthlyTypeCounts[key].spend += disaster.damageCost || 0;
+  });
+
+  const maxIncidentCount = Math.max(
+    1,
+    ...recentMonths.flatMap((month) =>
+      types.map((type) => monthlyTypeCounts[month.key][type])
+    )
+  );
+
+  const monthlyBudget = totalAllocated > 0
+    ? totalAllocated / 12
+    : fallbackBudget > 0
+      ? fallbackBudget / 12
+      : 0;
+  const maxSpend = Math.max(
+    monthlyBudget,
+    ...recentMonths.map((month) => monthlyTypeCounts[month.key].spend)
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 p-6">
@@ -116,6 +248,9 @@ export default function Dashboard() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-text" style={{letterSpacing: '-0.3px'}}>Dashboard</h1>
         <p className="text-sm text-muted">National Disaster Overview</p>
+        <p className="text-xs text-slate-500 mt-1">
+          Data span: {forecastSummary?.dataSpanYears || 10} years • Population baseline: {POPULATION.toLocaleString()}
+        </p>
       </div>
 
       {/* Summary Cards - 4 columns */}
@@ -136,8 +271,8 @@ export default function Dashboard() {
         />
         <SummaryCard
           title="Total Budget"
-          value={`M ${totalBudget}M`}
-          subtitle="M 2.7M spent"
+          value={budgetValue}
+          subtitle={budgetSubtitle}
           icon={<DollarSign className="w-5 h-5 text-green-500" />}
           bgColor="bg-green-50"
         />
@@ -171,9 +306,9 @@ export default function Dashboard() {
         <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-text">Recent Disasters</h2>
-            <a href="#" className="text-xs text-blue-600 font-medium hover:underline">
+            <Link to="/disaster-events" className="text-xs text-blue-600 font-medium hover:underline">
               View All →
-            </a>
+            </Link>
           </div>
           <RecentDisasters
             disasters={disasters}
@@ -190,41 +325,42 @@ export default function Dashboard() {
           <h3 className="text-lg font-semibold text-text mb-4">
             Disasters by Type (6 Months)
           </h3>
-          <div className="h-64 flex items-end justify-around gap-2 px-4">
-            <div className="text-center">
-              <div className="w-8 bg-moderate rounded" style={{ height: "120px" }}></div>
-              <p className="text-xs text-muted mt-2">Jul</p>
-            </div>
-            <div className="text-center">
-              <div className="w-8 bg-moderate rounded" style={{ height: "90px" }}></div>
-              <p className="text-xs text-muted mt-2">Aug</p>
-            </div>
-            <div className="text-center">
-              <div className="w-8 bg-low rounded" style={{ height: "110px" }}></div>
-              <p className="text-xs text-muted mt-2">Sep</p>
-            </div>
-            <div className="text-center">
-              <div className="w-8 bg-moderate rounded" style={{ height: "180px" }}></div>
-              <p className="text-xs text-muted mt-2">Oct</p>
-            </div>
-            <div className="text-center">
-              <div className="w-8 bg-moderate rounded" style={{ height: "200px" }}></div>
-              <p className="text-xs text-muted mt-2">Nov</p>
-            </div>
-            <div className="text-center">
-              <div className="w-8 bg-moderate rounded" style={{ height: "150px" }}></div>
-              <p className="text-xs text-muted mt-2">Dec</p>
-            </div>
+          <div className="h-64 flex items-end justify-around gap-2 px-2">
+            {recentMonths.map((month) => (
+              <div key={month.key} className="text-center">
+                <div className="flex items-end gap-1" style={{ height: "200px" }}>
+                  {types.map((type) => {
+                    const value = monthlyTypeCounts[month.key][type];
+                    const height = 20 + (value / maxIncidentCount) * 160;
+                    return (
+                      <div
+                        key={type}
+                        style={{
+                          height: `${height}px`,
+                          backgroundColor: typeColors[type],
+                        }}
+                        className="w-2 rounded"
+                        title={`${type.replace(/_/g, " ")}: ${value}`}
+                      ></div>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-muted mt-2">{month.label}</p>
+              </div>
+            ))}
           </div>
           <div className="flex gap-4 justify-center mt-4 text-xs">
             <span className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-moderate rounded"></div> Drought
+              <div className="w-3 h-3 rounded" style={{ backgroundColor: typeColors.drought }}></div>
+              Drought ({stats.byType.drought || 0})
             </span>
             <span className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-moderate rounded"></div> Heavy Rainfall
+              <div className="w-3 h-3 rounded" style={{ backgroundColor: typeColors.heavy_rainfall }}></div>
+              Heavy Rainfall ({stats.byType.heavy_rainfall || 0})
             </span>
             <span className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-low rounded"></div> Strong Winds
+              <div className="w-3 h-3 rounded" style={{ backgroundColor: typeColors.strong_winds }}></div>
+              Strong Winds ({stats.byType.strong_winds || 0})
             </span>
           </div>
         </div>
@@ -234,49 +370,29 @@ export default function Dashboard() {
           <h3 className="text-lg font-semibold text-text mb-4">
             Financial Overview (6 Months)
           </h3>
-          <div className="h-64 flex items-end justify-around gap-2 px-4">
-            <div className="text-center">
-              <div
-                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded"
-                style={{ height: "80px" }}
-              ></div>
-              <p className="text-xs text-muted mt-2">Jul</p>
-            </div>
-            <div className="text-center">
-              <div
-                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded"
-                style={{ height: "110px" }}
-              ></div>
-              <p className="text-xs text-muted mt-2">Aug</p>
-            </div>
-            <div className="text-center">
-              <div
-                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded"
-                style={{ height: "140px" }}
-              ></div>
-              <p className="text-xs text-muted mt-2">Sep</p>
-            </div>
-            <div className="text-center">
-              <div
-                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded"
-                style={{ height: "160px" }}
-              ></div>
-              <p className="text-xs text-muted mt-2">Oct</p>
-            </div>
-            <div className="text-center">
-              <div
-                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded"
-                style={{ height: "190px" }}
-              ></div>
-              <p className="text-xs text-muted mt-2">Nov</p>
-            </div>
-            <div className="text-center">
-              <div
-                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded"
-                style={{ height: "220px" }}
-              ></div>
-              <p className="text-xs text-muted mt-2">Dec</p>
-            </div>
+          <div className="h-64 flex items-end justify-around gap-2 px-2">
+            {recentMonths.map((month) => {
+              const spend = monthlyTypeCounts[month.key].spend;
+              const spendHeight = maxSpend > 0 ? (spend / maxSpend) * 180 + 20 : 20;
+              const budgetHeight = maxSpend > 0 ? (monthlyBudget / maxSpend) * 180 + 20 : 20;
+              return (
+                <div key={month.key} className="text-center">
+                  <div className="flex items-end gap-2" style={{ height: "200px" }}>
+                    <div
+                      className="w-3 rounded"
+                      style={{ height: `${budgetHeight}px`, backgroundColor: "#60a5fa" }}
+                      title={`Budget: M ${formatMoney(monthlyBudget)}`}
+                    ></div>
+                    <div
+                      className="w-3 rounded"
+                      style={{ height: `${spendHeight}px`, backgroundColor: "#2dd4bf" }}
+                      title={`Spend: M ${formatMoney(spend)}`}
+                    ></div>
+                  </div>
+                  <p className="text-xs text-muted mt-2">{month.label}</p>
+                </div>
+              );
+            })}
           </div>
           <div className="flex gap-4 justify-center mt-4 text-xs">
             <span className="flex items-center gap-1">
@@ -304,7 +420,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {topDistricts.map((row, idx) => (
+              {districtRiskRows.map((row, idx) => (
                 <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
                   <td className="py-3 px-3 text-text font-medium">{row.district}</td>
                   <td className="py-3 px-3 text-text">{row.active} incidents</td>

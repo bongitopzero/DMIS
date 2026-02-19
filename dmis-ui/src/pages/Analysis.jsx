@@ -6,6 +6,7 @@ import {
   DollarSign,
   AlertTriangle,
   MapPin,
+  Users,
   Download,
   Plus,
   X,
@@ -16,12 +17,14 @@ import {
 } from "lucide-react";
 
 export default function Analysis() {
+  const POPULATION = 2300000;
   const [disasters, setDisasters] = useState([]);
   const [funds, setFunds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overall");
   const [selectedComponents, setSelectedComponents] = useState([]);
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  const [showPreview, setShowPreview] = useState(false);
 
   const tabs = [
     { id: "overall", name: "Overall Analysis", icon: Layers },
@@ -49,36 +52,66 @@ export default function Analysis() {
     }
   };
 
+  const parseRangeValue = (value) => {
+    if (typeof value === "number") return value;
+    if (typeof value !== "string") return 0;
+    const trimmed = value.trim();
+    if (!trimmed) return 0;
+    if (trimmed.includes("+")) {
+      const numeric = Number.parseInt(trimmed.replace("+", ""), 10);
+      return Number.isFinite(numeric) ? numeric : 0;
+    }
+    const parts = trimmed.split("-").map((part) => Number.parseInt(part, 10));
+    if (parts.length === 2 && parts.every((num) => Number.isFinite(num))) {
+      return Math.round((parts[0] + parts[1]) / 2);
+    }
+    const numeric = Number.parseInt(trimmed, 10);
+    return Number.isFinite(numeric) ? numeric : 0;
+  };
+
+  const normalizeValue = (value) =>
+    (value ?? "").toString().toLowerCase().trim();
+
   // Calculate statistics
   const stats = {
     totalDisasters: disasters.length,
-    activeDisasters: disasters.filter((d) => d.status === "Active").length,
-    totalFunds: funds.reduce((sum, f) => sum + (f.amount || 0), 0),
-    allocatedFunds: funds
-      .filter((f) => f.status === "Allocated")
-      .reduce((sum, f) => sum + (f.amount || 0), 0),
-    availableFunds: funds
-      .filter((f) => f.status === "Available")
-      .reduce((sum, f) => sum + (f.amount || 0), 0),
+    activeDisasters: disasters.filter(
+      (d) => normalizeValue(d.status) !== "closed"
+    ).length,
+    totalFunds: funds.reduce((sum, f) => sum + (f.allocatedAmount || 0), 0),
+    allocatedFunds: funds.reduce((sum, f) => sum + (f.allocatedAmount || 0), 0),
+    availableFunds: funds.reduce(
+      (sum, f) => sum + ((f.allocatedAmount || 0) - (f.expenses || 0)),
+      0
+    ),
     pendingFunds: funds
-      .filter((f) => f.status === "Pending")
-      .reduce((sum, f) => sum + (f.amount || 0), 0),
+      .filter((f) => normalizeValue(f.status) === "pending")
+      .reduce((sum, f) => sum + (f.allocatedAmount || 0), 0),
     avgResponseTime:
-      disasters.length > 0
-        ? disasters.reduce((sum, d) => {
-            const reported = new Date(d.dateReported);
-            const resolved = d.dateResolved
-              ? new Date(d.dateResolved)
-              : new Date();
-            return sum + (resolved - reported) / (1000 * 60 * 60 * 24);
-          }, 0) / disasters.length
+      disasters.filter((d) => normalizeValue(d.status) === "closed").length > 0
+        ? disasters
+            .filter((d) => normalizeValue(d.status) === "closed")
+            .reduce((sum, d) => {
+              const reported = new Date(d.createdAt || d.date || Date.now());
+              const resolved = new Date(d.updatedAt || d.createdAt || Date.now());
+              return sum + (resolved - reported) / (1000 * 60 * 60 * 24);
+            }, 0) /
+          disasters.filter((d) => normalizeValue(d.status) === "closed").length
         : 0,
+    estimatedAffectedPopulation: disasters.reduce((sum, d) => {
+      const affected = parseRangeValue(d.affectedPopulation);
+      const households = parseRangeValue(d.households);
+      const fallback = households > 0 ? households * 5 : 0;
+      return sum + (affected || fallback);
+    }, 0),
+    affectedPer100k: 0,
     severityBreakdown: disasters.reduce(
       (acc, d) => {
-        acc[d.severity] = (acc[d.severity] || 0) + 1;
+        const severity = normalizeValue(d.severity) || "unknown";
+        acc[severity] = (acc[severity] || 0) + 1;
         return acc;
       },
-      { Low: 0, Medium: 0, High: 0, Critical: 0 }
+      { low: 0, medium: 0, high: 0, unknown: 0 }
     ),
     districtBreakdown: disasters.reduce((acc, d) => {
       acc[d.district] = (acc[d.district] || 0) + 1;
@@ -89,10 +122,15 @@ export default function Analysis() {
       return acc;
     }, {}),
     statusBreakdown: disasters.reduce((acc, d) => {
-      acc[d.status] = (acc[d.status] || 0) + 1;
+      const status = normalizeValue(d.status) || "reported";
+      acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, {}),
   };
+
+  stats.affectedPer100k = POPULATION > 0
+    ? Math.round((stats.estimatedAffectedPopulation / POPULATION) * 100000)
+    : 0;
 
   const exportAnalysis = () => {
     const report = {
@@ -185,6 +223,11 @@ export default function Analysis() {
           dateRange={dateRange}
           setDateRange={setDateRange}
           exportAnalysis={exportAnalysis}
+          showPreview={showPreview}
+          setShowPreview={setShowPreview}
+          stats={stats}
+          disasters={disasters}
+          funds={funds}
         />
       )}
     </div>
@@ -219,6 +262,13 @@ function OverallAnalysis({ stats, disasters, funds }) {
           color="blue"
         />
         <MetricCard
+          title="Affected per 100k"
+          value={stats.affectedPer100k.toLocaleString()}
+          subtitle="Estimated population impact"
+          icon={Users}
+          color="purple"
+        />
+        <MetricCard
           title="Districts Affected"
           value={Object.keys(stats.districtBreakdown).length}
           subtitle="out of 10 districts"
@@ -244,6 +294,11 @@ function OverallAnalysis({ stats, disasters, funds }) {
 
 // Disaster Analysis Component
 function DisasterAnalysis({ stats, disasters }) {
+  const resolvedCount = stats.statusBreakdown.closed || 0;
+  const activeRate = stats.totalDisasters > 0
+    ? ((stats.activeDisasters / stats.totalDisasters) * 100).toFixed(1)
+    : "0.0";
+
   return (
     <div className="space-y-6">
       {/* Disaster-specific metrics */}
@@ -258,13 +313,13 @@ function DisasterAnalysis({ stats, disasters }) {
         <MetricCard
           title="Active"
           value={stats.activeDisasters}
-          subtitle={`${((stats.activeDisasters / stats.totalDisasters) * 100).toFixed(1)}%`}
+          subtitle={`${activeRate}%`}
           icon={Activity}
           color="orange"
         />
         <MetricCard
           title="Resolved"
-          value={stats.statusBreakdown.Resolved || 0}
+          value={resolvedCount}
           subtitle="Completed"
           icon={TrendingUp}
           color="green"
@@ -299,12 +354,12 @@ function DisasterAnalysis({ stats, disasters }) {
 // Funds Analysis Component
 function FundsAnalysis({ stats, funds, disasters }) {
   const fundsBySource = funds.reduce((acc, f) => {
-    acc[f.source] = (acc[f.source] || 0) + f.amount;
+    acc[f.location] = (acc[f.location] || 0) + (f.allocatedAmount || 0);
     return acc;
   }, {});
 
   const fundsByPurpose = funds.reduce((acc, f) => {
-    acc[f.purpose] = (acc[f.purpose] || 0) + f.amount;
+    acc[f.status] = (acc[f.status] || 0) + (f.allocatedAmount || 0);
     return acc;
   }, {});
 
@@ -322,7 +377,7 @@ function FundsAnalysis({ stats, funds, disasters }) {
         <MetricCard
           title="Allocated"
           value={`M${stats.allocatedFunds.toLocaleString()}`}
-          subtitle={`${((stats.allocatedFunds / stats.totalFunds) * 100).toFixed(1)}%`}
+          subtitle={`${stats.totalFunds > 0 ? ((stats.allocatedFunds / stats.totalFunds) * 100).toFixed(1) : "0.0"}%`}
           icon={TrendingUp}
           color="blue"
         />
@@ -364,139 +419,301 @@ function CustomAnalysis({
   dateRange,
   setDateRange,
   exportAnalysis,
+  showPreview,
+  setShowPreview,
+  stats,
+  disasters,
+  funds,
 }) {
   const availableComponents = [
-    { id: "disaster-trends", name: "Disaster Trends", icon: TrendingUp },
-    { id: "financial-overview", name: "Financial Overview", icon: DollarSign },
-    { id: "severity-distribution", name: "Severity Distribution", icon: AlertTriangle },
-    { id: "district-analysis", name: "District Analysis", icon: MapPin },
-    { id: "timeline-analysis", name: "Timeline Analysis", icon: Calendar },
-    { id: "status-breakdown", name: "Status Breakdown", icon: Activity },
+    { id: "disaster-trends", name: "Disaster Trends", icon: TrendingUp, description: "View disaster occurrence patterns over time" },
+    { id: "financial-overview", name: "Financial Overview", icon: DollarSign, description: "Comprehensive fund allocation and spending analysis" },
+    { id: "severity-distribution", name: "Severity Distribution", icon: AlertTriangle, description: "Breakdown of disasters by severity levels" },
+    { id: "district-analysis", name: "District Analysis", icon: MapPin, description: "Geographic distribution of disasters" },
+    { id: "timeline-analysis", name: "Timeline Analysis", icon: Calendar, description: "Recent disaster timeline and trends" },
+    { id: "status-breakdown", name: "Status Breakdown", icon: Activity, description: "Current status of all disasters" },
   ];
+
+  // Filter data by date range if specified
+  const getFilteredData = () => {
+    let filteredDisasters = disasters;
+    let filteredFunds = funds;
+
+    if (dateRange.start) {
+      filteredDisasters = filteredDisasters.filter(
+        d => new Date(d.createdAt || d.date || Date.now()) >= new Date(dateRange.start)
+      );
+      filteredFunds = filteredFunds.filter(
+        f => new Date(f.createdAt) >= new Date(dateRange.start)
+      );
+    }
+
+    if (dateRange.end) {
+      filteredDisasters = filteredDisasters.filter(
+        d => new Date(d.createdAt || d.date || Date.now()) <= new Date(dateRange.end)
+      );
+      filteredFunds = filteredFunds.filter(
+        f => new Date(f.createdAt) <= new Date(dateRange.end)
+      );
+    }
+
+    return { filteredDisasters, filteredFunds };
+  };
+
+  const { filteredDisasters, filteredFunds } = getFilteredData();
+
+  // Calculate filtered stats
+  const filteredStats = {
+    ...stats,
+    totalDisasters: filteredDisasters.length,
+    totalFunds: filteredFunds.reduce((sum, f) => sum + (f.allocatedAmount || 0), 0),
+  };
+
+  const renderPreviewComponent = (componentId) => {
+    switch (componentId) {
+      case "disaster-trends":
+        return <DisasterTypesChart typeBreakdown={stats.typeBreakdown} total={filteredDisasters.length} />;
+      case "financial-overview":
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <MetricCard
+                title="Total Funds"
+                value={`M${filteredStats.totalFunds.toLocaleString()}`}
+                subtitle="All funds"
+                icon={DollarSign}
+                color="green"
+              />
+              <MetricCard
+                title="Allocated"
+                value={`M${stats.allocatedFunds.toLocaleString()}`}
+                subtitle="Currently allocated"
+                icon={TrendingUp}
+                color="blue"
+              />
+              <MetricCard
+                title="Available"
+                value={`M${stats.availableFunds.toLocaleString()}`}
+                subtitle="Ready for use"
+                icon={DollarSign}
+                color="purple"
+              />
+            </div>
+            <FundStatusBreakdown funds={filteredFunds} />
+          </div>
+        );
+      case "severity-distribution":
+        return <SeverityChart severityBreakdown={stats.severityBreakdown} total={filteredDisasters.length} />;
+      case "district-analysis":
+        return <DistrictMap districtBreakdown={stats.districtBreakdown} total={filteredDisasters.length} />;
+      case "timeline-analysis":
+        return <RecentTimeline disasters={filteredDisasters} />;
+      case "status-breakdown":
+        return <StatusBreakdown statusBreakdown={stats.statusBreakdown} total={filteredDisasters.length} />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
         <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
           <PieChart size={20} className="text-indigo-600" />
-          Build Your Custom Analysis
+          Build Your Custom Analysis Report
         </h2>
-        <p className="text-sm text-slate-600 mb-4">
-          Select components and date range to create a personalized analysis report
+        <p className="text-sm text-slate-600 mb-6">
+          Select components and date range to create a personalized analysis report. Preview your selections before exporting.
         </p>
 
         {/* Component Selection */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-          {availableComponents.map((component) => {
-            const Icon = component.icon;
-            const isSelected = selectedComponents.includes(component.id);
-            return (
-              <button
-                key={component.id}
-                onClick={() => toggleComponent(component.id)}
-                className={`p-4 rounded-lg border-2 transition-all ${
-                  isSelected
-                    ? "border-blue-600 bg-blue-50"
-                    : "border-slate-200 bg-white hover:border-slate-300"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon
-                    size={20}
-                    className={isSelected ? "text-blue-600" : "text-slate-600"}
-                  />
-                  <span
-                    className={`text-sm font-medium ${
-                      isSelected ? "text-blue-900" : "text-slate-700"
-                    }`}
-                  >
-                    {component.name}
-                  </span>
-                  {isSelected && (
-                    <div className="ml-auto bg-blue-600 rounded-full p-1">
-                      <Plus size={12} className="text-white rotate-45" />
+        <div className="mb-6">
+          <h3 className="text-sm font-semibold text-slate-900 mb-3">
+            Available Components
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {availableComponents.map((component) => {
+              const Icon = component.icon;
+              const isSelected = selectedComponents.includes(component.id);
+              return (
+                <button
+                  key={component.id}
+                  onClick={() => toggleComponent(component.id)}
+                  className={`p-4 rounded-lg border-2 transition-all text-left hover:shadow-md ${
+                    isSelected
+                      ? "border-blue-600 bg-blue-50"
+                      : "border-slate-200 bg-white hover:border-slate-300"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`p-2 rounded-lg ${isSelected ? "bg-blue-100" : "bg-slate-100"}`}>
+                      <Icon
+                        size={20}
+                        className={isSelected ? "text-blue-600" : "text-slate-600"}
+                      />
                     </div>
-                  )}
-                </div>
-              </button>
-            );
-          })}
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`text-sm font-semibold ${
+                            isSelected ? "text-blue-900" : "text-slate-700"
+                          }`}
+                        >
+                          {component.name}
+                        </span>
+                        {isSelected && (
+                          <div className="bg-blue-600 rounded-full p-1">
+                            <Plus size={12} className="text-white rotate-45" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {component.description}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Date Range */}
-        <div className="flex gap-4 mb-4">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Start Date
-            </label>
-            <input
-              type="date"
-              value={dateRange.start}
-              onChange={(e) =>
-                setDateRange({ ...dateRange, start: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              End Date
-            </label>
-            <input
-              type="date"
-              value={dateRange.end}
-              onChange={(e) =>
-                setDateRange({ ...dateRange, end: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+        <div className="mb-6">
+          <h3 className="text-sm font-semibold text-slate-900 mb-3">
+            Date Range (Optional)
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Start Date
+              </label>
+              <input
+                type="date"
+                value={dateRange.start}
+                onChange={(e) =>
+                  setDateRange({ ...dateRange, start: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                End Date
+              </label>
+              <input
+                type="date"
+                value={dateRange.end}
+                onChange={(e) =>
+                  setDateRange({ ...dateRange, end: e.target.value })
+                }
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Selected Components */}
+        {/* Selected Components Summary */}
         {selectedComponents.length > 0 && (
-          <div className="mt-6">
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <h3 className="text-sm font-semibold text-slate-900 mb-3">
               Selected Components ({selectedComponents.length})
             </h3>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-4">
               {selectedComponents.map((id) => {
                 const component = availableComponents.find((c) => c.id === id);
                 return (
                   <div
                     key={id}
-                    className="flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-800 rounded-full text-sm"
+                    className="flex items-center gap-2 px-3 py-2 bg-white border border-blue-300 rounded-full text-sm"
                   >
-                    <span>{component.name}</span>
+                    <span className="text-blue-900 font-medium">{component.name}</span>
                     <button
                       onClick={() => toggleComponent(id)}
-                      className="hover:bg-blue-200 rounded-full p-0.5"
+                      className="hover:bg-blue-100 rounded-full p-0.5 transition"
                     >
-                      <X size={14} />
+                      <X size={14} className="text-blue-600" />
                     </button>
                   </div>
                 );
               })}
             </div>
 
-            <button
-              onClick={exportAnalysis}
-              className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
-            >
-              <Download size={18} />
-              Generate Custom Report
-            </button>
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowPreview(!showPreview)}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-medium"
+              >
+                <Activity size={18} />
+                {showPreview ? "Hide Preview" : "Preview Report"}
+              </button>
+              <button
+                onClick={exportAnalysis}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+              >
+                <Download size={18} />
+                Export Report
+              </button>
+            </div>
           </div>
         )}
 
         {selectedComponents.length === 0 && (
-          <div className="mt-6 p-4 bg-slate-50 rounded-lg text-center">
+          <div className="p-6 bg-slate-50 rounded-lg text-center border-2 border-dashed border-slate-300">
+            <PieChart size={48} className="text-slate-400 mx-auto mb-3" />
+            <p className="text-sm font-medium text-slate-700 mb-1">
+              No Components Selected
+            </p>
             <p className="text-sm text-slate-600">
-              Select at least one component to generate your custom report
+              Select at least one component above to generate your custom analysis report
             </p>
           </div>
         )}
       </div>
+
+      {/* Preview Section */}
+      {showPreview && selectedComponents.length > 0 && (
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+              <Activity size={24} />
+              Custom Analysis Preview
+            </h2>
+            <p className="text-blue-100">
+              Preview of your selected components • {filteredDisasters.length} disasters • M{filteredStats.totalFunds.toLocaleString()} total funds
+              {dateRange.start && ` • From ${new Date(dateRange.start).toLocaleDateString()}`}
+              {dateRange.end && ` to ${new Date(dateRange.end).toLocaleDateString()}`}
+            </p>
+          </div>
+
+          {/* Render selected components */}
+          {selectedComponents.map((componentId) => (
+            <div key={componentId}>
+              {renderPreviewComponent(componentId)}
+            </div>
+          ))}
+
+          {/* Export Button at Bottom */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Ready to Export?</h3>
+                <p className="text-sm text-slate-600 mt-1">
+                  Export this report as a JSON file for further analysis or documentation
+                </p>
+              </div>
+              <button
+                onClick={exportAnalysis}
+                className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shadow-md"
+              >
+                <Download size={18} />
+                Export Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -530,10 +747,10 @@ function MetricCard({ title, value, subtitle, icon: Icon, color }) {
 
 function SeverityChart({ severityBreakdown, total }) {
   const colors = {
-    Critical: "bg-red-500",
-    High: "bg-orange-500",
-    Medium: "bg-yellow-500",
-    Low: "bg-green-500",
+    high: "bg-red-500",
+    medium: "bg-yellow-500",
+    low: "bg-green-500",
+    unknown: "bg-slate-400",
   };
 
   return (
@@ -545,17 +762,18 @@ function SeverityChart({ severityBreakdown, total }) {
       <div className="space-y-3">
         {Object.entries(severityBreakdown).map(([severity, count]) => {
           const percentage = total > 0 ? (count / total) * 100 : 0;
+          const label = severity.charAt(0).toUpperCase() + severity.slice(1);
           return (
             <div key={severity}>
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-slate-700">{severity}</span>
+                <span className="text-slate-700">{label}</span>
                 <span className="font-semibold text-slate-900">
                   {count} ({percentage.toFixed(1)}%)
                 </span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-2">
                 <div
-                  className={`${colors[severity]} h-2 rounded-full transition-all`}
+                  className={`${colors[severity] || "bg-slate-400"} h-2 rounded-full transition-all`}
                   style={{ width: `${percentage}%` }}
                 ></div>
               </div>
@@ -637,7 +855,7 @@ function RecentTimeline({ disasters }) {
       </h2>
       <div className="space-y-4">
         {disasters
-          .sort((a, b) => new Date(b.dateReported) - new Date(a.dateReported))
+          .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date))
           .slice(0, 5)
           .map((disaster) => (
             <div
@@ -646,9 +864,9 @@ function RecentTimeline({ disasters }) {
             >
               <div
                 className={`w-2 h-2 rounded-full mt-2 ${
-                  disaster.status === "Active"
+                  disaster.status === "responding"
                     ? "bg-red-500"
-                    : disaster.status === "Resolved"
+                    : disaster.status === "closed"
                     ? "bg-green-500"
                     : "bg-yellow-500"
                 }`}
@@ -660,11 +878,9 @@ function RecentTimeline({ disasters }) {
                   </h3>
                   <span
                     className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      disaster.severity === "Critical"
+                      disaster.severity === "high"
                         ? "bg-red-100 text-red-700"
-                        : disaster.severity === "High"
-                        ? "bg-orange-100 text-orange-700"
-                        : disaster.severity === "Medium"
+                        : disaster.severity === "medium"
                         ? "bg-yellow-100 text-yellow-700"
                         : "bg-green-100 text-green-700"
                     }`}
@@ -673,11 +889,11 @@ function RecentTimeline({ disasters }) {
                   </span>
                 </div>
                 <p className="text-sm text-slate-600 mt-1">
-                  {disaster.district} • {disaster.casualties || 0} casualties •
+                  {disaster.district} • {disaster.affectedPopulation || "N/A"} affected •
                   Affected: {disaster.affectedPopulation || 0}
                 </p>
                 <p className="text-xs text-slate-500 mt-1">
-                  Reported: {new Date(disaster.dateReported).toLocaleDateString()}
+                  Reported: {new Date(disaster.createdAt || disaster.date).toLocaleDateString()}
                 </p>
               </div>
             </div>
@@ -697,9 +913,10 @@ function StatusBreakdown({ statusBreakdown, total }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {Object.entries(statusBreakdown).map(([status, count]) => {
           const percentage = total > 0 ? (count / total) * 100 : 0;
+          const label = status.charAt(0).toUpperCase() + status.slice(1);
           return (
             <div key={status} className="p-4 bg-slate-50 rounded-lg">
-              <p className="text-sm text-slate-600">{status}</p>
+              <p className="text-sm text-slate-600">{label}</p>
               <p className="text-2xl font-bold text-slate-900 mt-1">{count}</p>
               <p className="text-xs text-slate-500">{percentage.toFixed(1)}%</p>
             </div>
@@ -733,7 +950,7 @@ function DisasterDetailsList({ disasters }) {
                 Status
               </th>
               <th className="px-4 py-3 text-left font-medium text-slate-700">
-                Casualties
+                Affected Population
               </th>
               <th className="px-4 py-3 text-left font-medium text-slate-700">
                 Date Reported
@@ -748,11 +965,9 @@ function DisasterDetailsList({ disasters }) {
                 <td className="px-4 py-3">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      disaster.severity === "Critical"
+                      disaster.severity === "high"
                         ? "bg-red-100 text-red-700"
-                        : disaster.severity === "High"
-                        ? "bg-orange-100 text-orange-700"
-                        : disaster.severity === "Medium"
+                        : disaster.severity === "medium"
                         ? "bg-yellow-100 text-yellow-700"
                         : "bg-green-100 text-green-700"
                     }`}
@@ -761,9 +976,9 @@ function DisasterDetailsList({ disasters }) {
                   </span>
                 </td>
                 <td className="px-4 py-3">{disaster.status}</td>
-                <td className="px-4 py-3">{disaster.casualties || 0}</td>
+                <td className="px-4 py-3">{disaster.affectedPopulation || "N/A"}</td>
                 <td className="px-4 py-3">
-                  {new Date(disaster.dateReported).toLocaleDateString()}
+                  {new Date(disaster.createdAt || disaster.date).toLocaleDateString()}
                 </td>
               </tr>
             ))}
@@ -779,7 +994,7 @@ function FundsBySourceChart({ fundsBySource, total }) {
     <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
       <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
         <TrendingUp size={20} className="text-green-600" />
-        Funds by Source
+        Funds by Location
       </h2>
       <div className="space-y-3">
         {Object.entries(fundsBySource)
@@ -813,7 +1028,7 @@ function FundsByPurposeChart({ fundsByPurpose, total }) {
     <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
       <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
         <BarChart3 size={20} className="text-purple-600" />
-        Funds by Purpose
+        Funds by Status
       </h2>
       <div className="space-y-3">
         {Object.entries(fundsByPurpose)
@@ -844,7 +1059,7 @@ function FundsByPurposeChart({ fundsByPurpose, total }) {
 
 function FundStatusBreakdown({ funds }) {
   const statusCounts = funds.reduce((acc, f) => {
-    acc[f.status] = (acc[f.status] || 0) + f.amount;
+    acc[f.status] = (acc[f.status] || 0) + (f.allocatedAmount || 0);
     return acc;
   }, {});
 
@@ -879,13 +1094,16 @@ function FundDetailsList({ funds }) {
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
               <th className="px-4 py-3 text-left font-medium text-slate-700">
-                Source
+                Fund Name
               </th>
               <th className="px-4 py-3 text-left font-medium text-slate-700">
-                Amount (M)
+                Location
               </th>
               <th className="px-4 py-3 text-left font-medium text-slate-700">
-                Purpose
+                Allocated (M)
+              </th>
+              <th className="px-4 py-3 text-left font-medium text-slate-700">
+                Expenses (M)
               </th>
               <th className="px-4 py-3 text-left font-medium text-slate-700">
                 Status
@@ -898,20 +1116,21 @@ function FundDetailsList({ funds }) {
           <tbody>
             {funds.slice(0, 10).map((fund) => (
               <tr key={fund._id} className="border-b border-slate-100">
-                <td className="px-4 py-3">{fund.source}</td>
-                <td className="px-4 py-3">M{fund.amount.toLocaleString()}</td>
-                <td className="px-4 py-3">{fund.purpose}</td>
+                <td className="px-4 py-3">{fund.name}</td>
+                <td className="px-4 py-3">{fund.location}</td>
+                <td className="px-4 py-3">M{(fund.allocatedAmount || 0).toLocaleString()}</td>
+                <td className="px-4 py-3">M{(fund.expenses || 0).toLocaleString()}</td>
                 <td className="px-4 py-3">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      fund.status === "Available"
+                      (fund.status || "pending").toLowerCase() === "active"
                         ? "bg-green-100 text-green-700"
-                        : fund.status === "Allocated"
-                        ? "bg-blue-100 text-blue-700"
+                        : (fund.status || "pending").toLowerCase() === "closed"
+                        ? "bg-red-100 text-red-700"
                         : "bg-yellow-100 text-yellow-700"
                     }`}
                   >
-                    {fund.status}
+                    {(fund.status || "Pending").toString().trim() || "Pending"}
                   </span>
                 </td>
                 <td className="px-4 py-3">

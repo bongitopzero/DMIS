@@ -1,6 +1,7 @@
 .navbar {
   background: var(--navbar-bg);
-  padding: 16px 24px;
+  backdrop-filter: blur(8px);
+  padding: 18px 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -11,10 +12,35 @@
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
 .navbar h2 {
   color: var(--text-primary);
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   margin: 0;
   letter-spacing: -0.3px;
   transition: color 0.3s ease;
@@ -31,7 +57,7 @@
 }
 
 .navbar .user:hover {
-  color: var(--primary);
+  color: var(--color-primary-500);
 }
 
 .navbar .icon-btn {
@@ -48,10 +74,10 @@
 }
 
 .navbar .theme-toggle-btn {
-  background: transparent;
+  background: var(--bg-tertiary);
   border: none;
   padding: 6px;
-  border-radius: 6px;
+  border-radius: 8px;
   color: var(--text-secondary);
   cursor: pointer;
   display: flex;
@@ -66,25 +92,29 @@
 }
 
 .navbar .user-avatar {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: var(--bg-tertiary);
+  background: linear-gradient(135deg, var(--gradient-primary-start) 0%, var(--gradient-primary-end) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: var(--text-secondary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  border: none;
+  padding: 0;
 }
 
 .navbar .user-avatar:hover {
-  background: var(--hover-bg);
-  color: var(--text-primary);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
 }
 
-.navbar .user-avatar svg {
-  width: 18px;
-  height: 18px;
+.navbar .user-avatar .user-initials {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  user-select: none;
 }
-

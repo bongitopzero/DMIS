@@ -11,6 +11,11 @@ const DisasterSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    region: {
+      type: String,
+      enum: ["North Area", "South Area", "East Area", "West Area"],
+      default: null
+    },
     village: {
       type: String,
       default: null

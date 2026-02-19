@@ -8,6 +8,7 @@ const router = express.Router();
 router.get("/", protect, async (req, res) => {
   try {
     const disasters = await Disaster.find({});
+    const dataSpanYears = getDataSpanYears(disasters);
 
     // 1. DISASTER OCCURRENCE FORECAST
     const occurrenceForecast = calculateOccurrenceForecast(disasters);
@@ -31,6 +32,7 @@ router.get("/", protect, async (req, res) => {
       impactForecast,
       budgetForecast,
       totalDisasters: disasters.length,
+      dataSpanYears,
       lastUpdated: new Date(),
     });
   } catch (error) {
@@ -39,8 +41,25 @@ router.get("/", protect, async (req, res) => {
   }
 });
 
+const getDataSpanYears = (disasters) => {
+  if (!disasters.length) return 1;
+  const dates = disasters
+    .map((d) => new Date(d.createdAt || d.date || Date.now()))
+    .filter((d) => !Number.isNaN(d.getTime()));
+  if (!dates.length) return 1;
+  const minDate = new Date(Math.min(...dates.map((d) => d.getTime())));
+  const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())));
+  const months =
+    (maxDate.getFullYear() - minDate.getFullYear()) * 12 +
+    (maxDate.getMonth() - minDate.getMonth()) +
+    1;
+  return Math.max(1, Math.round(months / 12));
+};
+
 // Calculate Disaster Occurrence Forecast
 function calculateOccurrenceForecast(disasters) {
+  const spanYears = getDataSpanYears(disasters);
+  const spanMonths = spanYears * 12;
   const byType = {};
   const byDistrict = {};
   const byTypeAndDistrict = {};
@@ -64,15 +83,15 @@ function calculateOccurrenceForecast(disasters) {
   const forecastByType = Object.entries(byType).map(([type, count]) => ({
     type,
     historicalCount: count,
-    annualForecast: Math.round(count / 3), // Assuming 3 years of data
-    monthlyAverage: (count / 36).toFixed(1), // 36 months
+    annualForecast: Math.round(count / spanYears),
+    monthlyAverage: (count / spanMonths).toFixed(1),
   }));
 
   const forecastByDistrict = Object.entries(byDistrict)
     .map(([district, count]) => ({
       district,
       historicalCount: count,
-      annualForecast: Math.round(count / 3),
+      annualForecast: Math.round(count / spanYears),
       riskLevel: count > 50 ? "High" : count > 20 ? "Medium" : "Low",
     }))
     .sort((a, b) => b.historicalCount - a.historicalCount);
@@ -81,7 +100,7 @@ function calculateOccurrenceForecast(disasters) {
     byType: forecastByType,
     byDistrict: forecastByDistrict.slice(0, 10), // Top 10 districts
     totalHistorical: disasters.length,
-    projectedAnnual: Math.round(disasters.length / 3),
+    projectedAnnual: Math.round(disasters.length / spanYears),
   };
 }
 
@@ -204,6 +223,7 @@ function calculateDistrictRanking(disasters) {
 
 // Calculate Impact Forecast
 function calculateImpactForecast(disasters) {
+  const spanYears = getDataSpanYears(disasters);
   const householdIntervals = {
     "0-10": 5,
     "11-25": 18,
@@ -236,8 +256,8 @@ function calculateImpactForecast(disasters) {
   });
 
   // Project future impact (next 12 months)
-  const annualProjection = Math.round(disasters.length / 3);
-  const projectedHouseholds = Math.round(totalEstimatedHouseholds / 3);
+  const annualProjection = Math.round(disasters.length / spanYears);
+  const projectedHouseholds = Math.round(totalEstimatedHouseholds / spanYears);
 
   return {
     historical: {
@@ -255,13 +275,14 @@ function calculateImpactForecast(disasters) {
       avgHouseholdsPerIncident: Math.round(
         impact.estimatedHouseholds / impact.totalIncidents
       ),
-      projectedAnnual: Math.round(impact.totalIncidents / 3),
+      projectedAnnual: Math.round(impact.totalIncidents / spanYears),
     })),
   };
 }
 
 // Calculate Budget Forecast
 function calculateBudgetForecast(disasters) {
+  const spanYears = getDataSpanYears(disasters);
   // Average costs per disaster type (in Maloti)
   const avgCostPerType = {
     drought: 150000,
@@ -281,7 +302,7 @@ function calculateBudgetForecast(disasters) {
   // Calculate annual budget needs
   const annualForecast = Object.entries(historicalByType).map(
     ([type, data]) => {
-      const annualCount = Math.round(data.count / 3);
+      const annualCount = Math.round(data.count / spanYears);
       const annualBudget = annualCount * (avgCostPerType[type] || 150000);
 
       return {

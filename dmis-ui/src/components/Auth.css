@@ -1,13 +1,13 @@
 .login-page {
   height: 100vh;
-  background: #f4f6fb;
+  background: var(--color-neutral-100);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .login-card {
-  background: white;
+  background: var(--card-bg);
   width: 420px;
   padding: 40px;
   border-radius: 12px;
@@ -22,7 +22,7 @@
 }
 
 .login-subtitle {
-  color: #6b7280;
+  color: var(--color-neutral-500);
   font-size: 14px;
   margin-bottom: 25px;
 }
@@ -30,7 +30,7 @@
 /* Tabs */
 .login-tabs {
   display: flex;
-  background: #f1f5f9;
+  background: var(--color-neutral-100);
   border-radius: 10px;
   margin-bottom: 25px;
   padding: 4px;
@@ -47,7 +47,7 @@
 }
 
 .tab.active {
-  background: white;
+  background: var(--card-bg);
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
   font-weight: 600;
 }
@@ -68,10 +68,10 @@
 .input-wrapper {
   display: flex;
   align-items: center;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-neutral-200);
   border-radius: 10px;
   padding: 10px 12px;
-  background: #f9fafb;
+  background: var(--color-neutral-100);
 }
 
 .input-wrapper .icon {
@@ -90,7 +90,7 @@
 /* Button */
 .login-btn {
   width: 100%;
-  background: #163b5b;
+  background: linear-gradient(135deg, var(--gradient-primary-start), var(--gradient-primary-end));
   color: white;
   border: none;
   padding: 14px;
@@ -101,13 +101,13 @@
 }
 
 .login-btn:hover {
-  background: #0f2e49;
+  background: var(--color-primary-600);
 }
 
 /* Back link */
 .back-link {
   margin-top: 20px;
-  color: #2563eb;
+  color: var(--color-primary-600);
   cursor: pointer;
   font-size: 14px;
 }

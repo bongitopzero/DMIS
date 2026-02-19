@@ -43,17 +43,35 @@ function AddDisaster() {
       <h2>Report Disaster</h2>
 
       <form onSubmit={handleSubmit}>
-        <input name="type" placeholder="Type (drought)" onChange={handleChange} required />
-        <input name="district" placeholder="District" onChange={handleChange} required />
-        <input name="affectedPopulation" type="number" placeholder="Affected Population" onChange={handleChange} required />
-        <input name="damages" placeholder="Damages" onChange={handleChange} required />
-        <input name="needs" placeholder="Needs" onChange={handleChange} required />
+        <label>
+          Type <span className="required-asterisk">*</span>
+          <input name="type" onChange={handleChange} required />
+        </label>
+        <label>
+          District <span className="required-asterisk">*</span>
+          <input name="district" onChange={handleChange} required />
+        </label>
+        <label>
+          Affected Population <span className="required-asterisk">*</span>
+          <input name="affectedPopulation" type="number" onChange={handleChange} required />
+        </label>
+        <label>
+          Damages
+          <input name="damages" onChange={handleChange} required />
+        </label>
+        <label>
+          Needs <span className="required-asterisk">*</span>
+          <input name="needs" onChange={handleChange} required />
+        </label>
 
-        <select name="severity" onChange={handleChange}>
+        <label>
+          Severity <span className="required-asterisk">*</span>
+          <select name="severity" onChange={handleChange}>
           <option value="low">Low</option>
           <option value="medium">Medium</option>
           <option value="high">High</option>
-        </select>
+          </select>
+        </label>
 
         <button type="submit">Submit Disaster</button>
       </form>

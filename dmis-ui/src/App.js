@@ -7,8 +7,11 @@ import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 import DisasterEvents from "./components/DisasterEvents";
 
-import FundManagement from "./pages/FundManagement.jsx";
-import FinanceDashboard from "./pages/FundManagement.jsx";
+import FinanceDashboard from "./pages/FinanceDashboard.jsx";
+import FundRequests from "./pages/FundRequests.jsx";
+import FinanceReports from "./pages/FinanceReports.jsx";
+import FinanceCenter from "./pages/FinanceCenter.jsx";
+import Settings from "./pages/Settings.jsx";
 import MapPage from "./pages/MapPage";
 import Analysis from "./pages/Analysis.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
@@ -22,12 +25,19 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import "./App.css";
 
 function Layout({ children }) {
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Navbar />
-        <main className="flex-1 overflow-y-auto">
+    <div className="app-shell">
+      <div
+        className={`sidebar-overlay ${sidebarOpen ? "show" : ""}`}
+        onClick={() => setSidebarOpen(false)}
+        role="presentation"
+      ></div>
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className="app-main">
+        <Navbar onMenuClick={() => setSidebarOpen(true)} />
+        <main className="app-content">
           {children}
         </main>
       </div>
@@ -67,6 +77,17 @@ function App() {
         />
 
         <Route
+          path="/finance/budget-overview"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinanceCenter initialTab="budget" />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/disaster-events"
           element={
             <ProtectedRoute allowedRoles={["Coordinator", "Data Clerk"]}>
@@ -82,7 +103,84 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["Finance Officer"]}>
               <Layout>
-                <FundManagement />
+                <FinanceCenter initialTab="tracking" />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance/requests"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FundRequests />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance/expenditures"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinanceCenter initialTab="expenditures" />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance/risk"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinanceCenter initialTab="risk" />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance/forecast-alignment"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinanceCenter initialTab="forecast" />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-center"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinanceCenter />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance/reports"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinanceReports />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute allowedRoles={["Coordinator", "Data Clerk", "Finance Officer", "Administrator"]}>
+              <Layout>
+                <Settings />
               </Layout>
             </ProtectedRoute>
           }
@@ -102,7 +200,7 @@ function App() {
         <Route
           path="/analysis"
           element={
-            <ProtectedRoute allowedRoles={["Coordinator", "Finance Officer", "Data Clerk"]}>
+            <ProtectedRoute allowedRoles={["Coordinator"]}>
               <Layout>
                 <Analysis />
               </Layout>
