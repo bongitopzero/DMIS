@@ -1,9 +1,9 @@
 {
   "name": "dmis-api",
   "version": "1.0.0",
-  "description": "Disaster Management Information System API",
-  "main": "server.js",
   "type": "module",
+  "description": "DMIS Backend API",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
@@ -21,6 +21,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "axios": "^1.13.5",
     "nodemon": "^3.1.11"
   }
 }

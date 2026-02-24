@@ -9,7 +9,8 @@ function AddDisaster() {
     affectedPopulation: "",
     damages: "",
     needs: "",
-    severity: "medium"
+    severity: "medium",
+    numberOfHouseholdsAffected: ""
   });
 
   const navigate = useNavigate();
@@ -43,35 +44,25 @@ function AddDisaster() {
       <h2>Report Disaster</h2>
 
       <form onSubmit={handleSubmit}>
-        <label>
-          Type <span className="required-asterisk">*</span>
-          <input name="type" onChange={handleChange} required />
-        </label>
-        <label>
-          District <span className="required-asterisk">*</span>
-          <input name="district" onChange={handleChange} required />
-        </label>
-        <label>
-          Affected Population <span className="required-asterisk">*</span>
-          <input name="affectedPopulation" type="number" onChange={handleChange} required />
-        </label>
-        <label>
-          Damages
-          <input name="damages" onChange={handleChange} required />
-        </label>
-        <label>
-          Needs <span className="required-asterisk">*</span>
-          <input name="needs" onChange={handleChange} required />
-        </label>
+        <input name="type" placeholder="Type (drought)" onChange={handleChange} required />
+        <input name="district" placeholder="District" onChange={handleChange} required />
+        <input name="affectedPopulation" type="number" placeholder="Affected Population" onChange={handleChange} required />
+        <input name="damages" placeholder="Damages" onChange={handleChange} required />
+        <input name="needs" placeholder="Needs" onChange={handleChange} required />
+        <input 
+          name="numberOfHouseholdsAffected" 
+          type="number" 
+          placeholder="Number of Households Affected" 
+          onChange={handleChange} 
+          required 
+          min="1"
+        />
 
-        <label>
-          Severity <span className="required-asterisk">*</span>
-          <select name="severity" onChange={handleChange}>
+        <select name="severity" onChange={handleChange}>
           <option value="low">Low</option>
           <option value="medium">Medium</option>
           <option value="high">High</option>
-          </select>
-        </label>
+        </select>
 
         <button type="submit">Submit Disaster</button>
       </form>

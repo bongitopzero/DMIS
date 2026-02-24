@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import MapView from "./MapView";
 import RecentDisasters from "./RecentDisasters";
 import API from "../api/axios";
+import { ToastManager } from "./Toast";
 import {
   AlertCircle,
   Users,
@@ -11,41 +11,58 @@ import {
 } from "lucide-react";
 
 export default function Dashboard() {
-  const POPULATION = 2300000;
   const [disasters, setDisasters] = useState([]);
-  const [funds, setFunds] = useState([]);
   const [selectedDisaster, setSelectedDisaster] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [forecastSummary, setForecastSummary] = useState(null);
-  const [forecastError, setForecastError] = useState("");
+  const [disastersByType, setDisastersByType] = useState({});
+  const [financialByMonth, setFinancialByMonth] = useState({});
 
-  const fetchDisasters = useCallback(async () => {
+  useEffect(() => {
+    fetchDisasters();
+    fetchDashboardStats();
+    const interval = setInterval(() => {
+      fetchDisasters();
+      fetchDashboardStats();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchDashboardStats = async () => {
+    try {
+      const [typeRes, finRes] = await Promise.all([
+        API.get("/disasters/dashboard/by-type"),
+        API.get("/disasters/dashboard/financial-summary")
+      ]);
+
+      setDisastersByType(typeRes.data.data || {});
+      setFinancialByMonth(finRes.data.data || {});
+    } catch (err) {
+      console.error("Error fetching dashboard stats:", err);
+    }
+  };
+
+  const fetchDisasters = async () => {
+    setLoading(true);
     setError("");
     try {
       const res = await API.get("/disasters");
 
-      // Normalized district coordinates (matching GIS Map page)
       const districtCoordinates = {
         "berea": [-29.3, 28.3],
-        "buthabuthe": [-28.8, 28.2],
-        "leribe": [-28.9, 28.0],
-        "mafeteng": [-29.8, 27.5],
-        "maseru": [-29.31, 27.48],
-        "mohaleshoek": [-30.1, 27.5],
-        "mokhotlong": [-29.3, 29.1],
-        "qachasnek": [-30.1, 28.7],
-        "quthing": [-30.4, 27.7],
-        "thabatseka": [-29.5, 28.6],
-      };
-
-      // Normalize district name helper
-      const normalizeDistrict = (value) => {
-        if (!value) return "";
-        return value.toLowerCase().replace(/['\s-]/g, "").trim();
+        "butha-buthe": [-29.1, 28.7],
+        "leribe": [-29.3, 28.0],
+        "mafeteng": [-29.7, 27.7],
+        "maseru": [-29.6, 27.5],
+        "mohale's hoek": [-30.1, 28.1],
+        "mokhotlong": [-30.4, 29.3],
+        "qacha's nek": [-30.7, 29.1],
+        "quthing": [-30.7, 28.9],
+        "thaba tseka": [-29.5, 29.2],
       };
 
       const transformed = res.data.map((d) => {
-        const key = normalizeDistrict(d.district);
+        const key = d.district?.toLowerCase();
         const coords = districtCoordinates[key] || [-29.6, 27.5];
         return {
           ...d,
@@ -60,85 +77,38 @@ export default function Dashboard() {
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load disasters");
-    }
-  }, [selectedDisaster]);
-
-  useEffect(() => {
-    fetchDisasters();
-    fetchFunds();
-    fetchForecastSummary();
-    const interval = setInterval(fetchDisasters, 30000);
-    return () => clearInterval(interval);
-  }, [fetchDisasters]);
-
-  const fetchFunds = async () => {
-    try {
-      const res = await API.get("/funds");
-      setFunds(res.data || []);
-    } catch (err) {
-      // Silent fail to avoid blocking dashboard
-    }
-  };
-
-  const fetchForecastSummary = async () => {
-    setForecastError("");
-    try {
-      const res = await API.get("/forecast/generate");
-      setForecastSummary(res.data);
-    } catch (err) {
-      setForecastError(err.response?.data?.message || "Forecast data unavailable");
+    } finally {
+      setLoading(false);
     }
   };
 
   /* ================= Summary Stats ================= */
   const activeIncidents = disasters.length;
-  const currentYear = new Date().getFullYear();
-  const yearDisasters = disasters.filter((item) => {
-    const date = new Date(item.createdAt || item.date || Date.now());
-    return date.getFullYear() === currentYear;
-  });
   
   // Calculate statistics from actual data
   const calculateStats = () => {
-    const normalizeValue = (value) =>
-      (value ?? "").toString().toLowerCase().trim();
-    const normalizeType = (value) =>
-      normalizeValue(value).replace(/[\s-]+/g, "_");
-    const normalizeDistrict = (value) =>
-      normalizeValue(value).replace(/['\s-]/g, "");
-
     const stats = {
       byType: {},
       byDistrict: {},
       bySeverity: { low: 0, medium: 0, high: 0 },
-      byStatus: { reported: 0, verified: 0, responding: 0, closed: 0 }
+      byStatus: { reported: 0, submitted: 0, verified: 0, responding: 0, closed: 0 }
     };
-
-    const districtLabels = {};
 
     disasters.forEach(d => {
       // Count by type
-      const typeKey = normalizeType(d.type) || "unknown";
-      stats.byType[typeKey] = (stats.byType[typeKey] || 0) + 1;
+      stats.byType[d.type] = (stats.byType[d.type] || 0) + 1;
       
       // Count by district
-      const districtKey = normalizeDistrict(d.district) || "unknown";
-      const districtLabel = districtLabels[districtKey] || d.district || "Unknown";
-      if (!districtLabels[districtKey]) {
-        districtLabels[districtKey] = districtLabel;
-      }
-      stats.byDistrict[districtLabel] = (stats.byDistrict[districtLabel] || 0) + 1;
+      stats.byDistrict[d.district] = (stats.byDistrict[d.district] || 0) + 1;
       
       // Count by severity
-      if (d.severity != null) {
-        const severityKey = normalizeValue(d.severity) || "low";
-        stats.bySeverity[severityKey] = (stats.bySeverity[severityKey] || 0) + 1;
+      if (d.severity) {
+        stats.bySeverity[d.severity] = (stats.bySeverity[d.severity] || 0) + 1;
       }
       
       // Count by status
-      if (d.status != null) {
-        const statusKey = normalizeValue(d.status) || "reported";
-        stats.byStatus[statusKey] = (stats.byStatus[statusKey] || 0) + 1;
+      if (d.status) {
+        stats.byStatus[d.status] = (stats.byStatus[d.status] || 0) + 1;
       }
     });
 
@@ -158,94 +128,23 @@ export default function Dashboard() {
       riskColor: count > 50 ? 'critical' : count > 20 ? 'moderate' : 'low'
     }));
 
-  const formatMoney = (value) => {
-    const numeric = Number.isFinite(value) ? value : 0;
-    return numeric.toLocaleString();
-  };
+  const totalBudget = 9.8; // Example: M 9.8M
 
-  const totalAllocated = funds.reduce((sum, fund) => sum + (fund.allocatedAmount || 0), 0);
-  const totalSpent = funds.reduce((sum, fund) => sum + (fund.expenses || 0), 0);
-  const fallbackBudget = forecastSummary
-    ? forecastSummary.remainingBudget + Math.max(0, forecastSummary.fundingGap)
-    : 0;
-
-  const budgetValue = totalAllocated > 0
-    ? `M ${formatMoney(totalAllocated)}`
-    : `M ${formatMoney(fallbackBudget)}`;
-  const budgetSubtitle = totalAllocated > 0
-    ? `M ${formatMoney(totalSpent)} spent`
-    : forecastSummary
-      ? `Funding gap: M ${formatMoney(Math.abs(forecastSummary.fundingGap))}`
-      : forecastError || "Forecast pending";
-
-  const districtRiskRows = forecastSummary?.districtForecasts?.length
-    ? forecastSummary.districtForecasts
-        .slice()
-        .sort((a, b) => b.riskScore - a.riskScore)
-        .slice(0, 5)
-        .map((row) => ({
-          district: row.district,
-          active: row.predictedIncidents,
-          severity: row.riskLevel,
-          riskColor: row.riskLevel === "High" ? "critical" : row.riskLevel === "Medium" ? "moderate" : "low",
-        }))
-    : topDistricts;
-
-  const recentMonths = Array.from({ length: 6 }, (_, idx) => {
-    const date = new Date();
-    date.setMonth(date.getMonth() - (5 - idx));
-    return {
-      key: `${date.getFullYear()}-${date.getMonth()}`,
-      label: date.toLocaleString("default", { month: "short" }),
-      year: date.getFullYear(),
-      month: date.getMonth(),
-    };
-  });
-
-  const types = ["drought", "heavy_rainfall", "strong_winds"];
-  const typeColors = {
-    drought: "#f59e0b",
-    heavy_rainfall: "#3b82f6",
-    strong_winds: "#10b981",
-  };
-
-  const monthlyTypeCounts = recentMonths.reduce((acc, month) => {
-    acc[month.key] = {
-      drought: 0,
-      heavy_rainfall: 0,
-      strong_winds: 0,
-      spend: 0,
-    };
-    return acc;
-  }, {});
-
-  yearDisasters.forEach((disaster) => {
-    const incidentDate = new Date(disaster.createdAt || disaster.date || Date.now());
-    const key = `${incidentDate.getFullYear()}-${incidentDate.getMonth()}`;
-    if (!monthlyTypeCounts[key]) return;
-    const typeKey = (disaster.type || "").toString().toLowerCase().replace(/[\s-]+/g, "_");
-    if (types.includes(typeKey)) {
-      monthlyTypeCounts[key][typeKey] += 1;
+  const handleApproveDisaster = async (disasterId) => {
+    try {
+      const response = await API.put(`/disasters/${disasterId}`, {
+        status: "verified"
+      });
+      console.log("✅ Disaster approved:", response.data);
+      await fetchDisasters();
+      ToastManager.success("✅ Disaster approved successfully!");
+    } catch (err) {
+      setError("Failed to approve disaster");
+      console.error(err);
+      const errorMsg = err.response?.data?.message || "Failed to approve disaster";
+      ToastManager.error(`Error: ${errorMsg}`);
     }
-    monthlyTypeCounts[key].spend += disaster.damageCost || 0;
-  });
-
-  const maxIncidentCount = Math.max(
-    1,
-    ...recentMonths.flatMap((month) =>
-      types.map((type) => monthlyTypeCounts[month.key][type])
-    )
-  );
-
-  const monthlyBudget = totalAllocated > 0
-    ? totalAllocated / 12
-    : fallbackBudget > 0
-      ? fallbackBudget / 12
-      : 0;
-  const maxSpend = Math.max(
-    monthlyBudget,
-    ...recentMonths.map((month) => monthlyTypeCounts[month.key].spend)
-  );
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 p-6">
@@ -253,16 +152,13 @@ export default function Dashboard() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-text" style={{letterSpacing: '-0.3px'}}>Dashboard</h1>
         <p className="text-sm text-muted">National Disaster Overview</p>
-        <p className="text-xs text-slate-500 mt-1">
-          Data span: {forecastSummary?.dataSpanYears || 10} years • Population baseline: {POPULATION.toLocaleString()}
-        </p>
       </div>
 
       {/* Summary Cards - 4 columns */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <SummaryCard
           title="Total Disasters"
-          value={yearDisasters.length}
+          value={activeIncidents}
           subtitle={`${stats.byStatus.verified || 0} verified`}
           icon={<AlertCircle className="w-5 h-5 text-critical" />}
           bgColor="bg-red-50"
@@ -276,18 +172,56 @@ export default function Dashboard() {
         />
         <SummaryCard
           title="Total Budget"
-          value={budgetValue}
-          subtitle={budgetSubtitle}
+          value={`M ${totalBudget}M`}
+          subtitle="M 2.7M spent"
           icon={<DollarSign className="w-5 h-5 text-green-500" />}
           bgColor="bg-green-50"
         />
         <SummaryCard
           title="Active Response"
           value={stats.byStatus.responding || 0}
-          subtitle={`${stats.byStatus.reported || 0} pending review`}
+          subtitle={`${stats.byStatus.submitted || 0} pending approval`}
           icon={<TrendingUp className="w-5 h-5 text-emerald-500" />}
           bgColor="bg-emerald-50"
         />
+      </div>
+
+      {/* Pending Approval Section */}
+      <div className="mb-6 bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+        <h2 className="text-lg font-semibold text-text mb-4">Pending Coordinator Approval</h2>
+        {disasters.filter(d => d.status === "submitted").length === 0 ? (
+          <p className="text-sm text-muted">No disasters pending approval</p>
+        ) : (
+          <div className="space-y-3">
+            {disasters.filter(d => d.status === "submitted").map((disaster) => (
+              <div key={disaster._id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="flex-1">
+                  <p className="font-semibold text-text">{disaster.type?.toUpperCase()} in {disaster.district}</p>
+                  <p className="text-sm text-muted">
+                    {disaster.numberOfHouseholdsAffected || 0} household(s) | 
+                    Severity: <span style={{ textTransform: 'capitalize', fontWeight: '600' }}>{disaster.severity}</span>
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleApproveDisaster(disaster._id)}
+                  disabled={loading}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#1e3a5f',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.35rem',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: '600'
+                  }}
+                >
+                  {loading ? "Approving..." : "Approve"}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Main Content Area - Map on left, Incidents on right */}
@@ -303,28 +237,23 @@ export default function Dashboard() {
             </div>
           )}
           <div className="h-96 rounded-lg overflow-hidden bg-slate-100">
-            <MapView disasters={yearDisasters} selectedDisaster={selectedDisaster} />
+            <MapView disasters={disasters} selectedDisaster={selectedDisaster} />
           </div>
         </div>
 
-        {/* Right Column */}
-        <div className="flex flex-col gap-6">
-          {/* Recent Disasters */}
-          <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-text">Recent Disasters</h2>
-              <Link to="/disaster-events" className="text-xs text-blue-600 font-medium hover:underline">
-                View All →
-              </Link>
-            </div>
-            <RecentDisasters
-              disasters={yearDisasters}
-              selectedDisaster={selectedDisaster}
-              onSelectDisaster={setSelectedDisaster}
-            />
+        {/* Recent Disasters - 1/3 width */}
+        <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-text">Recent Disasters</h2>
+            <a href="#" className="text-xs text-blue-600 font-medium hover:underline">
+              View All →
+            </a>
           </div>
-
-          {/* Fund requests moved to dedicated page */}
+          <RecentDisasters
+            disasters={disasters}
+            selectedDisaster={selectedDisaster}
+            onSelectDisaster={setSelectedDisaster}
+          />
         </div>
       </div>
 
@@ -335,44 +264,7 @@ export default function Dashboard() {
           <h3 className="text-lg font-semibold text-text mb-4">
             Disasters by Type (6 Months)
           </h3>
-          <div className="h-64 flex items-end justify-around gap-2 px-2">
-            {recentMonths.map((month) => (
-              <div key={month.key} className="text-center">
-                <div className="flex items-end gap-1" style={{ height: "200px" }}>
-                  {types.map((type) => {
-                    const value = monthlyTypeCounts[month.key][type];
-                    const height = 20 + (value / maxIncidentCount) * 160;
-                    return (
-                      <div
-                        key={type}
-                        style={{
-                          height: `${height}px`,
-                          backgroundColor: typeColors[type],
-                        }}
-                        className="w-2 rounded"
-                        title={`${type.replace(/_/g, " ")}: ${value}`}
-                      ></div>
-                    );
-                  })}
-                </div>
-                <p className="text-xs text-muted mt-2">{month.label}</p>
-              </div>
-            ))}
-          </div>
-          <div className="flex gap-4 justify-center mt-4 text-xs">
-            <span className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded" style={{ backgroundColor: typeColors.drought }}></div>
-              Drought ({stats.byType.drought || 0})
-            </span>
-            <span className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded" style={{ backgroundColor: typeColors.heavy_rainfall }}></div>
-              Heavy Rainfall ({stats.byType.heavy_rainfall || 0})
-            </span>
-            <span className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded" style={{ backgroundColor: typeColors.strong_winds }}></div>
-              Strong Winds ({stats.byType.strong_winds || 0})
-            </span>
-          </div>
+          <DisastersByTypeChart disastersByType={disastersByType} />
         </div>
 
         {/* Chart: Financial Overview */}
@@ -380,38 +272,7 @@ export default function Dashboard() {
           <h3 className="text-lg font-semibold text-text mb-4">
             Financial Overview (6 Months)
           </h3>
-          <div className="h-64 flex items-end justify-around gap-2 px-2">
-            {recentMonths.map((month) => {
-              const spend = monthlyTypeCounts[month.key].spend;
-              const spendHeight = maxSpend > 0 ? (spend / maxSpend) * 180 + 20 : 20;
-              const budgetHeight = maxSpend > 0 ? (monthlyBudget / maxSpend) * 180 + 20 : 20;
-              return (
-                <div key={month.key} className="text-center">
-                  <div className="flex items-end gap-2" style={{ height: "200px" }}>
-                    <div
-                      className="w-3 rounded"
-                      style={{ height: `${budgetHeight}px`, backgroundColor: "#60a5fa" }}
-                      title={`Budget: M ${formatMoney(monthlyBudget)}`}
-                    ></div>
-                    <div
-                      className="w-3 rounded"
-                      style={{ height: `${spendHeight}px`, backgroundColor: "#2dd4bf" }}
-                      title={`Spend: M ${formatMoney(spend)}`}
-                    ></div>
-                  </div>
-                  <p className="text-xs text-muted mt-2">{month.label}</p>
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex gap-4 justify-center mt-4 text-xs">
-            <span className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-blue-400 rounded"></div> Total Budget
-            </span>
-            <span className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-teal-400 rounded"></div> Amount Spent
-            </span>
-          </div>
+          <FinancialOverviewChart financialByMonth={financialByMonth} />
         </div>
       </div>
 
@@ -430,7 +291,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {districtRiskRows.map((row, idx) => (
+              {topDistricts.map((row, idx) => (
                 <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
                   <td className="py-3 px-3 text-text font-medium">{row.district}</td>
                   <td className="py-3 px-3 text-text">{row.active} incidents</td>
@@ -471,6 +332,138 @@ function SummaryCard({ title, value, subtitle, icon, bgColor }) {
         <div className={`p-2 rounded-lg ${bgColor}`}>{icon}</div>
       </div>
       <p className="text-xs text-muted">{subtitle}</p>
+    </div>
+  );
+}
+
+/* ================= Disasters by Type Chart Component ================= */
+function DisastersByTypeChart({ disastersByType }) {
+  const types = Object.entries(disastersByType).sort((a, b) => b[1] - a[1]);
+  
+  if (types.length === 0) {
+    return (
+      <div className="h-64 flex items-center justify-center text-muted">
+        <p>No disaster data available for the past 6 months</p>
+      </div>
+    );
+  }
+
+  // Find max value for scaling
+  const maxValue = Math.max(...types.map(t => t[1]), 1);
+  const maxHeight = 220; // max height in pixels
+
+  // Color palette for different disaster types
+  const colorMap = {
+    "drought": "#60a5fa", // blue
+    "flooding": "#3b82f6", // darker blue
+    "landslide": "#8b5cf6", // purple
+    "storm": "#f59e0b", // amber
+    "earthquake": "#ef4444", // red
+    "disease": "#06b6d4", // cyan
+    "wildfire": "#d84315", // deep orange
+  };
+
+  return (
+    <div>
+      <div className="h-64 flex items-end justify-around gap-2 px-4">
+        {types.map(([type, count]) => {
+          const height = (count / maxValue) * maxHeight;
+          const color = colorMap[type.toLowerCase()] || "#3b82f6";
+          
+          return (
+            <div key={type} className="text-center">
+              <div
+                className="w-8 rounded transition-all hover:opacity-75"
+                style={{
+                  height: `${height}px`,
+                  backgroundColor: color,
+                  minHeight: "20px"
+                }}
+                title={`${type}: ${count} disasters`}
+              ></div>
+              <p className="text-xs text-muted mt-2 truncate">{type}</p>
+              <p className="text-xs font-semibold text-text">{count}</p>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex gap-3 justify-center mt-4 text-xs flex-wrap">
+        {types.slice(0, 3).map(([type]) => {
+          const color = colorMap[type.toLowerCase()] || "#3b82f6";
+          return (
+            <span key={type} className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded" style={{ backgroundColor: color }}></div>
+              {type}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ================= Financial Overview Chart Component ================= */
+function FinancialOverviewChart({ financialByMonth }) {
+  const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+  // Parse month data and sort chronologically
+  const months = Object.entries(financialByMonth)
+    .map(([monthStr, amount]) => {
+      const parts = monthStr.split('-');
+      const monthName = parts[0];
+      const monthIndex = monthOrder.indexOf(monthName);
+      return { monthStr, monthName, amount, monthIndex };
+    })
+    .sort((a, b) => a.monthIndex - b.monthIndex);
+
+  if (months.length === 0) {
+    return (
+      <div className="h-64 flex items-center justify-center text-muted">
+        <p>No financial data available for the past 6 months</p>
+      </div>
+    );
+  }
+
+  // Find max value for scaling
+  const maxValue = Math.max(...months.map(m => m.amount), 1);
+  const maxHeight = 220; // max height in pixels
+  
+  // Format currency values
+  const formatCurrency = (value) => {
+    if (value >= 1000000) {
+      return `M ${(value / 1000000).toFixed(1)}M`;
+    } else if (value >= 1000) {
+      return `M ${(value / 1000).toFixed(1)}K`;
+    }
+    return `M ${value.toFixed(0)}`;
+  };
+
+  return (
+    <div>
+      <div className="h-64 flex items-end justify-around gap-2 px-4">
+        {months.map(({ monthStr, monthName, amount }) => {
+          const height = (amount / maxValue) * maxHeight;
+          
+          return (
+            <div key={monthStr} className="text-center">
+              <div
+                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded transition-all hover:opacity-75"
+                style={{
+                  height: `${Math.max(height, 20)}px`
+                }}
+                title={`${monthName}: M ${(amount / 1000).toFixed(1)}K`}
+              ></div>
+              <p className="text-xs text-muted mt-2">{monthName}</p>
+              <p className="text-xs font-semibold text-text">{(amount / 1000).toFixed(0)}K</p>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex gap-4 justify-center mt-4 text-xs">
+        <span className="flex items-center gap-1">
+          <div className="w-3 h-3 bg-blue-400 rounded"></div> Total Expenses
+        </span>
+      </div>
     </div>
   );
 }

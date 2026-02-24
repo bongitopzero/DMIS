@@ -5,8 +5,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;600;700&display=swap");
-
 /* --------------------------- */
 /* Theme Variables */
 /* --------------------------- */
@@ -33,29 +31,7 @@
   --warning: #ffc107;
   --danger: #dc3545;
   --info: #17a2b8;
-  --primary: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-500: #3b82f6;
-  --color-primary-100: #dbeafe;
-  --color-success-500: #10b981;
-  --color-success-700: #15803d;
-  --color-success-100: #dcfce7;
-  --color-warning-500: #f59e0b;
-  --color-warning-700: #b45309;
-  --color-warning-100: #fef3c7;
-  --color-danger-500: #ef4444;
-  --color-danger-700: #b91c1c;
-  --color-danger-100: #fee2e2;
-  --color-info-500: #0ea5e9;
-  --color-info-700: #0369a1;
-  --color-info-100: #e0f2fe;
-  --color-neutral-900: #0f172a;
-  --color-neutral-700: #334155;
-  --color-neutral-500: #64748b;
-  --color-neutral-200: #e2e8f0;
-  --color-neutral-100: #f8fafc;
-  --gradient-primary-start: #2563eb;
-  --gradient-primary-end: #3b82f6;
+  --primary: #1e40af;
 }
 
 :root[data-theme="dark"] {
@@ -81,93 +57,7 @@
   --warning: #d29922;
   --danger: #f85149;
   --info: #1f6feb;
-  --primary: #60a5fa;
-  --color-primary-600: #3b82f6;
-  --color-primary-500: #60a5fa;
-  --color-primary-100: #1e293b;
-  --color-success-500: #22c55e;
-  --color-success-700: #16a34a;
-  --color-success-100: #052e1c;
-  --color-warning-500: #f59e0b;
-  --color-warning-700: #d97706;
-  --color-warning-100: #3b2f0b;
-  --color-danger-500: #f87171;
-  --color-danger-700: #ef4444;
-  --color-danger-100: #3f1d22;
-  --color-info-500: #38bdf8;
-  --color-info-700: #0ea5e9;
-  --color-info-100: #0b1f33;
-  --color-neutral-900: #e2e8f0;
-  --color-neutral-700: #cbd5f5;
-  --color-neutral-500: #94a3b8;
-  --color-neutral-200: #334155;
-  --color-neutral-100: #1f2937;
-  --gradient-primary-start: #1e40af;
-  --gradient-primary-end: #3b82f6;
-}
-
-/* Dark mode normalization for common surfaces and controls */
-:root[data-theme="dark"] body,
-:root[data-theme="dark"] #root,
-:root[data-theme="dark"] .app-shell,
-:root[data-theme="dark"] .app-main,
-:root[data-theme="dark"] .app-content {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-}
-
-:root[data-theme="dark"] .panel,
-:root[data-theme="dark"] .card,
-:root[data-theme="dark"] .modal-content,
-:root[data-theme="dark"] .modal-body,
-:root[data-theme="dark"] .modal-header,
-:root[data-theme="dark"] .stat-card,
-:root[data-theme="dark"] .forecast-insights,
-:root[data-theme="dark"] .trend-panel,
-:root[data-theme="dark"] .kpi-card,
-:root[data-theme="dark"] .chart-card,
-:root[data-theme="dark"] .funds-table-container,
-:root[data-theme="dark"] .disaster-card,
-:root[data-theme="dark"] .settings-card,
-:root[data-theme="dark"] .auth-box {
-  background: var(--card-bg);
-  color: var(--text-primary);
-  border-color: var(--border-color);
-}
-
-:root[data-theme="dark"] input,
-:root[data-theme="dark"] select,
-:root[data-theme="dark"] textarea,
-:root[data-theme="dark"] .search-box,
-:root[data-theme="dark"] .filter-select {
-  background: var(--input-bg);
-  color: var(--text-primary);
-  border-color: var(--border-color);
-}
-
-:root[data-theme="dark"] table,
-:root[data-theme="dark"] th,
-:root[data-theme="dark"] td {
-  background: transparent;
-  color: var(--text-primary);
-  border-color: var(--border-color);
-}
-
-:root[data-theme="dark"] h1,
-:root[data-theme="dark"] h2,
-:root[data-theme="dark"] h3,
-:root[data-theme="dark"] h4,
-:root[data-theme="dark"] h5,
-:root[data-theme="dark"] h6,
-:root[data-theme="dark"] label,
-:root[data-theme="dark"] strong {
-  color: var(--text-primary);
-}
-
-:root[data-theme="dark"] p,
-:root[data-theme="dark"] span,
-:root[data-theme="dark"] small {
-  color: var(--text-secondary);
+  --primary: #58a6ff;
 }
 
 /* --------------------------- */
@@ -176,7 +66,6 @@
 @layer base {
   body {
     @apply font-sans;
-    font-family: "Lato", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
     background-color: var(--bg-primary);
     color: var(--text-primary);
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -202,7 +91,9 @@ body,
 #root {
   height: 100%;
   width: 100%;
-  font-family: "Lato", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;

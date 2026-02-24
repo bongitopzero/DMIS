@@ -62,15 +62,7 @@
 }
 
 /* BUTTONS */
-.btn-get-started {
-  background: #2db7a3;
-  border: none;
-  padding: 12px 30px;
-  border-radius: 25px;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-}
+
 
 .btn-primary-large {
   background: #2db7a3;

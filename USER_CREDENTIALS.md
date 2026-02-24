@@ -28,10 +28,9 @@
 ## Quick Login Guide
 
 1. Navigate to http://localhost:3000/login
-2. Enter the email and password for the role you want to test
-3. Select the appropriate role from the dropdown
-4. Click "Sign In"
-5. You will be automatically redirected to the appropriate dashboard:
+2. Enter the email and password credentials below
+3. Click "Sign In"
+4. You will be automatically redirected to the appropriate dashboard based on your assigned role:
    - Coordinator → `/dashboard`
    - Finance Officer → `/finance-dashboard`
    - Data Clerk → `/disaster-events`

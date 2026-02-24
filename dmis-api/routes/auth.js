@@ -11,7 +11,7 @@ const router = express.Router();
 // Register
 router.post("/register", async (req, res) => {
   console.log("Register request body:", req.body); // debug log
-  const { name, email, password, role, ministry } = req.body;
+  const { name, email, password, role } = req.body;
 
   try {
     const userExists = await User.findOne({ email });
@@ -21,16 +21,11 @@ router.post("/register", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    if (role === "Data Clerk" && !ministry) {
-      return res.status(400).json({ message: "Ministry is required for Data Clerks" });
-    }
-
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
       role,
-      ministry: role === "Data Clerk" ? ministry : null,
     });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
@@ -42,7 +37,6 @@ router.post("/register", async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      ministry: user.ministry || null,
       token,
     });
   } catch (err) {
@@ -50,7 +44,6 @@ router.post("/register", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 // Login
 router.post("/login", async (req, res) => {
@@ -64,16 +57,17 @@ router.post("/login", async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: "Invalid password" });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d"
+      expiresIn: "7d",
     });
+
+    console.log("Login successful for user:", user.email, "Role:", user.role);
 
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role,
-      ministry: user.ministry || null,
-      token
+      role: user.role, // Ensure role is returned from database
+      token,
     });
   } catch (err) {
     console.error(err);
@@ -114,7 +108,7 @@ router.put("/users/:id", auth, async (req, res) => {
       return res.status(403).json({ error: "Access denied. Administrator role required." });
     }
 
-    const { name, email, role, ministry } = req.body;
+    const { name, email, role } = req.body;
     const user = await User.findById(req.params.id);
 
     if (!user) {
@@ -124,11 +118,6 @@ router.put("/users/:id", auth, async (req, res) => {
     user.name = name || user.name;
     user.email = email || user.email;
     user.role = role || user.role;
-    if (user.role === "Data Clerk") {
-      user.ministry = ministry || user.ministry || null;
-    } else {
-      user.ministry = null;
-    }
 
     await user.save();
 
@@ -136,8 +125,7 @@ router.put("/users/:id", auth, async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role,
-      ministry: user.ministry || null
+      role: user.role
     });
   } catch (err) {
     console.error("Error updating user:", err);

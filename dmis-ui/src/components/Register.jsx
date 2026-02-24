@@ -53,7 +53,7 @@ function Register() {
         name: fullName, // must match backend key
         email,
         password,
-        role: "user",   // default role
+        role: "Data Clerk",   // default role - must match User model enum
       });
 
       console.log("Registered user:", res.data);
