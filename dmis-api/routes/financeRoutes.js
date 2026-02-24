@@ -3,9 +3,20 @@ import mongoose from "mongoose";
 import Budget from "../models/Budget.js";
 import FundRequest from "../models/FundRequest.js";
 import Expenditure from "../models/Expenditure.js";
+import DisasterCostProfile from "../models/DisasterCostProfile.js";
+import HousingCostProfile from "../models/HousingCostProfile.js";
+import IncidentFinancialSnapshot from "../models/IncidentFinancialSnapshot.js";
+import AnnualBudget from "../models/AnnualBudget.js";
 import { protect as authMiddleware } from "../middleware/auth.js";
 
 const router = express.Router();
+
+const getYearRange = () => {
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
+  const end = new Date(Date.UTC(now.getUTCFullYear() + 1, 0, 1));
+  return { start, end };
+};
 
 const calculateRemainingBudget = (budget) =>
   budget.allocatedBudget - budget.committedFunds - budget.spentFunds;
@@ -84,7 +95,7 @@ router.get("/budget/current", authMiddleware, async (req, res) => {
 
 router.post("/request", authMiddleware, async (req, res) => {
   try {
-    const { incidentId, requestedAmount } = req.body;
+    const { incidentId, requestedAmount, category, urgency, purpose, notes, supportingDocs } = req.body;
     if (!incidentId || !mongoose.Types.ObjectId.isValid(incidentId)) {
       return res.status(400).json({ message: "Invalid incidentId" });
     }
@@ -95,6 +106,11 @@ router.post("/request", authMiddleware, async (req, res) => {
     const fundRequest = await FundRequest.create({
       incidentId,
       requestedAmount,
+      category: category || "General",
+      urgency: urgency || "Normal",
+      purpose: purpose || "",
+      notes: notes || "",
+      supportingDocs: Array.isArray(supportingDocs) ? supportingDocs : [],
       approvedAmount: 0,
       status: "Pending",
       requestedBy,
@@ -173,8 +189,10 @@ router.post("/expenditure", authMiddleware, async (req, res) => {
     if (!description) {
       return res.status(400).json({ message: "Description is required" });
     }
+    const snapshot = await IncidentFinancialSnapshot.findOne({ disasterId: incidentId });
     const expenditure = await Expenditure.create({
       incidentId,
+      snapshotId: snapshot?._id || null,
       amountSpent,
       description,
       recordedBy: req.user?.name || "Finance Officer",
@@ -197,8 +215,11 @@ router.post("/expenditure", authMiddleware, async (req, res) => {
 
 router.get("/summary", authMiddleware, async (req, res) => {
   try {
+    const { start: yearStart, end: yearEnd } = getYearRange();
     const budget = await getCurrentBudget();
+    const annualBudget = await AnnualBudget.findOne().sort({ fiscalYear: -1 });
     const [requestAgg] = await FundRequest.aggregate([
+      { $match: { createdAt: { $gte: yearStart, $lt: yearEnd } } },
       {
         $group: {
           _id: null,
@@ -214,6 +235,7 @@ router.get("/summary", authMiddleware, async (req, res) => {
     ]);
 
     const [expenditureAgg] = await Expenditure.aggregate([
+      { $match: { date: { $gte: yearStart, $lt: yearEnd } } },
       {
         $group: {
           _id: null,
@@ -232,6 +254,7 @@ router.get("/summary", authMiddleware, async (req, res) => {
 
     return res.json({
       budget,
+      annualBudget,
       totalRequested: requestAgg?.totalRequested || 0,
       totalApproved: requestAgg?.totalApproved || 0,
       pendingRequests: requestAgg?.pendingCount || 0,
@@ -241,6 +264,127 @@ router.get("/summary", authMiddleware, async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({ message: "Failed to fetch summary", error: error.message });
+  }
+});
+
+router.get("/profiles/disaster", authMiddleware, async (req, res) => {
+  try {
+    const profiles = await DisasterCostProfile.find().sort({ disasterType: 1 });
+    return res.json({ profiles });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to fetch disaster cost profiles", error: error.message });
+  }
+});
+
+router.put("/profiles/disaster", authMiddleware, async (req, res) => {
+  try {
+    if (!requireFinanceOfficer(req, res)) return;
+    const updates = Array.isArray(req.body?.profiles) ? req.body.profiles : [];
+    const results = [];
+    for (const profile of updates) {
+      const updated = await DisasterCostProfile.findOneAndUpdate(
+        { disasterType: profile.disasterType },
+        profile,
+        { upsert: true, new: true, runValidators: true }
+      );
+      results.push(updated);
+    }
+    return res.json({ profiles: results });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to update disaster cost profiles", error: error.message });
+  }
+});
+
+router.get("/profiles/housing", authMiddleware, async (req, res) => {
+  try {
+    const profile = await HousingCostProfile.findOne().sort({ createdAt: -1 });
+    return res.json({ profile });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to fetch housing cost profile", error: error.message });
+  }
+});
+
+router.put("/profiles/housing", authMiddleware, async (req, res) => {
+  try {
+    if (!requireFinanceOfficer(req, res)) return;
+    const updated = await HousingCostProfile.findOneAndUpdate(
+      {},
+      req.body,
+      { upsert: true, new: true, runValidators: true }
+    );
+    return res.json({ profile: updated });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to update housing cost profile", error: error.message });
+  }
+});
+
+router.get("/annual-budgets", authMiddleware, async (req, res) => {
+  try {
+    const budgets = await AnnualBudget.find().sort({ fiscalYear: 1 });
+    return res.json({ budgets });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to fetch annual budgets", error: error.message });
+  }
+});
+
+router.get("/incident-snapshots", authMiddleware, async (req, res) => {
+  try {
+    const { start, end } = getYearRange();
+    const snapshots = await IncidentFinancialSnapshot.find({ generatedAt: { $gte: start, $lt: end } })
+      .populate("disasterId", "type district region location status")
+      .sort({ generatedAt: -1 })
+      .limit(200);
+    return res.json({ snapshots });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to fetch incident snapshots", error: error.message });
+  }
+});
+
+router.get("/expenditures", authMiddleware, async (req, res) => {
+  try {
+    const { start, end } = getYearRange();
+    const limit = Math.min(Number(req.query.limit) || 100, 500);
+    const expenditures = await Expenditure.aggregate([
+      { $match: { date: { $gte: start, $lt: end } } },
+      { $sort: { date: -1, createdAt: -1 } },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "incidents",
+          localField: "incidentId",
+          foreignField: "_id",
+          as: "incidentRecord",
+        },
+      },
+      {
+        $lookup: {
+          from: "disasters",
+          localField: "incidentId",
+          foreignField: "_id",
+          as: "disasterRecord",
+        },
+      },
+      {
+        $addFields: {
+          incident: {
+            $ifNull: [
+              { $arrayElemAt: ["$incidentRecord", 0] },
+              { $arrayElemAt: ["$disasterRecord", 0] },
+            ],
+          },
+        },
+      },
+      {
+        $project: {
+          incidentRecord: 0,
+          disasterRecord: 0,
+        },
+      },
+    ]);
+
+    return res.json({ expenditures });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to fetch expenditures", error: error.message });
   }
 });
 

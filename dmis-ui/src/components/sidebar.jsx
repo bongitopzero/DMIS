@@ -21,7 +21,9 @@ export default function Sidebar({ isOpen, onClose }) {
   const operationsItems = [];
   if (isCoordinator) {
     operationsItems.push(
-      { label: "Incident Management", path: "/disaster-events" },
+      { label: "Disaster Dashboard", path: "/disaster-events" },
+      { label: "Register Disaster", path: "/disaster-events/register" },
+      { label: "Request Funds", path: "/fund-requests" },
       { label: "GIS Map", path: "/gis-map" },
       { label: "Analysis", path: "/analysis" },
       { label: "Forecasting", path: "/forecasting" }
@@ -29,23 +31,17 @@ export default function Sidebar({ isOpen, onClose }) {
   }
   if (isDataClerk) {
     operationsItems.push(
-      { label: "Disaster Events", path: "/disaster-events" },
-      { label: "GIS Map", path: "/gis-map" }
+      { label: "Disaster Dashboard", path: "/disaster-events" },
+      { label: "Register Disaster", path: "/disaster-events/register" }
     );
   }
 
   const financeItems = isFinanceOfficer
     ? [
-        { label: "Finance Dashboard", path: "/finance-dashboard" },
-        { label: "Finance Center", path: "/finance-center" },
-        { label: "Finance Reports", path: "/finance/reports" },
-      ]
-    : [];
-
-  const dataItems = isDataClerk
-    ? [
-        { label: "Disaster Events", path: "/disaster-events" },
-        { label: "GIS Map", path: "/gis-map" },
+        { label: "Financial Dashboard", path: "/finance-v2/dashboard" },
+        { label: "Budget Modules", path: "/finance-v2/budgets-expenditures" },
+        { label: "Incident Modules", path: "/finance-v2/incidents" },
+        { label: "Forecasting Modules", path: "/finance-v2/forecasting" },
       ]
     : [];
 
@@ -54,7 +50,6 @@ export default function Sidebar({ isOpen, onClose }) {
     ...coreItems,
     ...operationsItems,
     ...financeItems,
-    ...dataItems,
   ];
 
   return (

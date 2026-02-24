@@ -5,6 +5,7 @@ import "./FundManagement.css";
 
 export default function Expenditures({ embedded = false }) {
   const [summary, setSummary] = useState(null);
+  const [expenditures, setExpenditures] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -12,8 +13,12 @@ export default function Expenditures({ embedded = false }) {
     const fetchSummary = async () => {
       setError("");
       try {
-        const res = await API.get("/finance/summary");
-        setSummary(res.data);
+        const [summaryRes, listRes] = await Promise.all([
+          API.get("/finance/summary"),
+          API.get("/finance/expenditures?limit=200"),
+        ]);
+        setSummary(summaryRes.data);
+        setExpenditures(listRes.data?.expenditures || []);
       } catch (err) {
         setError("Failed to load expenditures");
       } finally {
@@ -69,8 +74,44 @@ export default function Expenditures({ embedded = false }) {
         </div>
       </div>
 
-      <div className="alert alert-warning">
-        Detailed expenditure records are not exposed yet. Use the summary until list endpoints are added.
+      <div className="funds-table-container">
+        <table className="funds-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Incident Type</th>
+              <th>District</th>
+              <th>Description</th>
+              <th>Amount</th>
+              <th>Recorded By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {expenditures.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="no-data">
+                  No expenditure records available.
+                </td>
+              </tr>
+            ) : (
+              expenditures.map((item) => {
+                const incident = item.incident || {};
+                const incidentType = incident.disasterType || incident.type || "N/A";
+                const district = incident.district || "N/A";
+                return (
+                  <tr key={item._id}>
+                    <td>{item.date ? new Date(item.date).toLocaleDateString() : "N/A"}</td>
+                    <td>{incidentType.replace(/_/g, " ")}</td>
+                    <td>{district}</td>
+                    <td>{item.description}</td>
+                    <td className="amount expenses">M {formatMoney(item.amountSpent)}</td>
+                    <td>{item.recordedBy}</td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

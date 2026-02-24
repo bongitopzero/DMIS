@@ -4,10 +4,18 @@ import protect from "../middleware/auth.js";
 
 const router = express.Router();
 
+const getYearRange = () => {
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
+  const end = new Date(Date.UTC(now.getUTCFullYear() + 1, 0, 1));
+  return { start, end };
+};
+
 // Get comprehensive forecasting data
 router.get("/", protect, async (req, res) => {
   try {
-    const disasters = await Disaster.find({});
+    const { start, end } = getYearRange();
+    const disasters = await Disaster.find({ createdAt: { $gte: start, $lt: end } });
     const dataSpanYears = getDataSpanYears(disasters);
 
     // 1. DISASTER OCCURRENCE FORECAST

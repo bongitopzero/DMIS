@@ -69,6 +69,15 @@ export default function Analysis() {
     return Number.isFinite(numeric) ? numeric : 0;
   };
 
+  const getIncidentAffectedCount = (incident) => {
+    const exact = Number(incident?.totalAffectedPopulation);
+    if (Number.isFinite(exact) && exact > 0) return exact;
+    const affectedRange = parseRangeValue(incident?.affectedPopulation);
+    if (affectedRange > 0) return affectedRange;
+    const households = parseRangeValue(incident?.households);
+    return households > 0 ? households * 5 : 0;
+  };
+
   const normalizeValue = (value) =>
     (value ?? "").toString().toLowerCase().trim();
 
@@ -98,12 +107,7 @@ export default function Analysis() {
             }, 0) /
           disasters.filter((d) => normalizeValue(d.status) === "closed").length
         : 0,
-    estimatedAffectedPopulation: disasters.reduce((sum, d) => {
-      const affected = parseRangeValue(d.affectedPopulation);
-      const households = parseRangeValue(d.households);
-      const fallback = households > 0 ? households * 5 : 0;
-      return sum + (affected || fallback);
-    }, 0),
+    estimatedAffectedPopulation: disasters.reduce((sum, d) => sum + getIncidentAffectedCount(d), 0),
     affectedPer100k: 0,
     severityBreakdown: disasters.reduce(
       (acc, d) => {
@@ -131,6 +135,38 @@ export default function Analysis() {
   stats.affectedPer100k = POPULATION > 0
     ? Math.round((stats.estimatedAffectedPopulation / POPULATION) * 100000)
     : 0;
+
+  const buildMonthlySeries = (items) => {
+    const months = Array.from({ length: 6 }, (_, idx) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - (5 - idx));
+      return {
+        key: `${date.getFullYear()}-${date.getMonth()}`,
+        label: date.toLocaleString("default", { month: "short" }),
+      };
+    });
+
+    const counts = months.reduce((acc, month) => {
+      acc[month.key] = 0;
+      return acc;
+    }, {});
+
+    items.forEach((item) => {
+      const date = new Date(item.createdAt || item.date || Date.now());
+      const key = `${date.getFullYear()}-${date.getMonth()}`;
+      if (key in counts) {
+        counts[key] += 1;
+      }
+    });
+
+    return months.map((month) => ({ label: month.label, value: counts[month.key] || 0 }));
+  };
+
+  const monthlyIncidentSeries = buildMonthlySeries(disasters);
+  const topDistrictSeries = Object.entries(stats.districtBreakdown)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 6)
+    .map(([label, value]) => ({ label, value }));
 
   const exportAnalysis = () => {
     const report = {
@@ -213,8 +249,23 @@ export default function Analysis() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === "overall" && <OverallAnalysis stats={stats} disasters={disasters} funds={funds} />}
-      {activeTab === "disaster" && <DisasterAnalysis stats={stats} disasters={disasters} />}
+      {activeTab === "overall" && (
+        <OverallAnalysis
+          stats={stats}
+          disasters={disasters}
+          funds={funds}
+          monthlyIncidentSeries={monthlyIncidentSeries}
+          topDistrictSeries={topDistrictSeries}
+        />
+      )}
+      {activeTab === "disaster" && (
+        <DisasterAnalysis
+          stats={stats}
+          disasters={disasters}
+          monthlyIncidentSeries={monthlyIncidentSeries}
+          topDistrictSeries={topDistrictSeries}
+        />
+      )}
       {activeTab === "funds" && <FundsAnalysis stats={stats} funds={funds} disasters={disasters} />}
       {activeTab === "custom" && (
         <CustomAnalysis
@@ -235,7 +286,20 @@ export default function Analysis() {
 }
 
 // Overall Analysis Component
-function OverallAnalysis({ stats, disasters, funds }) {
+function OverallAnalysis({ stats, disasters, funds, monthlyIncidentSeries, topDistrictSeries }) {
+  const severitySeries = Object.entries(stats.severityBreakdown).map(([label, value]) => ({
+    label,
+    value,
+    color:
+      label === "high"
+        ? "#ef4444"
+        : label === "medium"
+        ? "#f59e0b"
+        : label === "low"
+        ? "#22c55e"
+        : "#94a3b8",
+  }));
+
   return (
     <div className="space-y-6">
       {/* Key Metrics */}
@@ -283,6 +347,31 @@ function OverallAnalysis({ stats, disasters, funds }) {
         <DisasterTypesChart typeBreakdown={stats.typeBreakdown} total={stats.totalDisasters} />
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <LineTrendChart
+          title="Incident Trend (6 Months)"
+          series={monthlyIncidentSeries}
+          color="#2563eb"
+        />
+        <VerticalBarChart
+          title="Top Districts (Incidents)"
+          series={topDistrictSeries}
+          color="#9333ea"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <AreaTrendChart
+          title="Incident Volume (Area)"
+          series={monthlyIncidentSeries}
+          color="#0ea5e9"
+        />
+        <DonutChart
+          title="Severity Mix"
+          series={severitySeries}
+        />
+      </div>
+
       {/* District Analysis */}
       <DistrictMap districtBreakdown={stats.districtBreakdown} total={stats.totalDisasters} />
 
@@ -293,7 +382,20 @@ function OverallAnalysis({ stats, disasters, funds }) {
 }
 
 // Disaster Analysis Component
-function DisasterAnalysis({ stats, disasters }) {
+function DisasterAnalysis({ stats, disasters, monthlyIncidentSeries, topDistrictSeries }) {
+  const severitySeries = Object.entries(stats.severityBreakdown).map(([label, value]) => ({
+    label,
+    value,
+    color:
+      label === "high"
+        ? "#ef4444"
+        : label === "medium"
+        ? "#f59e0b"
+        : label === "low"
+        ? "#22c55e"
+        : "#94a3b8",
+  }));
+
   const resolvedCount = stats.statusBreakdown.closed || 0;
   const activeRate = stats.totalDisasters > 0
     ? ((stats.activeDisasters / stats.totalDisasters) * 100).toFixed(1)
@@ -339,6 +441,31 @@ function DisasterAnalysis({ stats, disasters }) {
         <DisasterTypesChart typeBreakdown={stats.typeBreakdown} total={stats.totalDisasters} />
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <LineTrendChart
+          title="Incident Trend (6 Months)"
+          series={monthlyIncidentSeries}
+          color="#0ea5e9"
+        />
+        <VerticalBarChart
+          title="Top Districts (Incidents)"
+          series={topDistrictSeries}
+          color="#f97316"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <AreaTrendChart
+          title="Incident Volume (Area)"
+          series={monthlyIncidentSeries}
+          color="#38bdf8"
+        />
+        <DonutChart
+          title="Severity Mix"
+          series={severitySeries}
+        />
+      </div>
+
       {/* Status Breakdown */}
       <StatusBreakdown statusBreakdown={stats.statusBreakdown} total={stats.totalDisasters} />
 
@@ -362,6 +489,22 @@ function FundsAnalysis({ stats, funds, disasters }) {
     acc[f.status] = (acc[f.status] || 0) + (f.allocatedAmount || 0);
     return acc;
   }, {});
+
+  const sourceSeries = Object.entries(fundsBySource)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 6)
+    .map(([label, value]) => ({ label, value, color: "#10b981" }));
+
+  const purposeSeries = Object.entries(fundsByPurpose).map(([label, value]) => ({
+    label,
+    value,
+    color:
+      String(label).toLowerCase() === "approved"
+        ? "#22c55e"
+        : String(label).toLowerCase() === "pending"
+        ? "#f59e0b"
+        : "#94a3b8",
+  }));
 
   return (
     <div className="space-y-6">
@@ -403,6 +546,17 @@ function FundsAnalysis({ stats, funds, disasters }) {
         <FundsByPurposeChart fundsByPurpose={fundsByPurpose} total={stats.totalFunds} />
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <HorizontalBarChart
+          title="Top Funding Sources"
+          series={sourceSeries}
+        />
+        <DonutChart
+          title="Funds by Status"
+          series={purposeSeries}
+        />
+      </div>
+
       {/* Fund Status */}
       <FundStatusBreakdown funds={funds} />
 
@@ -432,6 +586,12 @@ function CustomAnalysis({
     { id: "district-analysis", name: "District Analysis", icon: MapPin, description: "Geographic distribution of disasters" },
     { id: "timeline-analysis", name: "Timeline Analysis", icon: Calendar, description: "Recent disaster timeline and trends" },
     { id: "status-breakdown", name: "Status Breakdown", icon: Activity, description: "Current status of all disasters" },
+    { id: "incident-trend", name: "Incident Trend (Line)", icon: TrendingUp, description: "Line chart of recent incident trend" },
+    { id: "incident-area", name: "Incident Trend (Area)", icon: TrendingUp, description: "Area chart of recent incident volume" },
+    { id: "district-bars", name: "Top Districts (Bars)", icon: BarChart3, description: "Vertical bars for top districts" },
+    { id: "severity-donut", name: "Severity Mix (Donut)", icon: PieChart, description: "Donut chart of severity distribution" },
+    { id: "funds-sources-bars", name: "Top Funding Sources", icon: BarChart3, description: "Horizontal bar chart of funding sources" },
+    { id: "funds-status-donut", name: "Funds by Status (Donut)", icon: PieChart, description: "Donut chart of fund status" },
   ];
 
   // Filter data by date range if specified
@@ -461,6 +621,77 @@ function CustomAnalysis({
   };
 
   const { filteredDisasters, filteredFunds } = getFilteredData();
+
+  const buildMonthlySeries = (items) => {
+    const months = Array.from({ length: 6 }, (_, idx) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - (5 - idx));
+      return {
+        key: `${date.getFullYear()}-${date.getMonth()}`,
+        label: date.toLocaleString("default", { month: "short" }),
+      };
+    });
+
+    const counts = months.reduce((acc, month) => {
+      acc[month.key] = 0;
+      return acc;
+    }, {});
+
+    items.forEach((item) => {
+      const date = new Date(item.createdAt || item.date || Date.now());
+      const key = `${date.getFullYear()}-${date.getMonth()}`;
+      if (key in counts) {
+        counts[key] += 1;
+      }
+    });
+
+    return months.map((month) => ({ label: month.label, value: counts[month.key] || 0 }));
+  };
+
+  const monthlySeries = buildMonthlySeries(filteredDisasters);
+  const topDistrictSeries = Object.entries(stats.districtBreakdown)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 6)
+    .map(([label, value]) => ({ label, value }));
+
+  const severitySeries = Object.entries(stats.severityBreakdown).map(([label, value]) => ({
+    label,
+    value,
+    color:
+      label === "high"
+        ? "#ef4444"
+        : label === "medium"
+        ? "#f59e0b"
+        : label === "low"
+        ? "#22c55e"
+        : "#94a3b8",
+  }));
+
+  const fundsBySource = filteredFunds.reduce((acc, f) => {
+    acc[f.location] = (acc[f.location] || 0) + (f.allocatedAmount || 0);
+    return acc;
+  }, {});
+
+  const fundsByPurpose = filteredFunds.reduce((acc, f) => {
+    acc[f.status] = (acc[f.status] || 0) + (f.allocatedAmount || 0);
+    return acc;
+  }, {});
+
+  const sourceSeries = Object.entries(fundsBySource)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 6)
+    .map(([label, value]) => ({ label, value, color: "#10b981" }));
+
+  const purposeSeries = Object.entries(fundsByPurpose).map(([label, value]) => ({
+    label,
+    value,
+    color:
+      String(label).toLowerCase() === "approved"
+        ? "#22c55e"
+        : String(label).toLowerCase() === "pending"
+        ? "#f59e0b"
+        : "#94a3b8",
+  }));
 
   // Calculate filtered stats
   const filteredStats = {
@@ -510,6 +741,18 @@ function CustomAnalysis({
         return <RecentTimeline disasters={filteredDisasters} />;
       case "status-breakdown":
         return <StatusBreakdown statusBreakdown={stats.statusBreakdown} total={filteredDisasters.length} />;
+      case "incident-trend":
+        return <LineTrendChart title="Incident Trend (6 Months)" series={monthlySeries} color="#2563eb" />;
+      case "incident-area":
+        return <AreaTrendChart title="Incident Volume (Area)" series={monthlySeries} color="#0ea5e9" />;
+      case "district-bars":
+        return <VerticalBarChart title="Top Districts (Incidents)" series={topDistrictSeries} color="#9333ea" />;
+      case "severity-donut":
+        return <DonutChart title="Severity Mix" series={severitySeries} />;
+      case "funds-sources-bars":
+        return <HorizontalBarChart title="Top Funding Sources" series={sourceSeries} />;
+      case "funds-status-donut":
+        return <DonutChart title="Funds by Status" series={purposeSeries} />;
       default:
         return null;
     }
@@ -786,35 +1029,22 @@ function SeverityChart({ severityBreakdown, total }) {
 }
 
 function DisasterTypesChart({ typeBreakdown, total }) {
+  const series = Object.entries(typeBreakdown)
+    .sort(([, a], [, b]) => b - a)
+    .map(([label, value]) => ({ label, value }));
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
       <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
         <BarChart3 size={20} className="text-blue-600" />
         Disaster Types
       </h2>
-      <div className="space-y-3">
-        {Object.entries(typeBreakdown)
-          .sort(([, a], [, b]) => b - a)
-          .map(([type, count]) => {
-            const percentage = total > 0 ? (count / total) * 100 : 0;
-            return (
-              <div key={type}>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-slate-700">{type}</span>
-                  <span className="font-semibold text-slate-900">
-                    {count} ({percentage.toFixed(1)}%)
-                  </span>
-                </div>
-                <div className="w-full bg-slate-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full transition-all"
-                    style={{ width: `${percentage}%` }}
-                  ></div>
-                </div>
-              </div>
-            );
-          })}
-      </div>
+      <VerticalBarChart
+        title=""
+        series={series}
+        color="#3b82f6"
+        embedded
+      />
     </div>
   );
 }
@@ -1052,6 +1282,218 @@ function FundsByPurposeChart({ fundsByPurpose, total }) {
               </div>
             );
           })}
+      </div>
+    </div>
+  );
+}
+
+function LineTrendChart({ title, series, color }) {
+  const values = series.map((item) => item.value);
+  const maxValue = Math.max(...values, 1);
+  const width = 320;
+  const height = 120;
+  const padding = 20;
+  const step = series.length > 1 ? (width - padding * 2) / (series.length - 1) : 0;
+  const points = series
+    .map((item, index) => {
+      const x = padding + index * step;
+      const y = height - padding - (item.value / maxValue) * (height - padding * 2);
+      return `${x},${y}`;
+    })
+    .join(" ");
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+      <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+        <TrendingUp size={20} className="text-blue-600" />
+        {title}
+      </h2>
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-40">
+        <polyline
+          fill="none"
+          stroke={color}
+          strokeWidth="3"
+          points={points}
+        />
+        {series.map((item, index) => {
+          const x = padding + index * step;
+          const y = height - padding - (item.value / maxValue) * (height - padding * 2);
+          return (
+            <g key={item.label}>
+              <circle cx={x} cy={y} r="4" fill={color} />
+              <text x={x} y={height - 4} textAnchor="middle" fontSize="10" fill="#64748b">
+                {item.label}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+      <div className="flex justify-between text-xs text-slate-500">
+        {series.map((item) => (
+          <span key={item.label}>{item.value}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function VerticalBarChart({ title, series, color, embedded = false }) {
+  const maxValue = Math.max(...series.map((item) => item.value), 1);
+  const content = (
+    <div className="flex items-end gap-3 h-40">
+      {series.map((item) => {
+        const height = (item.value / maxValue) * 100;
+        return (
+          <div key={item.label} className="flex-1 text-center">
+            <div
+              className="rounded-t-md"
+              style={{ height: `${height}%`, backgroundColor: color, minHeight: "6px" }}
+            ></div>
+            <p className="text-xs text-slate-600 mt-2 truncate" title={item.label}>
+              {item.label}
+            </p>
+            <p className="text-xs text-slate-500">{item.value}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+      {title ? (
+        <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+          <BarChart3 size={20} className="text-purple-600" />
+          {title}
+        </h2>
+      ) : null}
+      {content}
+    </div>
+  );
+}
+
+function AreaTrendChart({ title, series, color }) {
+  const values = series.map((item) => item.value);
+  const maxValue = Math.max(...values, 1);
+  const width = 320;
+  const height = 120;
+  const padding = 20;
+  const step = series.length > 1 ? (width - padding * 2) / (series.length - 1) : 0;
+  const points = series.map((item, index) => {
+    const x = padding + index * step;
+    const y = height - padding - (item.value / maxValue) * (height - padding * 2);
+    return { x, y };
+  });
+  const areaPath = `M ${padding},${height - padding} `
+    + points.map((p) => `L ${p.x},${p.y}`).join(" ")
+    + ` L ${padding + step * (series.length - 1)},${height - padding} Z`;
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+      <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+        <TrendingUp size={20} className="text-sky-600" />
+        {title}
+      </h2>
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-40">
+        <path d={areaPath} fill={color} opacity="0.2" />
+        <polyline
+          fill="none"
+          stroke={color}
+          strokeWidth="3"
+          points={points.map((p) => `${p.x},${p.y}`).join(" ")}
+        />
+      </svg>
+      <div className="flex justify-between text-xs text-slate-500">
+        {series.map((item) => (
+          <span key={item.label}>{item.label}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DonutChart({ title, series }) {
+  const total = series.reduce((sum, item) => sum + item.value, 0) || 1;
+  let cumulative = 0;
+  const size = 120;
+  const radius = 44;
+  const stroke = 14;
+  const circumference = 2 * Math.PI * radius;
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+      <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+        <PieChart size={20} className="text-indigo-600" />
+        {title}
+      </h2>
+      <div className="flex items-center gap-6">
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          <g transform={`translate(${size / 2}, ${size / 2})`}>
+            {series.map((item) => {
+              const value = item.value || 0;
+              const fraction = value / total;
+              const dash = fraction * circumference;
+              const gap = circumference - dash;
+              const rotation = (cumulative / total) * 360;
+              cumulative += value;
+              return (
+                <circle
+                  key={item.label}
+                  r={radius}
+                  cx="0"
+                  cy="0"
+                  fill="transparent"
+                  stroke={item.color}
+                  strokeWidth={stroke}
+                  strokeDasharray={`${dash} ${gap}`}
+                  transform={`rotate(${rotation - 90})`}
+                />
+              );
+            })}
+          </g>
+        </svg>
+        <div className="space-y-2">
+          {series.map((item) => (
+            <div key={item.label} className="flex items-center gap-2 text-sm text-slate-600">
+              <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></span>
+              <span className="capitalize">{item.label}</span>
+              <span className="text-slate-900 font-semibold">{item.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HorizontalBarChart({ title, series }) {
+  const maxValue = Math.max(...series.map((item) => item.value), 1);
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+      <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+        <BarChart3 size={20} className="text-emerald-600" />
+        {title}
+      </h2>
+      <div className="space-y-3">
+        {series.map((item) => {
+          const percentage = (item.value / maxValue) * 100;
+          return (
+            <div key={item.label}>
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-slate-700">{item.label}</span>
+                <span className="text-slate-900 font-semibold">{item.value.toLocaleString()}</span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-2">
+                <div
+                  className="h-2 rounded-full"
+                  style={{ width: `${percentage}%`, backgroundColor: item.color || "#10b981" }}
+                ></div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

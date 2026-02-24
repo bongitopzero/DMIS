@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Search, Plus, Eye, Edit2, Trash2, AlertTriangle, Cloud, Wind } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Search, Eye, Edit2, Trash2, AlertTriangle, Cloud, Wind } from "lucide-react";
 import API from "../api/axios";
 import "./DisasterEvents.css";
 
-export default function DisasterEvents() {
+export default function DisasterEvents({ mode = "dashboard" }) {
+  const navigate = useNavigate();
   const [disasters, setDisasters] = useState([]);
   const [filteredDisasters, setFilteredDisasters] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [severityFilter, setSeverityFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [yearFilter, setYearFilter] = useState("current");
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
@@ -27,13 +30,40 @@ export default function DisasterEvents() {
   const isClerk = userRole === "Data Clerk";
   
   const [formData, setFormData] = useState({
+    incidentTitle: "",
+    disasterCategory: "",
+    financialYear: "",
+    occurrenceDate: "",
+    occurrenceTime: "",
+    reportDate: "",
+    approvalStatus: "pending",
     type: "drought",
     district: "",
     region: "",
     location: "",
+    village: "",
+    areaClassification: "",
     affectedPopulation: "",
     households: "",
+    totalAffectedPopulation: "",
+    malePopulation: "",
+    femalePopulation: "",
+    childrenCount: "",
+    elderlyCount: "",
+    disabledCount: "",
+    childHeadedHouseholds: "",
+    femaleHeadedHouseholds: "",
+    vulnerableHouseholds: "",
     damages: "",
+    schoolsDamaged: "",
+    clinicsDamaged: "",
+    roadsDamagedKm: "",
+    bridgesDamaged: "",
+    waterSystemsAffected: "",
+    electricityDamage: "",
+    publicBuildingsDamaged: "",
+    infrastructureRepairCost: "",
+    photosUrls: "",
     needs: [],
     severity: "medium",
     status: "reported",
@@ -87,6 +117,17 @@ export default function DisasterEvents() {
     { value: "closed", label: "Closed" },
   ];
 
+  const disasterCategoryOptions = [
+    "Flood",
+    "Drought",
+    "Storm",
+    "Landslide",
+    "Fire",
+    "Epidemic",
+    "Other",
+  ];
+
+
   // Districts organized by region
   const districtsByRegion = {
     "Lowlands": ["Maseru", "Mafeteng", "Mohale's Hoek", "Quthing"],
@@ -120,7 +161,13 @@ export default function DisasterEvents() {
   // Fetch disasters on mount
   useEffect(() => {
     fetchDisasters();
-  }, []);
+  }, [yearFilter]);
+
+  useEffect(() => {
+    if (mode === "register") {
+      openAddModal(false);
+    }
+  }, [mode]);
 
   // Filter disasters when search or filters change
   useEffect(() => {
@@ -156,7 +203,8 @@ export default function DisasterEvents() {
   const fetchDisasters = async () => {
     setError("");
     try {
-      const res = await API.get("/disasters");
+      const query = yearFilter === "all" ? "?year=all" : "";
+      const res = await API.get(`/disasters${query}`);
       setDisasters(res.data);
     } catch (err) {
       console.error(err);
@@ -180,22 +228,54 @@ export default function DisasterEvents() {
     });
   };
 
-  const openAddModal = () => {
+  const toNumber = (value) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const openAddModal = (openInModal = false) => {
     setEditingId(null);
     setCustomNeed("");
     setFormData({
+      incidentTitle: "",
+      disasterCategory: "",
+      financialYear: "",
+      occurrenceDate: "",
+      occurrenceTime: "",
+      reportDate: "",
+      approvalStatus: "pending",
       type: "drought",
       district: "",
       region: "",
       location: "",
+      village: "",
+      areaClassification: "",
       affectedPopulation: "",
       households: "",
+      totalAffectedPopulation: "",
+      malePopulation: "",
+      femalePopulation: "",
+      childrenCount: "",
+      elderlyCount: "",
+      disabledCount: "",
+      childHeadedHouseholds: "",
+      femaleHeadedHouseholds: "",
+      vulnerableHouseholds: "",
       damages: "",
+      schoolsDamaged: "",
+      clinicsDamaged: "",
+      roadsDamagedKm: "",
+      bridgesDamaged: "",
+      waterSystemsAffected: "",
+      electricityDamage: "",
+      publicBuildingsDamaged: "",
+      infrastructureRepairCost: "",
+      photosUrls: "",
       needs: [],
       severity: "medium",
       status: "reported", // Always start as "reported"
     });
-    setShowModal(true);
+    setShowModal(openInModal);
   };
 
   const openEditModal = (disaster) => {
@@ -221,13 +301,40 @@ export default function DisasterEvents() {
     
     setCustomNeed(finalCustomNeed);
     setFormData({
+      incidentTitle: disaster.incidentTitle || "",
+      disasterCategory: disaster.disasterCategory || "",
+      financialYear: disaster.financialYear || "",
+      occurrenceDate: disaster.occurrenceDate ? new Date(disaster.occurrenceDate).toISOString().slice(0, 10) : "",
+      occurrenceTime: disaster.occurrenceTime || "",
+      reportDate: disaster.reportDate ? new Date(disaster.reportDate).toISOString().slice(0, 10) : "",
+      approvalStatus: disaster.approvalStatus || "pending",
       type: disaster.type,
       district: disaster.district,
       region: disaster.region || "",
       location: disaster.location || "",
+      village: disaster.village || "",
+      areaClassification: disaster.areaClassification || "",
       affectedPopulation: disaster.affectedPopulation?.toString() || "",
       households: disaster.households?.toString() || "",
+      totalAffectedPopulation: disaster.totalAffectedPopulation?.toString() || "",
+      malePopulation: disaster.malePopulation?.toString() || "",
+      femalePopulation: disaster.femalePopulation?.toString() || "",
+      childrenCount: disaster.childrenCount?.toString() || "",
+      elderlyCount: disaster.elderlyCount?.toString() || "",
+      disabledCount: disaster.disabledCount?.toString() || "",
+      childHeadedHouseholds: disaster.childHeadedHouseholds?.toString() || "",
+      femaleHeadedHouseholds: disaster.femaleHeadedHouseholds?.toString() || "",
+      vulnerableHouseholds: disaster.vulnerableHouseholds?.toString() || "",
       damages: disaster.damages || "",
+      schoolsDamaged: disaster.schoolsDamaged?.toString() || "",
+      clinicsDamaged: disaster.clinicsDamaged?.toString() || "",
+      roadsDamagedKm: disaster.roadsDamagedKm?.toString() || "",
+      bridgesDamaged: disaster.bridgesDamaged?.toString() || "",
+      waterSystemsAffected: disaster.waterSystemsAffected?.toString() || "",
+      electricityDamage: disaster.electricityDamage?.toString() || "",
+      publicBuildingsDamaged: disaster.publicBuildingsDamaged?.toString() || "",
+      infrastructureRepairCost: disaster.infrastructureRepairCost?.toString() || "",
+      photosUrls: Array.isArray(disaster.photosUrls) ? disaster.photosUrls.join(", ") : "",
       needs: needsArray,
       severity: disaster.severity,
       status: disaster.status || "reported",
@@ -244,11 +351,43 @@ export default function DisasterEvents() {
     setError("");
     setSuccess("");
 
-    const { district, affectedPopulation, damages, needs } = formData;
-    if (!district || !affectedPopulation || !damages || !needs || needs.length === 0) {
-      setError("Please fill in all required fields including selecting at least one need");
+    const {
+      incidentTitle,
+      disasterCategory,
+      financialYear,
+      occurrenceDate,
+      reportDate,
+      district,
+      region,
+      areaClassification,
+      affectedPopulation,
+      totalAffectedPopulation,
+      damages,
+      needs,
+    } = formData;
+
+    if (
+      !incidentTitle ||
+      !disasterCategory ||
+      !financialYear ||
+      !occurrenceDate ||
+      !reportDate ||
+      !district ||
+      !region ||
+      !areaClassification ||
+      !affectedPopulation ||
+      !totalAffectedPopulation ||
+      !damages ||
+      !needs ||
+      needs.length === 0
+    ) {
+      setError("Please fill in all required fields and select at least one need");
       return;
     }
+
+    const photosUrls = formData.photosUrls
+      ? formData.photosUrls.split(",").map((url) => url.trim()).filter(Boolean)
+      : [];
 
     try {
       // Build the final needs array
@@ -259,11 +398,28 @@ export default function DisasterEvents() {
 
       const payload = {
         ...formData,
-        affectedPopulation: formData.affectedPopulation,
-        households: formData.households || "0-10",
-        affectedHouses: parseInt(formData.affectedHouses) || 0,
-        damageCost: parseFloat(formData.damageCost) || 0,
         needs: Array.isArray(finalNeeds) ? finalNeeds.join(", ") : finalNeeds,
+        households: formData.households || "0-10",
+        affectedHouses: toNumber(formData.affectedHouses),
+        damageCost: toNumber(formData.damageCost),
+        photosUrls,
+        totalAffectedPopulation: toNumber(formData.totalAffectedPopulation),
+        malePopulation: toNumber(formData.malePopulation),
+        femalePopulation: toNumber(formData.femalePopulation),
+        childrenCount: toNumber(formData.childrenCount),
+        elderlyCount: toNumber(formData.elderlyCount),
+        disabledCount: toNumber(formData.disabledCount),
+        childHeadedHouseholds: toNumber(formData.childHeadedHouseholds),
+        femaleHeadedHouseholds: toNumber(formData.femaleHeadedHouseholds),
+        vulnerableHouseholds: toNumber(formData.vulnerableHouseholds),
+        schoolsDamaged: toNumber(formData.schoolsDamaged),
+        clinicsDamaged: toNumber(formData.clinicsDamaged),
+        roadsDamagedKm: toNumber(formData.roadsDamagedKm),
+        bridgesDamaged: toNumber(formData.bridgesDamaged),
+        waterSystemsAffected: toNumber(formData.waterSystemsAffected),
+        electricityDamage: toNumber(formData.electricityDamage),
+        publicBuildingsDamaged: toNumber(formData.publicBuildingsDamaged),
+        infrastructureRepairCost: toNumber(formData.infrastructureRepairCost),
       };
 
       // Data Clerks cannot change status - always keep as "reported" for new incidents
@@ -302,6 +458,7 @@ export default function DisasterEvents() {
         setSuccess("Disaster deleted successfully!");
         fetchDisasters();
       } catch (err) {
+        console.error("Error deleting disaster:", err.response?.data || err);
         setError(err.response?.data?.message || "Failed to delete disaster");
       }
     }
@@ -425,71 +582,677 @@ export default function DisasterEvents() {
     return workflow[currentStatus];
   };
 
-  return (
-    <div className="disaster-events">
-      {/* Filters & Controls */}
-      <div className="filters-section">
-        <div className="search-box">
-          <Search className="w-4 h-4" />
+  const renderDisasterForm = (inline = false) => (
+    <div
+      className="modal-content"
+      onClick={inline ? undefined : (e) => e.stopPropagation()}
+      style={inline ? { maxWidth: "1100px", margin: "0 auto" } : undefined}
+    >
+      <div className="modal-header">
+        <h2 className="modal-title">{editingId ? "Edit Disaster" : "Register New Disaster"}</h2>
+        {!inline && (
+          <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
+        )}
+      </div>
+
+      {error && <div className="alert alert-error">{error}</div>}
+
+      <div className="modal-body">
+        <h3 style={{ margin: "0 0 12px", fontSize: "16px", fontWeight: 600 }}>Disaster Identification Fields</h3>
+
+        {/* Row 1: Type, Severity, and Status */}
+        <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+          <div className="form-group">
+            <label>Disaster Type <span className="required-asterisk">*</span></label>
+            <select name="type" value={formData.type} onChange={handleInputChange}>
+              {disasterTypes.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Severity Level <span className="required-asterisk">*</span></label>
+            <select name="severity" value={formData.severity} onChange={handleInputChange}>
+              {severityLevels.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          {/* Status - Only for Coordinator */}
+          {isCoordinator && (
+            <div className="form-group">
+              <label>Status <span className="required-asterisk">*</span></label>
+              <select name="status" value={formData.status} onChange={handleInputChange}>
+                {statuses.map((st) => (
+                  <option key={st.value} value={st.value}>
+                    {st.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          {/* Show status for Data Clerk but disabled */}
+          {isClerk && (
+            <div className="form-group">
+              <label>Status (Read-only) <span className="required-asterisk">*</span></label>
+              <input 
+                type="text" 
+                value={statuses.find(s => s.value === formData.status)?.label || "Reported"}
+                disabled
+                style={{ backgroundColor: "#f3f4f6", cursor: "not-allowed" }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Incident Identification */}
+        <div className="form-row" style={{ gridTemplateColumns: "2fr 1fr 1fr" }}>
+          <div className="form-group">
+            <label>Incident Title <span className="required-asterisk">*</span></label>
+            <input
+              type="text"
+              name="incidentTitle"
+              value={formData.incidentTitle}
+              onChange={handleInputChange}
+              placeholder="e.g., March 2024 Flooding - Maseru"
+            />
+          </div>
+          <div className="form-group">
+            <label>Disaster Category <span className="required-asterisk">*</span></label>
+            <select name="disasterCategory" value={formData.disasterCategory} onChange={handleInputChange}>
+              <option value="">Select category</option>
+              {disasterCategoryOptions.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Financial Year <span className="required-asterisk">*</span></label>
+            <input
+              type="text"
+              name="financialYear"
+              value={formData.financialYear}
+              onChange={handleInputChange}
+              placeholder="e.g., 2024/2025"
+            />
+          </div>
+        </div>
+
+        {/* Occurrence & Reporting */}
+        <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+          <div className="form-group">
+            <label>Occurrence Date <span className="required-asterisk">*</span></label>
+            <input
+              type="date"
+              name="occurrenceDate"
+              value={formData.occurrenceDate}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="form-group">
+            <label>Occurrence Time</label>
+            <input
+              type="time"
+              name="occurrenceTime"
+              value={formData.occurrenceTime}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="form-group">
+            <label>Report Date <span className="required-asterisk">*</span></label>
+            <input
+              type="date"
+              name="reportDate"
+              value={formData.reportDate}
+              onChange={handleInputChange}
+            />
+          </div>
+        </div>
+
+        {/* Approval Status */}
+        {isCoordinator && (
+          <div className="form-row">
+            <div className="form-group">
+              <label>Approval Status</label>
+              <select name="approvalStatus" value={formData.approvalStatus} onChange={handleInputChange}>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+        )}
+        {isClerk && (
+          <div className="form-row">
+            <div className="form-group">
+              <label>Approval Status (Read-only)</label>
+              <input
+                type="text"
+                value={formData.approvalStatus || "pending"}
+                disabled
+                style={{ backgroundColor: "#f3f4f6", cursor: "not-allowed" }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* District with Sections */}
+        <div className="form-row">
+          <div className="form-group">
+            <label>District (by Region) <span className="required-asterisk">*</span></label>
+            <select name="district" value={formData.district} onChange={handleInputChange}>
+              <option value="">Select district</option>
+              {Object.entries(districtsByRegion).map(([region, districts]) => (
+                <optgroup key={region} label={region}>
+                  {districts.map(district => (
+                    <option key={district} value={district}>{district}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>District Region/Area <span className="required-asterisk">*</span></label>
+            <select 
+              name="region" 
+              value={formData.region} 
+              onChange={handleInputChange}
+              disabled={!formData.district}
+            >
+              <option value="">Select region</option>
+              <option value="North Area">North Area</option>
+              <option value="South Area">South Area</option>
+              <option value="East Area">East Area</option>
+              <option value="West Area">West Area</option>
+            </select>
+            {!formData.district && (
+              <small style={{ color: "#6b7280", fontSize: "0.75rem" }}>Select district first</small>
+            )}
+          </div>
+        </div>
+
+        <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr" }}>
+          <div className="form-group">
+            <label>Area Classification <span className="required-asterisk">*</span></label>
+            <select name="areaClassification" value={formData.areaClassification} onChange={handleInputChange}>
+              <option value="">Select classification</option>
+              <option value="rural">Rural</option>
+              <option value="urban">Urban</option>
+              <option value="peri-urban">Peri-Urban</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Village</label>
+            <input
+              type="text"
+              name="village"
+              value={formData.village}
+              onChange={handleInputChange}
+            />
+          </div>
+        </div>
+
+        {/* Location Name */}
+        <div className="form-group">
+          <label>Location Name</label>
           <input
             type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            name="location"
+            value={formData.location}
+            onChange={handleInputChange}
           />
         </div>
 
-        <div className="filter-controls">
-          <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="filter-select">
-            <option value="all">All Types</option>
-            {disasterTypes.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
+        <h3 style={{ margin: "24px 0 12px", fontSize: "16px", fontWeight: 600 }}>Household Damage Fields</h3>
 
-          <select value={severityFilter} onChange={(e) => setSeverityFilter(e.target.value)} className="filter-select">
-            <option value="all">All Severity</option>
-            {severityLevels.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
+        {/* Row 2: Affected Population and Households with Intervals */}
+        <div className="form-row">
+          <div className="form-group">
+            <label>Affected Population <span className="required-asterisk">*</span></label>
+            <select
+              name="affectedPopulation"
+              value={formData.affectedPopulation}
+              onChange={handleInputChange}
+            >
+              <option value="">Select population range</option>
+              {populationIntervals.map((interval) => (
+                <option key={interval.value} value={interval.value}>
+                  {interval.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Affected Households <span className="required-asterisk">*</span></label>
+            <select
+              name="households"
+              value={formData.households}
+              onChange={handleInputChange}
+            >
+              <option value="">Select household range</option>
+              {householdIntervals.map((interval) => (
+                <option key={interval.value} value={interval.value}>
+                  {interval.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
 
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="filter-select">
-            <option value="all">All Status</option>
-            {statuses.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
+        {/* Population Breakdown */}
+        <div className="form-row">
+          <div className="form-group">
+            <label>Affected Population (Exact Number) <span className="required-asterisk">*</span></label>
+            <input
+              type="number"
+              name="totalAffectedPopulation"
+              value={formData.totalAffectedPopulation}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+        </div>
 
-          <button onClick={openAddModal} className="btn-register">
-            <Plus className="w-4 h-4" />
-            Register Disaster
-          </button>
+        <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+          <div className="form-group">
+            <label>Male Population</label>
+            <input
+              type="number"
+              name="malePopulation"
+              value={formData.malePopulation}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+          <div className="form-group">
+            <label>Female Population</label>
+            <input
+              type="number"
+              name="femalePopulation"
+              value={formData.femalePopulation}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+          <div className="form-group">
+            <label>Children Count</label>
+            <input
+              type="number"
+              name="childrenCount"
+              value={formData.childrenCount}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+        </div>
+
+        <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+          <div className="form-group">
+            <label>Elderly Count</label>
+            <input
+              type="number"
+              name="elderlyCount"
+              value={formData.elderlyCount}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+          <div className="form-group">
+            <label>Persons with Disabilities</label>
+            <input
+              type="number"
+              name="disabledCount"
+              value={formData.disabledCount}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+          <div className="form-group">
+            <label>Vulnerable Households</label>
+            <input
+              type="number"
+              name="vulnerableHouseholds"
+              value={formData.vulnerableHouseholds}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+        </div>
+
+        <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr" }}>
+          <div className="form-group">
+            <label>Child-Headed Households</label>
+            <input
+              type="number"
+              name="childHeadedHouseholds"
+              value={formData.childHeadedHouseholds}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+          <div className="form-group">
+            <label>Female-Headed Households</label>
+            <input
+              type="number"
+              name="femaleHeadedHouseholds"
+              value={formData.femaleHeadedHouseholds}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+        </div>
+
+        {/* Row 3: Exact Numbers for Affected Houses and Damage Cost */}
+        <div className="form-row">
+          <div className="form-group">
+            <label>Affected Houses (Exact Number) <span className="required-asterisk">*</span></label>
+            <input
+              type="number"
+              name="affectedHouses"
+              value={formData.affectedHouses || ""}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+        </div>
+
+        {/* Damages Description */}
+        <div className="form-group">
+          <label>Damages Description</label>
+          <textarea
+            name="damages"
+            value={formData.damages}
+            onChange={handleInputChange}
+            rows="4"
+            style={{ fontFamily: "inherit", resize: "vertical" }}
+          />
+        </div>
+
+        <h3 style={{ margin: "24px 0 12px", fontSize: "16px", fontWeight: 600 }}>Infrastructure Damage Fields</h3>
+
+        {/* Infrastructure Impact */}
+        <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+          <div className="form-group">
+            <label>Schools Damaged</label>
+            <input
+              type="number"
+              name="schoolsDamaged"
+              value={formData.schoolsDamaged}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+          <div className="form-group">
+            <label>Clinics Damaged</label>
+            <input
+              type="number"
+              name="clinicsDamaged"
+              value={formData.clinicsDamaged}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+          <div className="form-group">
+            <label>Roads Damaged (km)</label>
+            <input
+              type="number"
+              name="roadsDamagedKm"
+              value={formData.roadsDamagedKm}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+        </div>
+
+        <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+          <div className="form-group">
+            <label>Bridges Damaged</label>
+            <input
+              type="number"
+              name="bridgesDamaged"
+              value={formData.bridgesDamaged}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+          <div className="form-group">
+            <label>Water Systems Affected</label>
+            <input
+              type="number"
+              name="waterSystemsAffected"
+              value={formData.waterSystemsAffected}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+          <div className="form-group">
+            <label>Electricity Damage (sites)</label>
+            <input
+              type="number"
+              name="electricityDamage"
+              value={formData.electricityDamage}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+        </div>
+
+        <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr" }}>
+          <div className="form-group">
+            <label>Public Buildings Damaged</label>
+            <input
+              type="number"
+              name="publicBuildingsDamaged"
+              value={formData.publicBuildingsDamaged}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+          <div className="form-group">
+            <label>Infrastructure Repair Cost (override)</label>
+            <input
+              type="number"
+              name="infrastructureRepairCost"
+              value={formData.infrastructureRepairCost}
+              onChange={handleInputChange}
+              min="0"
+            />
+          </div>
+        </div>
+
+        {/* Immediate Needs */}
+        <div className="form-group">
+          <label>Immediate Needs <span className="required-asterisk">*</span></label>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "12px",
+            padding: "12px",
+            backgroundColor: "#f9fafb",
+            borderRadius: "4px",
+            border: "1px solid #e5e7eb"
+          }}>
+            {disasterNeeds[formData.type]?.map((need) => (
+              <label key={need} style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                cursor: "pointer",
+                fontSize: "14px"
+              }}>
+                <input
+                  type="checkbox"
+                  checked={Array.isArray(formData.needs) && formData.needs.includes(need)}
+                  onChange={() => handleNeedsChange(need)}
+                  style={{
+                    width: "18px",
+                    height: "18px",
+                    cursor: "pointer"
+                  }}
+                />
+                {need}
+              </label>
+            ))}
+            {/* Other Option */}
+            <label style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              cursor: "pointer",
+              fontSize: "14px"
+            }}>
+              <input
+                type="checkbox"
+                checked={Array.isArray(formData.needs) && formData.needs.includes("Other")}
+                onChange={() => handleNeedsChange("Other")}
+                style={{
+                  width: "18px",
+                  height: "18px",
+                  cursor: "pointer"
+                }}
+              />
+              Other
+            </label>
+          </div>
+          {/* Custom Need Input */}
+          {Array.isArray(formData.needs) && formData.needs.includes("Other") && (
+            <input
+              type="text"
+              value={customNeed}
+              onChange={(e) => setCustomNeed(e.target.value)}
+              style={{
+                marginTop: "8px",
+                padding: "8px 12px",
+                border: "1px solid #d1d5db",
+                borderRadius: "4px",
+                fontSize: "14px",
+                fontFamily: "inherit",
+                width: "100%",
+                boxSizing: "border-box"
+              }}
+            />
+          )}
+        </div>
+
+        {/* Photos */}
+        <div className="form-row" style={{ gridTemplateColumns: "1fr" }}>
+          <div className="form-group">
+            <label>Photos URLs (comma-separated)</label>
+            <input
+              type="text"
+              name="photosUrls"
+              value={formData.photosUrls}
+              onChange={handleInputChange}
+            />
+          </div>
         </div>
       </div>
+
+      <div className="modal-actions">
+        {inline ? (
+          <button
+            className="btn-cancel"
+            onClick={() => {
+              openAddModal(false);
+              if (mode === "register") {
+                navigate("/disaster-events");
+              }
+            }}
+          >
+            Back to Dashboard
+          </button>
+        ) : (
+          <button className="btn-cancel" onClick={() => setShowModal(false)}>
+            Cancel
+          </button>
+        )}
+        <button className="btn-save" onClick={handleSaveDisaster}>
+          {editingId ? "Update Disaster" : "Register Disaster"}
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="disaster-events">
+      {/* Filters & Controls */}
+      {mode === "dashboard" && (
+        <div className="filters-section">
+          <div className="search-box">
+            <Search className="w-4 h-4" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="filter-controls">
+            <select value={yearFilter} onChange={(e) => setYearFilter(e.target.value)} className="filter-select">
+              <option value="current">Current Year</option>
+              <option value="all">All Years</option>
+            </select>
+
+            <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="filter-select">
+              <option value="all">All Types</option>
+              {disasterTypes.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+
+            <select value={severityFilter} onChange={(e) => setSeverityFilter(e.target.value)} className="filter-select">
+              <option value="all">All Severity</option>
+              {severityLevels.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="filter-select">
+              <option value="all">All Status</option>
+              {statuses.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
 
       {/* Alerts */}
       {error && <div className="alert alert-error">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
-      {/* Disasters Grid */}
-      <div className="disasters-grid">
-        {filteredDisasters.length === 0 ? (
-          <div className="no-disasters">No disasters found</div>
-        ) : (
-          filteredDisasters.map((disaster) => {
-            const colors = getDisasterColor(disaster.type);
-            const severity = getSeverityBadge(disaster.severity);
-            const severityColor = getSeverityColor(disaster.severity);
-            const status = getStatusBadge(disaster.status || "active");
+      {/* Register Form */}
+      {mode === "register" && (
+        <div style={{ marginBottom: "24px" }}>
+          {renderDisasterForm(true)}
+        </div>
+      )}
 
-            return (
-              <div key={disaster._id} className="disaster-card">
+      {/* Disasters Grid */}
+      {mode === "dashboard" && (
+        <div className="disasters-grid">
+          {filteredDisasters.length === 0 ? (
+            <div className="no-disasters">No disasters found</div>
+          ) : (
+            filteredDisasters.map((disaster) => {
+              const colors = getDisasterColor(disaster.type);
+              const severity = getSeverityBadge(disaster.severity);
+              const severityColor = getSeverityColor(disaster.severity);
+              const status = getStatusBadge(disaster.status || "active");
+
+              return (
+                <div key={disaster._id} className="disaster-card">
                 <div className="card-top-border" style={{ borderTopColor: severityColor }}></div>
 
                 <div className="card-header">
@@ -596,273 +1359,16 @@ export default function DisasterEvents() {
                   </div>
                 </div>
               </div>
-            );
-          })
-        )}
-      </div>
+              );
+            })
+          )}
+        </div>
+      )}
 
       {/* Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">{editingId ? "Edit Disaster" : "Register New Disaster"}</h2>
-              <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
-            </div>
-
-            {error && <div className="alert alert-error">{error}</div>}
-
-            <div className="modal-body">
-              {/* Row 1: Type, Severity, and Status */}
-              <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
-                <div className="form-group">
-                  <label>Disaster Type <span className="required-asterisk">*</span></label>
-                  <select name="type" value={formData.type} onChange={handleInputChange}>
-                    {disasterTypes.map((t) => (
-                      <option key={t.value} value={t.value}>
-                        {t.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Severity Level <span className="required-asterisk">*</span></label>
-                  <select name="severity" value={formData.severity} onChange={handleInputChange}>
-                    {severityLevels.map((s) => (
-                      <option key={s.value} value={s.value}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {/* Status - Only for Coordinator */}
-                {isCoordinator && (
-                  <div className="form-group">
-                    <label>Status <span className="required-asterisk">*</span></label>
-                    <select name="status" value={formData.status} onChange={handleInputChange}>
-                      {statuses.map((st) => (
-                        <option key={st.value} value={st.value}>
-                          {st.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                {/* Show status for Data Clerk but disabled */}
-                {isClerk && (
-                  <div className="form-group">
-                    <label>Status (Read-only) <span className="required-asterisk">*</span></label>
-                    <input 
-                      type="text" 
-                      value={statuses.find(s => s.value === formData.status)?.label || "Reported"}
-                      disabled
-                      style={{ backgroundColor: "#f3f4f6", cursor: "not-allowed" }}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* District with Sections */}
-              <div className="form-row">
-                <div className="form-group">
-                  <label>District (by Region) <span className="required-asterisk">*</span></label>
-                  <select name="district" value={formData.district} onChange={handleInputChange}>
-                    <option value="">Select district</option>
-                    {Object.entries(districtsByRegion).map(([region, districts]) => (
-                      <optgroup key={region} label={region}>
-                        {districts.map(district => (
-                          <option key={district} value={district}>{district}</option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>District Region/Area <span className="required-asterisk">*</span></label>
-                  <select 
-                    name="region" 
-                    value={formData.region} 
-                    onChange={handleInputChange}
-                    disabled={!formData.district}
-                  >
-                    <option value="">Select region</option>
-                    <option value="North Area">North Area</option>
-                    <option value="South Area">South Area</option>
-                    <option value="East Area">East Area</option>
-                    <option value="West Area">West Area</option>
-                  </select>
-                  {!formData.district && (
-                    <small style={{ color: "#6b7280", fontSize: "0.75rem" }}>Select district first</small>
-                  )}
-                </div>
-              </div>
-
-              {/* Location Name */}
-              <div className="form-group">
-                <label>Location Name</label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              {/* Row 2: Affected Population and Households with Intervals */}
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Affected Population <span className="required-asterisk">*</span></label>
-                  <select
-                    name="affectedPopulation"
-                    value={formData.affectedPopulation}
-                    onChange={handleInputChange}
-                  >
-                    <option value="">Select population range</option>
-                    {populationIntervals.map((interval) => (
-                      <option key={interval.value} value={interval.value}>
-                        {interval.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Affected Households <span className="required-asterisk">*</span></label>
-                  <select
-                    name="households"
-                    value={formData.households}
-                    onChange={handleInputChange}
-                  >
-                    <option value="">Select household range</option>
-                    {householdIntervals.map((interval) => (
-                      <option key={interval.value} value={interval.value}>
-                        {interval.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Row 3: Exact Numbers for Affected Houses and Damage Cost */}
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Affected Houses (Exact Number) <span className="required-asterisk">*</span></label>
-                  <input
-                    type="number"
-                    name="affectedHouses"
-                    value={formData.affectedHouses || ""}
-                    onChange={handleInputChange}
-                    min="0"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Damage Cost (Maloti) <span className="required-asterisk">*</span></label>
-                  <input
-                    type="number"
-                    name="damageCost"
-                    value={formData.damageCost || ""}
-                    onChange={handleInputChange}
-                    min="0"
-                  />
-                </div>
-              </div>
-
-              {/* Damages Description */}
-              <div className="form-group">
-                <label>Damages Description</label>
-                <textarea
-                  name="damages"
-                  value={formData.damages}
-                  onChange={handleInputChange}
-                  rows="4"
-                  style={{ fontFamily: "inherit", resize: "vertical" }}
-                />
-              </div>
-
-              {/* Immediate Needs */}
-              <div className="form-group">
-                <label>Immediate Needs <span className="required-asterisk">*</span></label>
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "12px",
-                  padding: "12px",
-                  backgroundColor: "#f9fafb",
-                  borderRadius: "4px",
-                  border: "1px solid #e5e7eb"
-                }}>
-                  {disasterNeeds[formData.type]?.map((need) => (
-                    <label key={need} style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      cursor: "pointer",
-                      fontSize: "14px"
-                    }}>
-                      <input
-                        type="checkbox"
-                        checked={Array.isArray(formData.needs) && formData.needs.includes(need)}
-                        onChange={() => handleNeedsChange(need)}
-                        style={{
-                          width: "18px",
-                          height: "18px",
-                          cursor: "pointer"
-                        }}
-                      />
-                      {need}
-                    </label>
-                  ))}
-                  {/* Other Option */}
-                  <label style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    cursor: "pointer",
-                    fontSize: "14px"
-                  }}>
-                    <input
-                      type="checkbox"
-                      checked={Array.isArray(formData.needs) && formData.needs.includes("Other")}
-                      onChange={() => handleNeedsChange("Other")}
-                      style={{
-                        width: "18px",
-                        height: "18px",
-                        cursor: "pointer"
-                      }}
-                    />
-                    Other
-                  </label>
-                </div>
-                {/* Custom Need Input */}
-                {Array.isArray(formData.needs) && formData.needs.includes("Other") && (
-                  <input
-                    type="text"
-                    value={customNeed}
-                    onChange={(e) => setCustomNeed(e.target.value)}
-                    style={{
-                      marginTop: "8px",
-                      padding: "8px 12px",
-                      border: "1px solid #d1d5db",
-                      borderRadius: "4px",
-                      fontSize: "14px",
-                      fontFamily: "inherit",
-                      width: "100%",
-                      boxSizing: "border-box"
-                    }}
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="modal-actions">
-              <button className="btn-cancel" onClick={() => setShowModal(false)}>
-                Cancel
-              </button>
-              <button className="btn-save" onClick={handleSaveDisaster}>
-                {editingId ? "Update Disaster" : "Register Disaster"}
-              </button>
-            </div>
-          </div>
+          {renderDisasterForm(false)}
         </div>
       )}
 
@@ -985,6 +1491,49 @@ export default function DisasterEvents() {
                 </div>
               </div>
 
+              {/* Identification */}
+              <div className="view-section">
+                <h3 className="view-section-title">Incident Identification</h3>
+                <div className="form-row" style={{ gridTemplateColumns: "2fr 1fr 1fr" }}>
+                  <div className="view-field">
+                    <label className="view-label">Incident Title</label>
+                    <div className="view-value">{viewingDisaster.incidentTitle || "N/A"}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Disaster Category</label>
+                    <div className="view-value">{viewingDisaster.disasterCategory || "N/A"}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Financial Year</label>
+                    <div className="view-value">{viewingDisaster.financialYear || "N/A"}</div>
+                  </div>
+                </div>
+                <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+                  <div className="view-field">
+                    <label className="view-label">Occurrence Date</label>
+                    <div className="view-value">
+                      {viewingDisaster.occurrenceDate ? new Date(viewingDisaster.occurrenceDate).toLocaleDateString() : "N/A"}
+                    </div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Occurrence Time</label>
+                    <div className="view-value">{viewingDisaster.occurrenceTime || "N/A"}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Report Date</label>
+                    <div className="view-value">
+                      {viewingDisaster.reportDate ? new Date(viewingDisaster.reportDate).toLocaleDateString() : "N/A"}
+                    </div>
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="view-field">
+                    <label className="view-label">Approval Status</label>
+                    <div className="view-value">{viewingDisaster.approvalStatus || "pending"}</div>
+                  </div>
+                </div>
+              </div>
+
               {/* Location Information */}
               <div className="view-section">
                 <h3 className="view-section-title">Location Information</h3>
@@ -1002,6 +1551,16 @@ export default function DisasterEvents() {
                   <label className="view-label">Location</label>
                   <div className="view-value">{viewingDisaster.location || "N/A"}</div>
                 </div>
+                <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr" }}>
+                  <div className="view-field">
+                    <label className="view-label">Area Classification</label>
+                    <div className="view-value">{viewingDisaster.areaClassification || "N/A"}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Village</label>
+                    <div className="view-value">{viewingDisaster.village || "N/A"}</div>
+                  </div>
+                </div>
               </div>
 
               {/* Impact Information */}
@@ -1015,6 +1574,50 @@ export default function DisasterEvents() {
                   <div className="view-field">
                     <label className="view-label">Affected Households</label>
                     <div className="view-value">{viewingDisaster.households || "N/A"}</div>
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="view-field">
+                    <label className="view-label">Affected Population (Exact Number)</label>
+                    <div className="view-value">{viewingDisaster.totalAffectedPopulation || 0}</div>
+                  </div>
+                </div>
+                <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+                  <div className="view-field">
+                    <label className="view-label">Male Population</label>
+                    <div className="view-value">{viewingDisaster.malePopulation || 0}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Female Population</label>
+                    <div className="view-value">{viewingDisaster.femalePopulation || 0}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Children Count</label>
+                    <div className="view-value">{viewingDisaster.childrenCount || 0}</div>
+                  </div>
+                </div>
+                <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+                  <div className="view-field">
+                    <label className="view-label">Elderly Count</label>
+                    <div className="view-value">{viewingDisaster.elderlyCount || 0}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Persons with Disabilities</label>
+                    <div className="view-value">{viewingDisaster.disabledCount || 0}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Vulnerable Households</label>
+                    <div className="view-value">{viewingDisaster.vulnerableHouseholds || 0}</div>
+                  </div>
+                </div>
+                <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr" }}>
+                  <div className="view-field">
+                    <label className="view-label">Child-Headed Households</label>
+                    <div className="view-value">{viewingDisaster.childHeadedHouseholds || 0}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Female-Headed Households</label>
+                    <div className="view-value">{viewingDisaster.femaleHeadedHouseholds || 0}</div>
                   </div>
                 </div>
                 {viewingDisaster.affectedHouses > 0 && (
@@ -1031,6 +1634,51 @@ export default function DisasterEvents() {
                     )}
                   </div>
                 )}
+              </div>
+
+              {/* Infrastructure Impact */}
+              <div className="view-section">
+                <h3 className="view-section-title">Infrastructure Impact</h3>
+                <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+                  <div className="view-field">
+                    <label className="view-label">Schools Damaged</label>
+                    <div className="view-value">{viewingDisaster.schoolsDamaged || 0}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Clinics Damaged</label>
+                    <div className="view-value">{viewingDisaster.clinicsDamaged || 0}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Roads Damaged (km)</label>
+                    <div className="view-value">{viewingDisaster.roadsDamagedKm || 0}</div>
+                  </div>
+                </div>
+                <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+                  <div className="view-field">
+                    <label className="view-label">Bridges Damaged</label>
+                    <div className="view-value">{viewingDisaster.bridgesDamaged || 0}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Water Systems Affected</label>
+                    <div className="view-value">{viewingDisaster.waterSystemsAffected || 0}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Electricity Damage</label>
+                    <div className="view-value">{viewingDisaster.electricityDamage || 0}</div>
+                  </div>
+                </div>
+                <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr" }}>
+                  <div className="view-field">
+                    <label className="view-label">Public Buildings Damaged</label>
+                    <div className="view-value">{viewingDisaster.publicBuildingsDamaged || 0}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Infrastructure Repair Cost</label>
+                    <div className="view-value">
+                      {viewingDisaster.infrastructureRepairCost ? `M ${Number(viewingDisaster.infrastructureRepairCost).toLocaleString()}` : "N/A"}
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Damages Description */}
@@ -1067,6 +1715,45 @@ export default function DisasterEvents() {
                 </div>
               </div>
 
+              {/* Financial Summary */}
+              <div className="view-section">
+                <h3 className="view-section-title">Financial Summary</h3>
+                <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+                  <div className="view-field">
+                    <label className="view-label">Household Repair Cost</label>
+                    <div className="view-value">M {Number(viewingDisaster.totalHouseholdRepairCost || 0).toLocaleString()}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Reconstruction Cost</label>
+                    <div className="view-value">M {Number(viewingDisaster.totalReconstructionCost || 0).toLocaleString()}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Infrastructure Cost</label>
+                    <div className="view-value">M {Number(viewingDisaster.totalInfrastructureCost || 0).toLocaleString()}</div>
+                  </div>
+                </div>
+                <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+                  <div className="view-field">
+                    <label className="view-label">Relief Assistance</label>
+                    <div className="view-value">M {Number(viewingDisaster.reliefAssistanceCost || 0).toLocaleString()}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Logistics</label>
+                    <div className="view-value">M {Number(viewingDisaster.logisticsCost || 0).toLocaleString()}</div>
+                  </div>
+                  <div className="view-field">
+                    <label className="view-label">Contingency</label>
+                    <div className="view-value">M {Number(viewingDisaster.contingencyCost || 0).toLocaleString()}</div>
+                  </div>
+                </div>
+                <div className="form-row" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+                  <div className="view-field">
+                    <label className="view-label">Total Estimated Requirement</label>
+                    <div className="view-value">M {Number(viewingDisaster.totalEstimatedRequirement || 0).toLocaleString()}</div>
+                  </div>
+                </div>
+              </div>
+
               {/* Timestamps */}
               <div className="view-section">
                 <h3 className="view-section-title">Timestamps</h3>
@@ -1079,6 +1766,16 @@ export default function DisasterEvents() {
                     <label className="view-label">Last Updated</label>
                     <div className="view-value">{new Date(viewingDisaster.updatedAt).toLocaleString()}</div>
                   </div>
+                </div>
+              </div>
+
+              {/* Photos */}
+              <div className="view-section">
+                <h3 className="view-section-title">Photos</h3>
+                <div className="view-value">
+                  {Array.isArray(viewingDisaster.photosUrls) && viewingDisaster.photosUrls.length > 0
+                    ? viewingDisaster.photosUrls.join(", ")
+                    : "N/A"}
                 </div>
               </div>
 

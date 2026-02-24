@@ -24,7 +24,8 @@ const AdminDashboard = () => {
     name: '',
     email: '',
     password: '',
-    role: 'Data Clerk'
+    role: 'Data Clerk',
+    ministry: ''
   });
 
   const roles = ["Coordinator", "Finance Officer", "Data Clerk", "Administrator"];
@@ -55,7 +56,7 @@ const AdminDashboard = () => {
       await axios.post('/auth/register', newUser);
       setSuccess('User created successfully!');
       setShowAddUser(false);
-      setNewUser({ name: '', email: '', password: '', role: 'Data Clerk' });
+      setNewUser({ name: '', email: '', password: '', role: 'Data Clerk', ministry: '' });
       fetchUsers();
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
@@ -128,6 +129,7 @@ const AdminDashboard = () => {
                 <th>Name</th>
                 <th>Email</th>
                 <th>Role</th>
+                <th>Ministry</th>
                 <th>Created Date</th>
                 <th>Actions</th>
               </tr>
@@ -142,6 +144,7 @@ const AdminDashboard = () => {
                       {user.role}
                     </span>
                   </td>
+                  <td>{user.ministry || "-"}</td>
                   <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                   <td>
                     <button 
@@ -213,7 +216,7 @@ const AdminDashboard = () => {
                 <label>Role</label>
                 <select
                   value={newUser.role}
-                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value, ministry: e.target.value === "Data Clerk" ? newUser.ministry : "" })}
                   required
                 >
                   {roles.map(role => (
@@ -221,6 +224,17 @@ const AdminDashboard = () => {
                   ))}
                 </select>
               </div>
+              {newUser.role === "Data Clerk" && (
+                <div className="form-group">
+                  <label>Ministry</label>
+                  <input
+                    type="text"
+                    value={newUser.ministry}
+                    onChange={(e) => setNewUser({ ...newUser, ministry: e.target.value })}
+                    required
+                  />
+                </div>
+              )}
               <div className="modal-actions">
                 <button type="button" className="btn-secondary" onClick={() => setShowAddUser(false)}>
                   Cancel
@@ -262,7 +276,7 @@ const AdminDashboard = () => {
                 <label>Role</label>
                 <select
                   value={editingUser.role}
-                  onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
+                  onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value, ministry: e.target.value === "Data Clerk" ? editingUser.ministry : "" })}
                   required
                 >
                   {roles.map(role => (
@@ -270,6 +284,17 @@ const AdminDashboard = () => {
                   ))}
                 </select>
               </div>
+              {editingUser.role === "Data Clerk" && (
+                <div className="form-group">
+                  <label>Ministry</label>
+                  <input
+                    type="text"
+                    value={editingUser.ministry || ""}
+                    onChange={(e) => setEditingUser({ ...editingUser, ministry: e.target.value })}
+                    required
+                  />
+                </div>
+              )}
               <div className="modal-actions">
                 <button type="button" className="btn-secondary" onClick={() => setEditingUser(null)}>
                   Cancel

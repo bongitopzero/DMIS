@@ -22,7 +22,13 @@ export default function BudgetOverview({ embedded = false }) {
 
         if (results[0].status === "fulfilled") setBudget(results[0].value.data);
         if (results[1].status === "fulfilled") setRisk(results[1].value.data);
-        if (results[2].status === "fulfilled") setSummary(results[2].value.data);
+        if (results[2].status === "fulfilled") {
+          const summaryData = results[2].value.data;
+          setSummary(summaryData);
+          if (summaryData?.annualBudget) {
+            setBudget(summaryData.annualBudget);
+          }
+        }
       } catch (err) {
         setError("Failed to load budget data");
       } finally {
@@ -43,6 +49,18 @@ export default function BudgetOverview({ embedded = false }) {
       </div>
     );
   }
+
+  const allocatedValue = budget?.totalAllocated ?? budget?.allocatedBudget ?? 0;
+  const committedValue = budget?.committed ?? budget?.committedFunds ?? 0;
+  const spentValue = budget?.spent ?? budget?.spentFunds ?? 0;
+  const remainingValue = budget?.remaining ?? budget?.remainingBudget ?? 0;
+  const derivedRisk = allocatedValue > 0
+    ? remainingValue / allocatedValue < 0.1
+      ? "High"
+      : remainingValue / allocatedValue < 0.3
+        ? "Medium"
+        : "Low"
+    : "Low";
 
   return (
     <div className="finance-dashboard">
@@ -66,7 +84,7 @@ export default function BudgetOverview({ embedded = false }) {
           </div>
           <div className="stat-info">
             <p className="stat-label">Allocated Budget</p>
-            <h3 className="stat-value">M {formatMoney(budget?.allocatedBudget)}</h3>
+            <h3 className="stat-value">M {formatMoney(allocatedValue)}</h3>
           </div>
         </div>
         <div className="stat-card warning">
@@ -75,7 +93,7 @@ export default function BudgetOverview({ embedded = false }) {
           </div>
           <div className="stat-info">
             <p className="stat-label">Committed Funds</p>
-            <h3 className="stat-value">M {formatMoney(budget?.committedFunds)}</h3>
+            <h3 className="stat-value">M {formatMoney(committedValue)}</h3>
           </div>
         </div>
         <div className="stat-card success">
@@ -84,7 +102,7 @@ export default function BudgetOverview({ embedded = false }) {
           </div>
           <div className="stat-info">
             <p className="stat-label">Spent Funds</p>
-            <h3 className="stat-value">M {formatMoney(budget?.spentFunds)}</h3>
+            <h3 className="stat-value">M {formatMoney(spentValue)}</h3>
           </div>
         </div>
         <div className="stat-card info">
@@ -93,7 +111,7 @@ export default function BudgetOverview({ embedded = false }) {
           </div>
           <div className="stat-info">
             <p className="stat-label">Remaining Budget</p>
-            <h3 className="stat-value">M {formatMoney(budget?.remainingBudget)}</h3>
+            <h3 className="stat-value">M {formatMoney(remainingValue)}</h3>
           </div>
         </div>
       </div>
@@ -106,7 +124,7 @@ export default function BudgetOverview({ embedded = false }) {
         <div className="forecast-insights-grid">
           <div className="forecast-insight-card">
             <span className="label">Financial Risk</span>
-            <span className="value">{risk?.financialRisk || budget?.financialRisk || "Low"}</span>
+            <span className="value">{risk?.financialRisk || budget?.financialRisk || derivedRisk}</span>
           </div>
           <div className="forecast-insight-card">
             <span className="label">Pending Requests</span>

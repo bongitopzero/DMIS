@@ -92,6 +92,11 @@ export default function Dashboard() {
 
   /* ================= Summary Stats ================= */
   const activeIncidents = disasters.length;
+  const currentYear = new Date().getFullYear();
+  const yearDisasters = disasters.filter((item) => {
+    const date = new Date(item.createdAt || item.date || Date.now());
+    return date.getFullYear() === currentYear;
+  });
   
   // Calculate statistics from actual data
   const calculateStats = () => {
@@ -214,7 +219,7 @@ export default function Dashboard() {
     return acc;
   }, {});
 
-  disasters.forEach((disaster) => {
+  yearDisasters.forEach((disaster) => {
     const incidentDate = new Date(disaster.createdAt || disaster.date || Date.now());
     const key = `${incidentDate.getFullYear()}-${incidentDate.getMonth()}`;
     if (!monthlyTypeCounts[key]) return;
@@ -257,7 +262,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <SummaryCard
           title="Total Disasters"
-          value={activeIncidents}
+          value={yearDisasters.length}
           subtitle={`${stats.byStatus.verified || 0} verified`}
           icon={<AlertCircle className="w-5 h-5 text-critical" />}
           bgColor="bg-red-50"
@@ -298,23 +303,28 @@ export default function Dashboard() {
             </div>
           )}
           <div className="h-96 rounded-lg overflow-hidden bg-slate-100">
-            <MapView disasters={disasters} selectedDisaster={selectedDisaster} />
+            <MapView disasters={yearDisasters} selectedDisaster={selectedDisaster} />
           </div>
         </div>
 
-        {/* Recent Disasters - 1/3 width */}
-        <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-text">Recent Disasters</h2>
-            <Link to="/disaster-events" className="text-xs text-blue-600 font-medium hover:underline">
-              View All →
-            </Link>
+        {/* Right Column */}
+        <div className="flex flex-col gap-6">
+          {/* Recent Disasters */}
+          <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-text">Recent Disasters</h2>
+              <Link to="/disaster-events" className="text-xs text-blue-600 font-medium hover:underline">
+                View All →
+              </Link>
+            </div>
+            <RecentDisasters
+              disasters={yearDisasters}
+              selectedDisaster={selectedDisaster}
+              onSelectDisaster={setSelectedDisaster}
+            />
           </div>
-          <RecentDisasters
-            disasters={disasters}
-            selectedDisaster={selectedDisaster}
-            onSelectDisaster={setSelectedDisaster}
-          />
+
+          {/* Fund requests moved to dedicated page */}
         </div>
       </div>
 

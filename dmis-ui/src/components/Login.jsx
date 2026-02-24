@@ -31,6 +31,7 @@ export default function Login() {
           name: res.data.name,
           email: res.data.email,
           role: res.data.role,
+          ministry: res.data.ministry || "",
         },
       };
 

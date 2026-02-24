@@ -12,6 +12,7 @@ import fundRoutes from "./routes/fundRoutes.js";
 import forecastingRoutes from "./routes/forecasting.js";
 import forecastRoutes from "./routes/forecastRoutes.js";
 import financeRoutes from "./routes/financeRoutes.js";
+import financeV2Routes from "./routes/financeV2Routes.js";
 
 dotenv.config();
 const app = express();
@@ -33,6 +34,7 @@ app.use("/api/funds", fundRoutes);
 app.use("/api/forecasting", forecastingRoutes);
 app.use("/api/forecast", forecastRoutes);
 app.use("/api/finance", financeRoutes);
+app.use("/api/finance-v2", financeV2Routes);
 
 
 // Connect to MongoDB

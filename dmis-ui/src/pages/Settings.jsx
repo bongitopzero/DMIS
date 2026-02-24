@@ -37,6 +37,12 @@ export default function Settings() {
             <span>Role</span>
             <strong>{user.role || ""}</strong>
           </div>
+          {user.role === "Data Clerk" && (
+            <div className="settings-row">
+              <span>Ministry</span>
+              <strong>{user.ministry || ""}</strong>
+            </div>
+          )}
         </section>
 
         <section className="settings-card">

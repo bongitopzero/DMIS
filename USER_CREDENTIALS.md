@@ -1,4 +1,4 @@
-g# DMIS Lesotho - Test User Credentials
+# DMIS Lesotho - Test User Credentials
 
 ## All User Accounts
 

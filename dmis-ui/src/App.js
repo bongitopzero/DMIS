@@ -5,17 +5,32 @@ import Welcome from "./components/Welcome";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
-import DisasterEvents from "./components/DisasterEvents";
+import DisasterDashboard from "./pages/DisasterDashboard.jsx";
+import RegisterDisaster from "./pages/RegisterDisaster.jsx";
 
-import FinanceDashboard from "./pages/FinanceDashboard.jsx";
 import FundRequests from "./pages/FundRequests.jsx";
 import FinanceReports from "./pages/FinanceReports.jsx";
 import FinanceCenter from "./pages/FinanceCenter.jsx";
+import FinancialDashboardV2 from "./pages/FinancialDashboardV2.jsx";
+import FinancialBudgetHubV2 from "./pages/FinancialBudgetHubV2.jsx";
+import FinancialBudgetBaselineV2 from "./pages/FinancialBudgetBaselineV2.jsx";
+import FinancialBudgetPoolsV2 from "./pages/FinancialBudgetPoolsV2.jsx";
+import FinancialBudgetAdjustmentsV2 from "./pages/FinancialBudgetAdjustmentsV2.jsx";
+import FinancialBudgetExpendituresV2 from "./pages/FinancialBudgetExpendituresV2.jsx";
+import FinancialIncidentHubV2 from "./pages/FinancialIncidentHubV2.jsx";
+import FinancialIncidentManagementV2 from "./pages/FinancialIncidentManagementV2.jsx";
+import FinancialForecastingHubV2 from "./pages/FinancialForecastingHubV2.jsx";
+import FinancialForecastingV2 from "./pages/FinancialForecastingV2.jsx";
+import FinanceIncidentFundsV2 from "./pages/FinanceIncidentFundsV2.jsx";
+import FinanceIncidentFundDetailV2 from "./pages/FinanceIncidentFundDetailV2.jsx";
+import FinanceExpendituresV2 from "./pages/FinanceExpendituresV2.jsx";
+import FinanceSnapshotsV2 from "./pages/FinanceSnapshotsV2.jsx";
 import Settings from "./pages/Settings.jsx";
 import MapPage from "./pages/MapPage";
 import Analysis from "./pages/Analysis.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import Forecasting from "./pages/Forecasting.jsx";
+import CoordinatorFundRequest from "./pages/CoordinatorFundRequest.jsx";
 
 import Sidebar from "./components/sidebar";
 import Navbar from "./components/navbar";
@@ -70,11 +85,200 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["Finance Officer"]}>
               <Layout>
-                <FinanceDashboard />
+                <FinancialDashboardV2 />
               </Layout>
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/finance-v2"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinancialDashboardV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinancialDashboardV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/budgets-expenditures"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinancialBudgetHubV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/budgets-expenditures/baseline"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinancialBudgetBaselineV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/budgets-expenditures/pools"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinancialBudgetPoolsV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/budgets-expenditures/adjustments"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinancialBudgetAdjustmentsV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/budgets-expenditures/expenditures"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinancialBudgetExpendituresV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/incidents"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinancialIncidentHubV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/incidents/profile"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinancialIncidentManagementV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/forecasting"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinancialForecastingHubV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/forecasting/overview"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinancialForecastingV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/incident-funds"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinanceIncidentFundsV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/incident-funds/:id"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinanceIncidentFundDetailV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/expenditures"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinanceExpendituresV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/snapshots"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinanceSnapshotsV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+
+        <Route
+          path="/finance-v2/incident-funds"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinanceIncidentFundsV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/finance-v2/incident-funds/:id"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinanceIncidentFundDetailV2 />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
 
         <Route
           path="/finance/budget-overview"
@@ -92,7 +296,29 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["Coordinator", "Data Clerk"]}>
               <Layout>
-                <DisasterEvents />
+                <DisasterDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/disaster-events/register"
+          element={
+            <ProtectedRoute allowedRoles={["Coordinator", "Data Clerk"]}>
+              <Layout>
+                <RegisterDisaster />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/fund-requests"
+          element={
+            <ProtectedRoute allowedRoles={["Coordinator"]}>
+              <Layout>
+                <CoordinatorFundRequest />
               </Layout>
             </ProtectedRoute>
           }
@@ -189,7 +415,7 @@ function App() {
         <Route
           path="/gis-map"
           element={
-            <ProtectedRoute allowedRoles={["Coordinator", "Data Clerk"]}>
+            <ProtectedRoute allowedRoles={["Coordinator"]}>
               <Layout>
                 <MapPage />
               </Layout>

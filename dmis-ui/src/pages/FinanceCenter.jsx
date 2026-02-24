@@ -4,10 +4,16 @@ import FundManagement from "./FundManagement.jsx";
 import Expenditures from "./Expenditures.jsx";
 import RiskAlerts from "./RiskAlerts.jsx";
 import ForecastAlignment from "./ForecastAlignment.jsx";
+import CostProfiles from "./CostProfiles.jsx";
+import AnnualBudgets from "./AnnualBudgets.jsx";
+import IncidentSnapshots from "./IncidentSnapshots.jsx";
 import "./FundManagement.css";
 
 const tabs = [
   { id: "budget", label: "Budget Overview" },
+  { id: "annual", label: "Annual Budget" },
+  { id: "profiles", label: "Cost Profiles" },
+  { id: "snapshots", label: "Incident Snapshots" },
   { id: "tracking", label: "Financial Tracking" },
   { id: "expenditures", label: "Expenditures" },
   { id: "risk", label: "Risk Alerts" },
@@ -19,6 +25,12 @@ export default function FinanceCenter({ initialTab = "budget" }) {
 
   const renderTab = () => {
     switch (activeTab) {
+      case "annual":
+        return <AnnualBudgets embedded />;
+      case "profiles":
+        return <CostProfiles embedded />;
+      case "snapshots":
+        return <IncidentSnapshots embedded />;
       case "tracking":
         return <FundManagement embedded />;
       case "expenditures":
