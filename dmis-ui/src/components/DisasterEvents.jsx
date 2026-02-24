@@ -17,6 +17,9 @@ export default function DisasterEvents() {
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [verifyingDisaster, setVerifyingDisaster] = useState(null);
   const [verificationNotes, setVerificationNotes] = useState("");
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedDisasterDetail, setSelectedDisasterDetail] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
   
   // Get current user role
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -407,6 +410,65 @@ export default function DisasterEvents() {
     return workflow[currentStatus];
   };
 
+  const viewDisasterDetails = async (disaster) => {
+    setDetailLoading(true);
+    try {
+      const assessmentsRes = await API.get(`/allocation/assessments/${disaster._id}`);
+      setSelectedDisasterDetail({
+        ...disaster,
+        households: assessmentsRes.data.assessments || []
+      });
+      setShowDetailModal(true);
+    } catch (err) {
+      console.warn("Could not fetch assessments:", err);
+      setSelectedDisasterDetail({
+        ...disaster,
+        households: []
+      });
+      setShowDetailModal(true);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const handleApproveDisaster = async () => {
+    if (!selectedDisasterDetail) return;
+    try {
+      await API.put(`/disasters/${selectedDisasterDetail._id}`, {
+        status: "verified",
+        approvedBy: currentUser?.user?.id,
+        approvedAt: new Date().toISOString()
+      });
+      setSuccess("Disaster approved successfully!");
+      setShowDetailModal(false);
+      setSelectedDisasterDetail(null);
+      fetchDisasters();
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to approve disaster");
+      setTimeout(() => setError(""), 5000);
+    }
+  };
+
+  const handleRejectDisaster = async () => {
+    if (!selectedDisasterDetail) return;
+    try {
+      await API.put(`/disasters/${selectedDisasterDetail._id}`, {
+        status: "closed",
+        rejectedBy: currentUser?.user?.id,
+        rejectedAt: new Date().toISOString()
+      });
+      setSuccess("Disaster rejected successfully!");
+      setShowDetailModal(false);
+      setSelectedDisasterDetail(null);
+      fetchDisasters();
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to reject disaster");
+      setTimeout(() => setError(""), 5000);
+    }
+  };
+
   return (
     <div className="disaster-events">
       {/* Filters & Controls */}
@@ -448,11 +510,6 @@ export default function DisasterEvents() {
               </option>
             ))}
           </select>
-
-          <button onClick={openAddModal} className="btn-register">
-            <Plus className="w-4 h-4" />
-            Register Disaster
-          </button>
         </div>
       </div>
 
@@ -460,127 +517,91 @@ export default function DisasterEvents() {
       {error && <div className="alert alert-error">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
-      {/* Disasters Grid */}
-      <div className="disasters-grid">
+      {/* Disasters Table */}
+      <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
         {filteredDisasters.length === 0 ? (
-          <div className="no-disasters">No disasters found</div>
+          <div style={{ padding: '2rem', textAlign: 'center', color: '#9ca3af' }}>No disasters found</div>
         ) : (
-          filteredDisasters.map((disaster) => {
-            const colors = getDisasterColor(disaster.type);
-            const severity = getSeverityBadge(disaster.severity);
-            const severityColor = getSeverityColor(disaster.severity);
-            const status = getStatusBadge(disaster.status || "active");
-
-            return (
-              <div key={disaster._id} className="disaster-card">
-                <div className="card-top-border" style={{ borderTopColor: severityColor }}></div>
-
-                <div className="card-header">
-                  <div className="card-icon" style={{ backgroundColor: colors.bg, color: colors.icon }}>
-                    {getDisasterIcon(disaster.type)}
-                  </div>
-                  <div>
-                    <h3 className="card-title">{disaster.type.replace(/_/g, " ")}</h3>
-                    <p className="card-location">{disaster.district}</p>
-                  </div>
-                </div>
-
-                <div className="card-details">
-                  <div className="detail-item">
-                    <svg className="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
-                    <span>{disaster.location || "Location TBD"}</span>
-                  </div>
-
-                  <div className="detail-item">
-                    <svg className="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                      <circle cx="9" cy="7" r="4" />
-                      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                    <span>{disaster.affectedPopulation || "N/A"} affected ({disaster.households || "N/A"} households)</span>
-                  </div>
-
-                  {disaster.affectedHouses > 0 && (
-                    <div className="detail-item">
-                      <svg className="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                        <polyline points="9 22 9 12 15 12 15 22" />
-                      </svg>
-                      <span>{disaster.affectedHouses} houses damaged</span>
-                    </div>
-                  )}
-
-                  {disaster.damageCost > 0 && (
-                    <div className="detail-item">
-                      <svg className="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <line x1="12" y1="1" x2="12" y2="23" />
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                      </svg>
-                      <span>M {disaster.damageCost.toLocaleString()} damage cost</span>
-                    </div>
-                  )}
-
-                  <div className="detail-item">
-                    <svg className="detail-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                      <line x1="16" y1="2" x2="16" y2="6" />
-                      <line x1="8" y1="2" x2="8" y2="6" />
-                      <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
-                    <span>Reported: {new Date(disaster.createdAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-
-                <div className="card-footer">
-                  <div className="badge-group">
-                    <span className="severity-badge" style={{ backgroundColor: severity.bg, color: severity.color }}>
-                      {severity.label}
-                    </span>
-                    <span className="status-badge" style={{ backgroundColor: status.bg, color: status.color }}>
-                      {status.label}
-                    </span>
-                  </div>
-                  <div className="action-icons">
-                    {isCoordinator && disaster.status === "reported" && (
-                      <button 
-                        className="action-btn verify-btn" 
-                        onClick={() => handleVerifyIncident(disaster)}
-                        title="Verify Incident"
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+              <tr>
+                <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#111827' }}>ID</th>
+                <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#111827' }}>Type</th>
+                <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#111827' }}>District</th>
+                <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#111827' }}>Severity</th>
+                <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#111827' }}>Households</th>
+                <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#111827' }}>Status</th>
+                <th style={{ padding: '0.75rem 1.5rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#111827' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody style={{ borderTop: '1px solid #e5e7eb' }}>
+              {filteredDisasters.map((disaster, idx) => {
+                const statusBadge = getStatusBadge(disaster.status);
+                const severityBadge = getSeverityBadge(disaster.severity);
+                const disasterId = `D-${new Date(disaster.createdAt).getFullYear()}-${String(idx + 1).padStart(3, '0')}`;
+                
+                return (
+                  <tr key={disaster._id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '500', color: '#111827' }}>{disasterId}</td>
+                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#4b5563' }}>{disaster.type?.replace(/_/g, ' ').charAt(0).toUpperCase() + disaster.type?.replace(/_/g, ' ').slice(1)}</td>
+                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#4b5563' }}>{disaster.district}</td>
+                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>
+                      <span
+                        style={{
+                          backgroundColor: severityBadge.bg,
+                          color: severityBadge.color,
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '0.25rem',
+                          display: 'inline-block',
+                          fontSize: '0.85rem',
+                          fontWeight: '600',
+                          textTransform: 'capitalize'
+                        }}
                       >
-                        ✓
-                      </button>
-                    )}
-                    {isCoordinator && getNextStatus(disaster.status) && (
-                      <button 
-                        className="action-btn status-btn" 
-                        onClick={() => handleStatusUpdate(disaster._id, getNextStatus(disaster.status))}
-                        title={`Move to ${getNextStatus(disaster.status)}`}
+                        {disaster.severity}
+                      </span>
+                    </td>
+                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#111827' }}>{disaster.numberOfHouseholdsAffected || disaster.households || 0}</td>
+                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>
+                      <span
+                        style={{
+                          backgroundColor: statusBadge.bg,
+                          color: statusBadge.color,
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '0.25rem',
+                          display: 'inline-block',
+                          fontSize: '0.85rem',
+                          fontWeight: '600'
+                        }}
                       >
-                        →
-                      </button>
-                    )}
-                    <button className="action-btn" title="View">
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    {isCoordinator && (
-                      <button className="action-btn" onClick={() => openEditModal(disaster)} title="Edit">
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                    )}
-                    {isClerk && disaster.status === "reported" && (
-                      <button className="action-btn" onClick={() => openEditModal(disaster)} title="Edit (Reported Only)">
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })
+                        {statusBadge.label}
+                      </span>
+                    </td>
+                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button 
+                          onClick={() => viewDisasterDetails(disaster)}
+                          title="View Details"
+                          style={{
+                            padding: '0.375rem 0.75rem',
+                            backgroundColor: '#1e3a5f',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '0.375rem',
+                            cursor: 'pointer',
+                            fontSize: '0.875rem',
+                            fontWeight: '500'
+                          }}
+                        >
+                          View
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         )}
       </div>
 
@@ -898,6 +919,203 @@ export default function DisasterEvents() {
                 Confirm Verification
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Detail Modal */}
+      {showDetailModal && selectedDisasterDetail && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'center',
+          zIndex: 1000,
+          overflowY: 'auto',
+          paddingTop: '2rem'
+        }} onClick={() => setShowDetailModal(false)}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '0.5rem',
+            padding: '2rem',
+            maxWidth: '1200px',
+            width: '95%',
+            marginBottom: '2rem'
+          }} onClick={(e) => e.stopPropagation()}>
+            
+            {/* Title and Hide Details Button */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', margin: 0 }}>Disaster Summary</h2>
+              <button 
+                onClick={() => setShowDetailModal(false)} 
+                style={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  background: '#f3f4f6', 
+                  border: '1px solid #d1d5db',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  color: '#1f2937',
+                  fontSize: '0.9rem',
+                  fontWeight: '500'
+                }}
+              >
+                👁 Hide Details
+              </button>
+            </div>
+
+            {/* Disaster Header Details Section */}
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={{ fontSize: '0.95rem', fontWeight: '600', color: '#1f2937', marginBottom: '1.5rem', marginTop: 0 }}>Disaster Header Details</h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '2rem'
+              }}>
+                <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Disaster Type:</div>
+                  <div style={{ fontSize: '0.95rem', color: '#1f2937', textTransform: 'capitalize' }}>{selectedDisasterDetail.type}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>District:</div>
+                  <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>{selectedDisasterDetail.district}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Date of Occurrence:</div>
+                  <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>{new Date(selectedDisasterDetail.createdAt).toLocaleDateString()}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Severity:</div>
+                  <div style={{ fontSize: '0.95rem', color: '#1f2937', textTransform: 'capitalize' }}>{selectedDisasterDetail.severity}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Households Affected:</div>
+                  <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>{selectedDisasterDetail.numberOfHouseholdsAffected || 0}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Status:</div>
+                  <div style={{ fontSize: '0.95rem', color: '#1f2937', textTransform: 'capitalize' }}>{selectedDisasterDetail.status || "reported"}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Household Assessment Breakdown */}
+            {Array.isArray(selectedDisasterDetail.households) && selectedDisasterDetail.households.length > 0 && (
+              <div style={{ marginBottom: '2rem' }}>
+                <div style={{ paddingLeft: '0.5rem', borderLeft: '4px solid #dc2626', marginBottom: '1.5rem' }}>
+                  <h3 style={{ fontSize: '0.95rem', fontWeight: '600', color: '#1f2937', marginTop: 0, marginBottom: 0 }}>📋 Household Assessment Breakdown</h3>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  {selectedDisasterDetail.households.map((hh, idx) => (
+                    <div key={idx} style={{
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '0.375rem',
+                      padding: '1.5rem',
+                      backgroundColor: '#f9fafb'
+                    }}>
+                      <h6 style={{ margin: '0 0 1rem 0', fontSize: '0.9rem', fontWeight: '600', color: '#1f2937' }}>
+                        Household {idx + 1}: {hh.householdId || `HH-${idx + 1}`}
+                      </h6>
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(2, 1fr)',
+                        gap: '1.5rem',
+                        fontSize: '0.9rem'
+                      }}>
+                        <div>
+                          <div style={{ fontWeight: '600', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Household ID</div>
+                          <div style={{ color: '#1f2937' }}>{hh.householdId || `HH-${idx + 1}`}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: '600', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Head of Household Name</div>
+                          <div style={{ color: '#1f2937' }}>{hh.headOfHousehold?.name || hh.headName || 'N/A'}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: '600', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Village / Location</div>
+                          <div style={{ color: '#1f2937' }}>{hh.location?.village || hh.village || 'N/A'}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: '600', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Gender</div>
+                          <div style={{ color: '#1f2937' }}>{hh.headOfHousehold?.gender || 'N/A'}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: '600', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Age</div>
+                          <div style={{ color: '#1f2937' }}>{hh.headOfHousehold?.age || 'N/A'}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: '600', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Household Size</div>
+                          <div style={{ color: '#1f2937' }}>{hh.householdSize || 'N/A'} people</div>
+                        </div>
+                        <div style={{ gridColumn: '1 / -1' }}>
+                          <div style={{ fontWeight: '600', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Income Category</div>
+                          <div style={{ color: '#1f2937' }}>{hh.incomeCategory || 'N/A'}</div>
+                        </div>
+                        <div style={{ gridColumn: '1 / -1' }}>
+                          <div style={{ fontWeight: '600', color: '#6b7280', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>Damage Description</div>
+                          <div style={{ color: '#1f2937' }}>{hh.damageDescription || 'N/A'}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            {isCoordinator && (selectedDisasterDetail.status === "reported" || selectedDisasterDetail.status === "submitted") && (
+              <div style={{
+                display: 'flex',
+                gap: '1rem',
+                marginTop: '2rem',
+                paddingTop: '1.5rem',
+                borderTop: '1px solid #e5e7eb',
+                justifyContent: 'flex-end'
+              }}>
+                <button
+                  onClick={handleRejectDisaster}
+                  style={{
+                    padding: '0.5rem 1.5rem',
+                    backgroundColor: '#dc2626',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#b91c1c'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = '#dc2626'}
+                >
+                  Reject
+                </button>
+                <button
+                  onClick={handleApproveDisaster}
+                  style={{
+                    padding: '0.5rem 1.5rem',
+                    backgroundColor: '#1e3a5f',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#152240'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = '#1e3a5f'}
+                >
+                  Approve
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

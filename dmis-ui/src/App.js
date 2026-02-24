@@ -6,9 +6,16 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 import DisasterEvents from "./components/DisasterEvents";
+import NewDisasterReport from "./components/NewDisasterReport";
+import MySubmissions from "./components/MySubmissions";
 
 import FundManagement from "./pages/FundManagement.jsx";
-import FinanceDashboard from "./pages/FundManagement.jsx";
+import FinancialDashboard from "./pages/FinancialDashboard.jsx";
+import AidAllocation from "./pages/AidAllocation.jsx";
+import BudgetAllocation from "./pages/BudgetAllocation.jsx";
+import ExpenseLog from "./pages/ExpenseLog.jsx";
+import FinanceAuditTrail from "./pages/FinanceAuditTrail.jsx";
+import ApprovedDisasters from "./pages/ApprovedDisasters.jsx";
 import MapPage from "./pages/MapPage";
 import Analysis from "./pages/Analysis.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
@@ -38,7 +45,7 @@ function Layout({ children }) {
 function App() {
   return (
     <ThemeProvider>
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
         <Route path="/" element={<Welcome />} />
         <Route path="/login" element={<Login />} />
@@ -60,7 +67,84 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["Finance Officer"]}>
               <Layout>
-                <FinanceDashboard />
+                <FinancialDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/aid-allocation"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <AidAllocation />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/budget-allocation"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <BudgetAllocation />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/expense-log"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <ExpenseLog />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/audit-trail"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <FinanceAuditTrail />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/approved-disasters"
+          element={
+            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+              <Layout>
+                <ApprovedDisasters />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/my-submissions"
+          element={
+            <ProtectedRoute allowedRoles={["Data Clerk"]}>
+              <Layout>
+                <MySubmissions />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/new-disaster-report"
+          element={
+            <ProtectedRoute allowedRoles={["Data Clerk"]}>
+              <Layout>
+                <NewDisasterReport />
               </Layout>
             </ProtectedRoute>
           }

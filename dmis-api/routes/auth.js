@@ -45,7 +45,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-
 // Login
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -58,15 +57,17 @@ router.post("/login", async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: "Invalid password" });
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d"
+      expiresIn: "7d",
     });
+
+    console.log("Login successful for user:", user.email, "Role:", user.role);
 
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role,
-      token
+      role: user.role, // Ensure role is returned from database
+      token,
     });
   } catch (err) {
     console.error(err);

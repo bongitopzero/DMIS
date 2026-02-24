@@ -13,10 +13,6 @@ export default function Welcome() {
         <div className="welcome-logo">
           DMIS <span>Lesotho DMA</span>
         </div>
-
-        <button className="btn-get-started" onClick={() => navigate("/login")}>
-          Get Started
-        </button>
       </nav>
 
       {/* HERO SECTION */}

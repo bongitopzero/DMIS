@@ -35,6 +35,12 @@ const DisasterSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    numberOfHouseholdsAffected: {
+      type: Number,
+      required: true,
+      min: 1,
+      default: 1
+    },
     location: {
       type: String,
       default: null
@@ -58,7 +64,7 @@ const DisasterSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["reported", "verified", "responding", "closed"],
+      enum: ["reported", "submitted", "verified", "responding", "closed"],
       default: "reported"
     },
     date: {

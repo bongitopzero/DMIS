@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import MapView from "./MapView";
 import RecentDisasters from "./RecentDisasters";
 import API from "../api/axios";
+import { ToastManager } from "./Toast";
 import {
   AlertCircle,
   Users,
@@ -14,12 +15,32 @@ export default function Dashboard() {
   const [selectedDisaster, setSelectedDisaster] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [disastersByType, setDisastersByType] = useState({});
+  const [financialByMonth, setFinancialByMonth] = useState({});
 
   useEffect(() => {
     fetchDisasters();
-    const interval = setInterval(fetchDisasters, 30000);
+    fetchDashboardStats();
+    const interval = setInterval(() => {
+      fetchDisasters();
+      fetchDashboardStats();
+    }, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const fetchDashboardStats = async () => {
+    try {
+      const [typeRes, finRes] = await Promise.all([
+        API.get("/disasters/dashboard/by-type"),
+        API.get("/disasters/dashboard/financial-summary")
+      ]);
+
+      setDisastersByType(typeRes.data.data || {});
+      setFinancialByMonth(finRes.data.data || {});
+    } catch (err) {
+      console.error("Error fetching dashboard stats:", err);
+    }
+  };
 
   const fetchDisasters = async () => {
     setLoading(true);
@@ -70,7 +91,7 @@ export default function Dashboard() {
       byType: {},
       byDistrict: {},
       bySeverity: { low: 0, medium: 0, high: 0 },
-      byStatus: { reported: 0, verified: 0, responding: 0, closed: 0 }
+      byStatus: { reported: 0, submitted: 0, verified: 0, responding: 0, closed: 0 }
     };
 
     disasters.forEach(d => {
@@ -108,7 +129,22 @@ export default function Dashboard() {
     }));
 
   const totalBudget = 9.8; // Example: M 9.8M
-  const budgetUtilization = 48; // Example: 48%
+
+  const handleApproveDisaster = async (disasterId) => {
+    try {
+      const response = await API.put(`/disasters/${disasterId}`, {
+        status: "verified"
+      });
+      console.log("✅ Disaster approved:", response.data);
+      await fetchDisasters();
+      ToastManager.success("✅ Disaster approved successfully!");
+    } catch (err) {
+      setError("Failed to approve disaster");
+      console.error(err);
+      const errorMsg = err.response?.data?.message || "Failed to approve disaster";
+      ToastManager.error(`Error: ${errorMsg}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 p-6">
@@ -144,10 +180,48 @@ export default function Dashboard() {
         <SummaryCard
           title="Active Response"
           value={stats.byStatus.responding || 0}
-          subtitle={`${stats.byStatus.reported || 0} pending review`}
+          subtitle={`${stats.byStatus.submitted || 0} pending approval`}
           icon={<TrendingUp className="w-5 h-5 text-emerald-500" />}
           bgColor="bg-emerald-50"
         />
+      </div>
+
+      {/* Pending Approval Section */}
+      <div className="mb-6 bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+        <h2 className="text-lg font-semibold text-text mb-4">Pending Coordinator Approval</h2>
+        {disasters.filter(d => d.status === "submitted").length === 0 ? (
+          <p className="text-sm text-muted">No disasters pending approval</p>
+        ) : (
+          <div className="space-y-3">
+            {disasters.filter(d => d.status === "submitted").map((disaster) => (
+              <div key={disaster._id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <div className="flex-1">
+                  <p className="font-semibold text-text">{disaster.type?.toUpperCase()} in {disaster.district}</p>
+                  <p className="text-sm text-muted">
+                    {disaster.numberOfHouseholdsAffected || 0} household(s) | 
+                    Severity: <span style={{ textTransform: 'capitalize', fontWeight: '600' }}>{disaster.severity}</span>
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleApproveDisaster(disaster._id)}
+                  disabled={loading}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#1e3a5f',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.35rem',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: '600'
+                  }}
+                >
+                  {loading ? "Approving..." : "Approve"}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Main Content Area - Map on left, Incidents on right */}
@@ -190,43 +264,7 @@ export default function Dashboard() {
           <h3 className="text-lg font-semibold text-text mb-4">
             Disasters by Type (6 Months)
           </h3>
-          <div className="h-64 flex items-end justify-around gap-2 px-4">
-            <div className="text-center">
-              <div className="w-8 bg-moderate rounded" style={{ height: "120px" }}></div>
-              <p className="text-xs text-muted mt-2">Jul</p>
-            </div>
-            <div className="text-center">
-              <div className="w-8 bg-moderate rounded" style={{ height: "90px" }}></div>
-              <p className="text-xs text-muted mt-2">Aug</p>
-            </div>
-            <div className="text-center">
-              <div className="w-8 bg-low rounded" style={{ height: "110px" }}></div>
-              <p className="text-xs text-muted mt-2">Sep</p>
-            </div>
-            <div className="text-center">
-              <div className="w-8 bg-moderate rounded" style={{ height: "180px" }}></div>
-              <p className="text-xs text-muted mt-2">Oct</p>
-            </div>
-            <div className="text-center">
-              <div className="w-8 bg-moderate rounded" style={{ height: "200px" }}></div>
-              <p className="text-xs text-muted mt-2">Nov</p>
-            </div>
-            <div className="text-center">
-              <div className="w-8 bg-moderate rounded" style={{ height: "150px" }}></div>
-              <p className="text-xs text-muted mt-2">Dec</p>
-            </div>
-          </div>
-          <div className="flex gap-4 justify-center mt-4 text-xs">
-            <span className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-moderate rounded"></div> Drought
-            </span>
-            <span className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-moderate rounded"></div> Heavy Rainfall
-            </span>
-            <span className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-low rounded"></div> Strong Winds
-            </span>
-          </div>
+          <DisastersByTypeChart disastersByType={disastersByType} />
         </div>
 
         {/* Chart: Financial Overview */}
@@ -234,58 +272,7 @@ export default function Dashboard() {
           <h3 className="text-lg font-semibold text-text mb-4">
             Financial Overview (6 Months)
           </h3>
-          <div className="h-64 flex items-end justify-around gap-2 px-4">
-            <div className="text-center">
-              <div
-                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded"
-                style={{ height: "80px" }}
-              ></div>
-              <p className="text-xs text-muted mt-2">Jul</p>
-            </div>
-            <div className="text-center">
-              <div
-                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded"
-                style={{ height: "110px" }}
-              ></div>
-              <p className="text-xs text-muted mt-2">Aug</p>
-            </div>
-            <div className="text-center">
-              <div
-                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded"
-                style={{ height: "140px" }}
-              ></div>
-              <p className="text-xs text-muted mt-2">Sep</p>
-            </div>
-            <div className="text-center">
-              <div
-                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded"
-                style={{ height: "160px" }}
-              ></div>
-              <p className="text-xs text-muted mt-2">Oct</p>
-            </div>
-            <div className="text-center">
-              <div
-                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded"
-                style={{ height: "190px" }}
-              ></div>
-              <p className="text-xs text-muted mt-2">Nov</p>
-            </div>
-            <div className="text-center">
-              <div
-                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded"
-                style={{ height: "220px" }}
-              ></div>
-              <p className="text-xs text-muted mt-2">Dec</p>
-            </div>
-          </div>
-          <div className="flex gap-4 justify-center mt-4 text-xs">
-            <span className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-blue-400 rounded"></div> Total Budget
-            </span>
-            <span className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-teal-400 rounded"></div> Amount Spent
-            </span>
-          </div>
+          <FinancialOverviewChart financialByMonth={financialByMonth} />
         </div>
       </div>
 
@@ -345,6 +332,138 @@ function SummaryCard({ title, value, subtitle, icon, bgColor }) {
         <div className={`p-2 rounded-lg ${bgColor}`}>{icon}</div>
       </div>
       <p className="text-xs text-muted">{subtitle}</p>
+    </div>
+  );
+}
+
+/* ================= Disasters by Type Chart Component ================= */
+function DisastersByTypeChart({ disastersByType }) {
+  const types = Object.entries(disastersByType).sort((a, b) => b[1] - a[1]);
+  
+  if (types.length === 0) {
+    return (
+      <div className="h-64 flex items-center justify-center text-muted">
+        <p>No disaster data available for the past 6 months</p>
+      </div>
+    );
+  }
+
+  // Find max value for scaling
+  const maxValue = Math.max(...types.map(t => t[1]), 1);
+  const maxHeight = 220; // max height in pixels
+
+  // Color palette for different disaster types
+  const colorMap = {
+    "drought": "#60a5fa", // blue
+    "flooding": "#3b82f6", // darker blue
+    "landslide": "#8b5cf6", // purple
+    "storm": "#f59e0b", // amber
+    "earthquake": "#ef4444", // red
+    "disease": "#06b6d4", // cyan
+    "wildfire": "#d84315", // deep orange
+  };
+
+  return (
+    <div>
+      <div className="h-64 flex items-end justify-around gap-2 px-4">
+        {types.map(([type, count]) => {
+          const height = (count / maxValue) * maxHeight;
+          const color = colorMap[type.toLowerCase()] || "#3b82f6";
+          
+          return (
+            <div key={type} className="text-center">
+              <div
+                className="w-8 rounded transition-all hover:opacity-75"
+                style={{
+                  height: `${height}px`,
+                  backgroundColor: color,
+                  minHeight: "20px"
+                }}
+                title={`${type}: ${count} disasters`}
+              ></div>
+              <p className="text-xs text-muted mt-2 truncate">{type}</p>
+              <p className="text-xs font-semibold text-text">{count}</p>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex gap-3 justify-center mt-4 text-xs flex-wrap">
+        {types.slice(0, 3).map(([type]) => {
+          const color = colorMap[type.toLowerCase()] || "#3b82f6";
+          return (
+            <span key={type} className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded" style={{ backgroundColor: color }}></div>
+              {type}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ================= Financial Overview Chart Component ================= */
+function FinancialOverviewChart({ financialByMonth }) {
+  const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+  // Parse month data and sort chronologically
+  const months = Object.entries(financialByMonth)
+    .map(([monthStr, amount]) => {
+      const parts = monthStr.split('-');
+      const monthName = parts[0];
+      const monthIndex = monthOrder.indexOf(monthName);
+      return { monthStr, monthName, amount, monthIndex };
+    })
+    .sort((a, b) => a.monthIndex - b.monthIndex);
+
+  if (months.length === 0) {
+    return (
+      <div className="h-64 flex items-center justify-center text-muted">
+        <p>No financial data available for the past 6 months</p>
+      </div>
+    );
+  }
+
+  // Find max value for scaling
+  const maxValue = Math.max(...months.map(m => m.amount), 1);
+  const maxHeight = 220; // max height in pixels
+  
+  // Format currency values
+  const formatCurrency = (value) => {
+    if (value >= 1000000) {
+      return `M ${(value / 1000000).toFixed(1)}M`;
+    } else if (value >= 1000) {
+      return `M ${(value / 1000).toFixed(1)}K`;
+    }
+    return `M ${value.toFixed(0)}`;
+  };
+
+  return (
+    <div>
+      <div className="h-64 flex items-end justify-around gap-2 px-4">
+        {months.map(({ monthStr, monthName, amount }) => {
+          const height = (amount / maxValue) * maxHeight;
+          
+          return (
+            <div key={monthStr} className="text-center">
+              <div
+                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded transition-all hover:opacity-75"
+                style={{
+                  height: `${Math.max(height, 20)}px`
+                }}
+                title={`${monthName}: M ${(amount / 1000).toFixed(1)}K`}
+              ></div>
+              <p className="text-xs text-muted mt-2">{monthName}</p>
+              <p className="text-xs font-semibold text-text">{(amount / 1000).toFixed(0)}K</p>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex gap-4 justify-center mt-4 text-xs">
+        <span className="flex items-center gap-1">
+          <div className="w-3 h-3 bg-blue-400 rounded"></div> Total Expenses
+        </span>
+      </div>
     </div>
   );
 }

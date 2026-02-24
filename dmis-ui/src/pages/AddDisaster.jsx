@@ -9,7 +9,8 @@ function AddDisaster() {
     affectedPopulation: "",
     damages: "",
     needs: "",
-    severity: "medium"
+    severity: "medium",
+    numberOfHouseholdsAffected: ""
   });
 
   const navigate = useNavigate();
@@ -48,6 +49,14 @@ function AddDisaster() {
         <input name="affectedPopulation" type="number" placeholder="Affected Population" onChange={handleChange} required />
         <input name="damages" placeholder="Damages" onChange={handleChange} required />
         <input name="needs" placeholder="Needs" onChange={handleChange} required />
+        <input 
+          name="numberOfHouseholdsAffected" 
+          type="number" 
+          placeholder="Number of Households Affected" 
+          onChange={handleChange} 
+          required 
+          min="1"
+        />
 
         <select name="severity" onChange={handleChange}>
           <option value="low">Low</option>

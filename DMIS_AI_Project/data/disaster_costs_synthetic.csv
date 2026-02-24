@@ -1,0 +1,501 @@
+Disaster_Type,District,Severity,Affected_Population,Affected_Households,Houses_Damaged,Immediate_Needs,Duration_Days,Estimated_Cost_Maloti
+Drought,Mafeteng,Low,1360,5490,0,Food & Water Relief,300,8403647.848965568
+Drought,Mokhotlong,Low,37694,5678,0,Food & Water Relief,300,98420562.09617984
+Drought,Mohale's Hoek,Low,1269,7049,0,Food & Water Relief,120,6394054.273342665
+Heavy Rainfall,Mohale's Hoek,Moderate,6896,8766,1082,Infrastructure & Relief,175,60446796.287979834
+Heavy Rainfall,Leribe,Moderate,2399,7834,243,Infrastructure & Relief,167,14824184.472943846
+Heavy Rainfall,Mafeteng,Moderate,9292,8533,776,Infrastructure & Relief,172,50998788.76798572
+Strong Winds,Qacha's Nek,Moderate,45474,8326,205,Shelter,2,38246809.29405948
+Heavy Rainfall,Mohale's Hoek,Moderate,44073,3943,309,Infrastructure & Relief,14,46362239.23620427
+Drought,Qacha's Nek,Low,40897,9567,0,Food & Water Relief,330,196440882.43312937
+Strong Winds,Butha-Buthe,Moderate,17762,9368,791,Relief Supplies,41,72818362.61429936
+Strong Winds,Berea,Moderate,49484,8106,520,Shelter,139,27898971.844857965
+Drought,Berea,Low,33659,5992,0,Food & Water Relief,270,108774791.97894073
+Strong Winds,Qacha's Nek,Low,13567,3204,47,Medical Aid,99,9303767.464414304
+Heavy Rainfall,Leribe,Severe,5556,8210,642,Infrastructure & Relief,137,54116500.43152526
+Drought,Thaba-Tseka,Low,23919,1584,0,Food & Water Relief,150,23172267.456993077
+Strong Winds,Mafeteng,Moderate,18641,7674,230,Shelter,13,25819107.71013579
+Drought,Leribe,Low,22799,9889,0,Food & Water Relief,330,58371537.0163156
+Heavy Rainfall,Thaba-Tseka,Severe,10730,5692,230,Infrastructure & Relief,3,23781025.307664752
+Drought,Mohale's Hoek,Low,22459,5630,0,Food & Water Relief,330,78332438.0970719
+Heavy Rainfall,Qacha's Nek,Severe,35266,8094,373,Infrastructure & Relief,52,41849895.764311045
+Heavy Rainfall,Mokhotlong,Moderate,44917,7654,112,Infrastructure & Relief,54,45260986.53674501
+Drought,Maseru,Low,39123,7492,0,Food & Water Relief,90,31922337.268130414
+Heavy Rainfall,Mohale's Hoek,Severe,22419,5031,438,Infrastructure & Relief,116,43696653.143171474
+Heavy Rainfall,Mohale's Hoek,Severe,24009,2030,239,Infrastructure & Relief,3,34651819.84327902
+Drought,Mafeteng,Low,7046,9661,0,Food & Water Relief,150,21700309.233767606
+Drought,Mafeteng,Low,9180,3076,0,Food & Water Relief,300,29094957.642951533
+Strong Winds,Quthing,Moderate,39884,5634,297,Medical Aid,112,21022920.119249716
+Strong Winds,Mafeteng,Moderate,12335,2149,128,Relief Supplies,9,16067084.842404636
+Strong Winds,Leribe,Moderate,43142,2355,130,Relief Supplies,75,14609041.367463995
+Strong Winds,Qacha's Nek,Low,6039,9737,103,Relief Supplies,99,19618072.40826807
+Strong Winds,Butha-Buthe,Moderate,47475,5073,337,Relief Supplies,169,33439615.183659364
+Strong Winds,Mafeteng,Moderate,23828,4593,276,Medical Aid,176,23716216.736762777
+Drought,Leribe,Low,46025,3546,0,Food & Water Relief,240,89549208.76686348
+Strong Winds,Leribe,Moderate,11177,5995,282,Medical Aid,28,32192502.496048316
+Drought,Berea,Low,29624,8096,0,Food & Water Relief,150,56638195.463206604
+Strong Winds,Maseru,Low,44025,1160,23,Shelter,99,6108100.919430282
+Strong Winds,Mafeteng,Low,690,1080,31,Medical Aid,18,4002585.130400422
+Strong Winds,Thaba-Tseka,Low,23593,669,45,Relief Supplies,127,4273464.342033759
+Drought,Thaba-Tseka,Low,34677,884,0,Food & Water Relief,300,119784033.05647688
+Drought,Thaba-Tseka,Low,19690,637,0,Food & Water Relief,150,23922260.96637337
+Heavy Rainfall,Mokhotlong,Moderate,24876,4880,19,Infrastructure & Relief,143,21576496.56571793
+Heavy Rainfall,Butha-Buthe,Moderate,11466,953,50,Infrastructure & Relief,86,11070825.913095929
+Strong Winds,Mafeteng,Low,5277,3954,53,Medical Aid,53,14020666.547603937
+Strong Winds,Mokhotlong,Moderate,22199,4969,364,Relief Supplies,52,32559141.738558028
+Strong Winds,Butha-Buthe,Moderate,17519,1793,146,Shelter,58,10515755.678961447
+Drought,Thaba-Tseka,Low,25816,8408,0,Food & Water Relief,270,74095981.7570063
+Strong Winds,Thaba-Tseka,Low,29805,612,46,Relief Supplies,89,1919378.7725665323
+Strong Winds,Maseru,Moderate,46452,3443,188,Medical Aid,93,18202999.509468712
+Drought,Leribe,Low,20031,4349,0,Food & Water Relief,150,38405116.580440536
+Heavy Rainfall,Maseru,Severe,44578,2241,237,Infrastructure & Relief,85,45621916.65790137
+Drought,Mafeteng,Low,37720,5981,0,Food & Water Relief,240,101966261.63723497
+Drought,Thaba-Tseka,Low,23789,2589,0,Food & Water Relief,90,25083219.7889636
+Drought,Butha-Buthe,Low,29668,9187,0,Food & Water Relief,180,63937368.97589168
+Strong Winds,Berea,Low,5552,2838,100,Medical Aid,43,13048625.082634676
+Strong Winds,Butha-Buthe,Low,32496,9045,34,Medical Aid,154,24199675.156501226
+Heavy Rainfall,Thaba-Tseka,Moderate,11761,517,50,Infrastructure & Relief,157,11449151.399967818
+Strong Winds,Maseru,Moderate,24048,8967,393,Shelter,177,55972394.80940488
+Drought,Mafeteng,Low,38341,5204,0,Food & Water Relief,270,115207910.27279457
+Strong Winds,Berea,Moderate,20650,5744,278,Shelter,113,24815602.786895894
+Heavy Rainfall,Mafeteng,Moderate,47459,828,85,Infrastructure & Relief,147,42068599.85767366
+Strong Winds,Mokhotlong,Moderate,17601,2882,51,Medical Aid,69,7066697.569385635
+Drought,Quthing,Low,32167,5688,0,Food & Water Relief,180,85609371.7263932
+Drought,Maseru,Low,22045,5405,0,Food & Water Relief,270,85971418.10978794
+Drought,Mokhotlong,Low,9424,4430,0,Food & Water Relief,120,21174215.531754337
+Heavy Rainfall,Berea,Severe,12016,1642,173,Infrastructure & Relief,5,25450423.778109245
+Strong Winds,Maseru,Moderate,27462,9680,832,Relief Supplies,45,84319012.8007212
+Heavy Rainfall,Leribe,Moderate,7088,3023,181,Infrastructure & Relief,173,15062048.288951544
+Strong Winds,Butha-Buthe,Low,9935,3809,57,Shelter,131,16958948.20510929
+Strong Winds,Quthing,Moderate,34482,1631,112,Shelter,134,8954974.403118785
+Heavy Rainfall,Maseru,Severe,21059,5448,675,Infrastructure & Relief,14,72508112.05989319
+Drought,Berea,Low,42856,8153,0,Food & Water Relief,150,88935392.29425952
+Heavy Rainfall,Qacha's Nek,Severe,25433,7675,667,Infrastructure & Relief,60,56487396.67530726
+Heavy Rainfall,Maseru,Severe,5335,3875,410,Infrastructure & Relief,157,35341504.45139159
+Strong Winds,Leribe,Moderate,45945,5813,255,Shelter,56,27514385.568941448
+Heavy Rainfall,Butha-Buthe,Moderate,30048,5224,118,Infrastructure & Relief,11,33690604.83242077
+Strong Winds,Thaba-Tseka,Low,4658,4025,314,Medical Aid,105,13429138.712529592
+Drought,Berea,Low,904,8275,0,Food & Water Relief,270,14479101.163854169
+Drought,Maseru,Low,39257,1560,0,Food & Water Relief,270,129562647.19353454
+Heavy Rainfall,Leribe,Moderate,13956,7345,456,Infrastructure & Relief,113,43042949.501378804
+Heavy Rainfall,Qacha's Nek,Moderate,14989,349,33,Infrastructure & Relief,133,14049826.527372746
+Heavy Rainfall,Quthing,Severe,23428,4819,302,Infrastructure & Relief,103,45782678.562451184
+Heavy Rainfall,Butha-Buthe,Moderate,7449,9621,97,Infrastructure & Relief,166,12041182.305540647
+Strong Winds,Qacha's Nek,Moderate,42818,5215,105,Medical Aid,138,26816410.99815778
+Strong Winds,Thaba-Tseka,Moderate,20463,6071,68,Relief Supplies,126,19243883.468195267
+Drought,Leribe,Low,6754,860,0,Food & Water Relief,270,13137484.908142364
+Heavy Rainfall,Qacha's Nek,Severe,45915,8572,666,Infrastructure & Relief,5,54994004.43501562
+Heavy Rainfall,Thaba-Tseka,Severe,37168,6777,404,Infrastructure & Relief,177,59293678.35307196
+Heavy Rainfall,Thaba-Tseka,Severe,47392,7340,793,Infrastructure & Relief,63,92159741.59841385
+Strong Winds,Berea,Low,30221,1376,46,Medical Aid,28,4316196.432682838
+Drought,Qacha's Nek,Low,49013,464,0,Food & Water Relief,300,99050328.17998567
+Drought,Butha-Buthe,Low,40941,7049,0,Food & Water Relief,150,59206578.338074505
+Drought,Maseru,Low,10767,9005,0,Food & Water Relief,270,30859698.648630567
+Heavy Rainfall,Quthing,Severe,39556,3696,211,Infrastructure & Relief,111,41340367.77058616
+Heavy Rainfall,Butha-Buthe,Severe,13410,8043,935,Infrastructure & Relief,26,61056301.537158206
+Heavy Rainfall,Qacha's Nek,Severe,11054,976,69,Infrastructure & Relief,112,10916371.70212854
+Heavy Rainfall,Qacha's Nek,Moderate,27946,9452,758,Infrastructure & Relief,6,62178727.80854933
+Heavy Rainfall,Mafeteng,Severe,14543,8295,645,Infrastructure & Relief,79,59860951.85366629
+Drought,Qacha's Nek,Low,48653,6416,0,Food & Water Relief,210,78471978.43659903
+Drought,Mafeteng,Low,49876,4308,0,Food & Water Relief,90,51676884.350973174
+Strong Winds,Mafeteng,Low,40256,2126,2,Shelter,5,6606592.590912519
+Drought,Thaba-Tseka,Low,2719,7141,0,Food & Water Relief,300,15925677.128031585
+Strong Winds,Quthing,Low,19716,2924,37,Medical Aid,69,6326847.222148496
+Heavy Rainfall,Butha-Buthe,Moderate,2408,8667,587,Infrastructure & Relief,93,48027475.12687449
+Drought,Quthing,Low,31023,7041,0,Food & Water Relief,150,41978442.91666566
+Drought,Thaba-Tseka,Low,21111,700,0,Food & Water Relief,330,79520558.4581068
+Heavy Rainfall,Leribe,Low,8304,6665,22,Infrastructure & Relief,53,5244383.395900197
+Drought,Mokhotlong,Low,2470,8489,0,Food & Water Relief,240,15883574.938115165
+Heavy Rainfall,Mafeteng,Severe,15874,5842,668,Infrastructure & Relief,97,67524969.74587312
+Strong Winds,Maseru,Low,32654,1050,32,Relief Supplies,5,4744639.7719860105
+Drought,Thaba-Tseka,Low,44372,6128,0,Food & Water Relief,180,82054074.4350103
+Drought,Qacha's Nek,Low,14882,2471,0,Food & Water Relief,120,13317191.370248586
+Heavy Rainfall,Maseru,Severe,6279,6266,345,Infrastructure & Relief,111,28998963.18574359
+Drought,Mafeteng,Low,15843,3976,0,Food & Water Relief,300,57758503.563251436
+Drought,Thaba-Tseka,Low,21030,7296,0,Food & Water Relief,300,90028480.15384443
+Strong Winds,Maseru,Moderate,36744,3517,109,Relief Supplies,55,14371218.66660776
+Drought,Qacha's Nek,Low,3208,7212,0,Food & Water Relief,210,15520643.052555613
+Strong Winds,Thaba-Tseka,Moderate,13724,8070,574,Shelter,135,64915497.06494413
+Heavy Rainfall,Butha-Buthe,Moderate,36868,6883,762,Infrastructure & Relief,88,62162629.90680833
+Strong Winds,Berea,Moderate,37648,4857,153,Relief Supplies,84,16675052.866766257
+Strong Winds,Berea,Moderate,37511,3801,341,Medical Aid,1,29405804.316928387
+Strong Winds,Mokhotlong,Low,2982,8158,722,Relief Supplies,173,29992814.692389764
+Strong Winds,Qacha's Nek,Low,24070,2165,0,Relief Supplies,113,7245750.675172116
+Heavy Rainfall,Mohale's Hoek,Severe,26022,5026,263,Infrastructure & Relief,110,36930584.46874316
+Heavy Rainfall,Berea,Moderate,47690,154,17,Infrastructure & Relief,72,22746628.795137674
+Heavy Rainfall,Quthing,Severe,20194,3400,66,Infrastructure & Relief,88,26358278.733767886
+Heavy Rainfall,Qacha's Nek,Moderate,48417,2638,164,Infrastructure & Relief,74,27814859.47279146
+Drought,Berea,Low,2698,4342,0,Food & Water Relief,150,8715466.396376247
+Heavy Rainfall,Berea,Severe,23736,6135,522,Infrastructure & Relief,5,49070521.94130376
+Strong Winds,Mohale's Hoek,Low,1779,7183,499,Relief Supplies,158,25592408.208213706
+Drought,Mokhotlong,Low,21107,4931,0,Food & Water Relief,90,23720091.447735522
+Strong Winds,Qacha's Nek,Moderate,37301,8528,280,Medical Aid,4,40571738.55203755
+Heavy Rainfall,Thaba-Tseka,Severe,11872,9096,74,Infrastructure & Relief,34,19914551.066675268
+Strong Winds,Maseru,Moderate,32396,7241,377,Medical Aid,27,24839564.366003845
+Strong Winds,Mohale's Hoek,Moderate,29902,4363,97,Shelter,173,13260221.045994055
+Strong Winds,Thaba-Tseka,Moderate,36296,7743,701,Relief Supplies,54,46125773.18412393
+Drought,Berea,Low,19750,4888,0,Food & Water Relief,180,45868062.603759356
+Drought,Qacha's Nek,Low,24563,6919,0,Food & Water Relief,90,33756648.641831085
+Heavy Rainfall,Butha-Buthe,Moderate,23650,2811,245,Infrastructure & Relief,81,30189106.517380916
+Heavy Rainfall,Butha-Buthe,Low,47804,253,1,Infrastructure & Relief,171,26625144.20027371
+Heavy Rainfall,Quthing,Moderate,13850,8070,130,Infrastructure & Relief,12,12652055.399267979
+Drought,Maseru,Low,49582,4190,0,Food & Water Relief,90,36455300.53117712
+Drought,Berea,Low,20991,1441,0,Food & Water Relief,300,76924763.96710116
+Strong Winds,Mokhotlong,Low,2921,7219,709,Shelter,59,44207308.61046323
+Heavy Rainfall,Quthing,Severe,47117,8338,777,Infrastructure & Relief,135,93874603.29319613
+Heavy Rainfall,Maseru,Severe,24570,4332,497,Infrastructure & Relief,146,52714296.10986385
+Drought,Thaba-Tseka,Low,1114,5492,0,Food & Water Relief,300,6405394.615201735
+Heavy Rainfall,Leribe,Moderate,30366,3083,182,Infrastructure & Relief,153,31215770.864059567
+Strong Winds,Butha-Buthe,Moderate,48788,8784,425,Relief Supplies,34,42438973.14089222
+Heavy Rainfall,Mokhotlong,Severe,10496,3910,378,Infrastructure & Relief,16,36272711.733292714
+Drought,Quthing,Low,37629,7169,0,Food & Water Relief,330,111624471.58917706
+Strong Winds,Berea,Low,2550,1265,119,Relief Supplies,37,7865470.271012968
+Strong Winds,Berea,Moderate,25057,2732,139,Medical Aid,171,18393146.142068543
+Heavy Rainfall,Mokhotlong,Severe,41470,1968,225,Infrastructure & Relief,63,53782305.17418397
+Heavy Rainfall,Maseru,Moderate,36832,1489,73,Infrastructure & Relief,120,33724945.508406684
+Heavy Rainfall,Maseru,Severe,8745,7314,726,Infrastructure & Relief,163,69849564.28637543
+Heavy Rainfall,Butha-Buthe,Severe,27185,7412,215,Infrastructure & Relief,89,39043249.66809532
+Strong Winds,Mafeteng,Moderate,35201,1480,97,Medical Aid,29,8148650.812488169
+Strong Winds,Leribe,Moderate,38284,6981,331,Relief Supplies,5,41455100.452291906
+Drought,Butha-Buthe,Low,26059,7391,0,Food & Water Relief,240,57825479.09562633
+Heavy Rainfall,Butha-Buthe,Severe,29625,8328,972,Infrastructure & Relief,62,101969106.09434213
+Strong Winds,Leribe,Low,19629,1691,39,Relief Supplies,33,8450074.886218028
+Heavy Rainfall,Qacha's Nek,Moderate,7814,2483,167,Infrastructure & Relief,45,13528049.552362408
+Strong Winds,Maseru,Moderate,46749,4386,154,Relief Supplies,45,24691514.55332992
+Heavy Rainfall,Quthing,Moderate,49638,5250,534,Infrastructure & Relief,82,78122945.15392159
+Heavy Rainfall,Mokhotlong,Severe,10677,5443,524,Infrastructure & Relief,88,53268816.35223546
+Strong Winds,Leribe,Low,1507,5545,466,Relief Supplies,63,23782086.182714026
+Drought,Maseru,Low,5584,377,0,Food & Water Relief,180,8018471.108096132
+Drought,Berea,Low,15359,9209,0,Food & Water Relief,90,22675404.144865315
+Heavy Rainfall,Qacha's Nek,Severe,49646,6453,305,Infrastructure & Relief,125,57972065.15950693
+Drought,Berea,Low,8313,9745,0,Food & Water Relief,120,23356732.76010061
+Strong Winds,Quthing,Moderate,16922,3442,284,Shelter,175,24500301.952838216
+Heavy Rainfall,Mafeteng,Moderate,3593,5758,706,Infrastructure & Relief,101,42421014.350064464
+Drought,Mafeteng,Low,49401,1782,0,Food & Water Relief,330,152602901.6381055
+Heavy Rainfall,Mohale's Hoek,Moderate,20482,2080,162,Infrastructure & Relief,27,27316383.123520166
+Heavy Rainfall,Quthing,Moderate,6276,3776,308,Infrastructure & Relief,93,22826511.392942164
+Strong Winds,Qacha's Nek,Moderate,45359,4573,386,Relief Supplies,17,20988454.993644852
+Heavy Rainfall,Mafeteng,Severe,35031,8812,1016,Infrastructure & Relief,72,96113785.08130074
+Drought,Berea,Low,37435,8565,0,Food & Water Relief,120,52844852.93894401
+Drought,Quthing,Low,21081,3596,0,Food & Water Relief,300,78298631.70574042
+Strong Winds,Berea,Moderate,39999,3217,159,Medical Aid,148,17743704.900524
+Strong Winds,Thaba-Tseka,Moderate,9627,6147,241,Shelter,158,20255116.447244406
+Strong Winds,Mafeteng,Moderate,43701,7114,89,Relief Supplies,106,34891409.20504813
+Drought,Berea,Low,6590,8608,0,Food & Water Relief,150,22798126.942075334
+Strong Winds,Mokhotlong,Low,26515,652,7,Relief Supplies,111,2914541.9868137413
+Drought,Mokhotlong,Low,33726,307,0,Food & Water Relief,180,64845843.00858631
+Drought,Leribe,Low,21788,7967,0,Food & Water Relief,120,22292456.00467857
+Strong Winds,Quthing,Moderate,14112,1366,121,Medical Aid,136,9636691.179310534
+Strong Winds,Mokhotlong,Low,2856,4890,287,Medical Aid,150,12461038.600676
+Strong Winds,Qacha's Nek,Low,3420,9374,642,Relief Supplies,97,33516327.885991506
+Drought,Berea,Low,7505,258,0,Food & Water Relief,300,21209903.248992465
+Heavy Rainfall,Mafeteng,Severe,34223,6395,561,Infrastructure & Relief,66,65975176.93598372
+Drought,Butha-Buthe,Low,11671,1494,0,Food & Water Relief,240,25765104.312692992
+Heavy Rainfall,Qacha's Nek,Severe,19842,8004,866,Infrastructure & Relief,14,72872836.25600187
+Heavy Rainfall,Butha-Buthe,Moderate,33642,4748,317,Infrastructure & Relief,84,40930063.42085856
+Heavy Rainfall,Mokhotlong,Severe,46393,3316,378,Infrastructure & Relief,168,46416444.829967596
+Strong Winds,Mokhotlong,Moderate,36642,6530,394,Relief Supplies,93,24248759.88197637
+Heavy Rainfall,Quthing,Severe,42740,6376,275,Infrastructure & Relief,28,46095223.41709785
+Strong Winds,Maseru,Low,6616,3668,119,Medical Aid,148,10962832.278262809
+Heavy Rainfall,Butha-Buthe,Low,1468,9608,1043,Infrastructure & Relief,59,41725630.846523814
+Strong Winds,Berea,Low,9700,1329,11,Relief Supplies,43,4434452.963756613
+Heavy Rainfall,Butha-Buthe,Severe,45772,7573,796,Infrastructure & Relief,172,81703298.81693043
+Heavy Rainfall,Mafeteng,Severe,39562,6627,637,Infrastructure & Relief,85,74121043.9564811
+Strong Winds,Mokhotlong,Moderate,43259,6912,351,Relief Supplies,34,31046555.98847377
+Strong Winds,Mokhotlong,Moderate,38506,6189,413,Relief Supplies,47,40127367.05385937
+Strong Winds,Qacha's Nek,Moderate,37708,5009,451,Shelter,142,42055328.9018496
+Strong Winds,Maseru,Moderate,27484,8225,219,Relief Supplies,73,24672194.21729266
+Strong Winds,Quthing,Moderate,22092,7024,584,Shelter,68,51568472.770639956
+Heavy Rainfall,Mohale's Hoek,Moderate,29665,1767,101,Infrastructure & Relief,109,23202310.425737754
+Drought,Berea,Low,1867,8289,0,Food & Water Relief,240,12279430.107211035
+Strong Winds,Thaba-Tseka,Moderate,38074,2290,148,Medical Aid,49,12168944.360019863
+Strong Winds,Leribe,Moderate,22943,7110,621,Relief Supplies,3,47341636.90177651
+Strong Winds,Thaba-Tseka,Low,6971,2963,116,Shelter,48,10523166.144665072
+Strong Winds,Mafeteng,Moderate,44290,8334,342,Relief Supplies,171,48306941.642140016
+Strong Winds,Maseru,Moderate,33674,9306,335,Medical Aid,36,54025204.09992685
+Drought,Leribe,Low,45314,240,0,Food & Water Relief,240,78711017.96616247
+Strong Winds,Mafeteng,Moderate,27617,3710,156,Medical Aid,106,19084217.543639682
+Heavy Rainfall,Butha-Buthe,Moderate,12789,6887,89,Infrastructure & Relief,141,11452253.058544759
+Drought,Mokhotlong,Low,23986,2459,0,Food & Water Relief,90,24559051.060135815
+Heavy Rainfall,Mokhotlong,Severe,42868,5391,375,Infrastructure & Relief,21,48569070.89435962
+Heavy Rainfall,Quthing,Moderate,37884,109,7,Infrastructure & Relief,154,20436113.325451113
+Drought,Maseru,Low,45605,6907,0,Food & Water Relief,150,95117449.5668529
+Strong Winds,Butha-Buthe,Moderate,38278,3140,241,Shelter,161,19845528.05859936
+Drought,Maseru,Low,49604,8953,0,Food & Water Relief,210,124010766.27741478
+Drought,Thaba-Tseka,Low,9660,1200,0,Food & Water Relief,330,33191954.229851693
+Drought,Mokhotlong,Low,28982,9869,0,Food & Water Relief,240,77067248.04567412
+Drought,Mokhotlong,Low,44811,2449,0,Food & Water Relief,150,73681450.48695731
+Drought,Mafeteng,Low,46299,7943,0,Food & Water Relief,150,69186981.1772373
+Heavy Rainfall,Quthing,Severe,7204,3813,443,Infrastructure & Relief,50,36907373.75882211
+Drought,Mohale's Hoek,Low,41247,2528,0,Food & Water Relief,150,46081724.698860906
+Heavy Rainfall,Mohale's Hoek,Severe,10186,4311,263,Infrastructure & Relief,47,29833352.139343932
+Strong Winds,Mokhotlong,Low,707,2765,157,Shelter,144,7804704.0852963915
+Drought,Mokhotlong,Low,37711,6870,0,Food & Water Relief,300,73739129.58326335
+Strong Winds,Quthing,Low,17169,248,19,Relief Supplies,32,1389737.9064597813
+Strong Winds,Maseru,Moderate,11523,9815,737,Shelter,114,44226971.858780645
+Strong Winds,Butha-Buthe,Low,19292,440,1,Medical Aid,67,1462365.893319588
+Heavy Rainfall,Mokhotlong,Severe,18573,3367,310,Infrastructure & Relief,12,40242467.55718799
+Drought,Berea,Low,12829,8885,0,Food & Water Relief,150,31177733.144750938
+Heavy Rainfall,Mohale's Hoek,Moderate,28995,7793,72,Infrastructure & Relief,20,16320487.650560739
+Heavy Rainfall,Thaba-Tseka,Severe,6156,9084,252,Infrastructure & Relief,54,29185386.253230263
+Heavy Rainfall,Mafeteng,Moderate,11638,2630,24,Infrastructure & Relief,79,8941459.47223555
+Strong Winds,Mafeteng,Low,35762,2819,42,Relief Supplies,31,8710853.958003502
+Drought,Maseru,Low,43413,6588,0,Food & Water Relief,120,58743031.04738733
+Drought,Qacha's Nek,Low,30658,8748,0,Food & Water Relief,270,68604160.65614225
+Strong Winds,Leribe,Moderate,6906,8691,763,Shelter,17,72146750.34338401
+Strong Winds,Mokhotlong,Moderate,34671,9111,220,Relief Supplies,116,25678116.460076895
+Drought,Leribe,Low,31738,1649,0,Food & Water Relief,270,102587853.49269457
+Heavy Rainfall,Mokhotlong,Low,4981,7998,404,Infrastructure & Relief,167,13492794.759044528
+Strong Winds,Berea,Moderate,23240,8533,492,Shelter,160,29475241.668519694
+Strong Winds,Leribe,Moderate,5295,4898,404,Medical Aid,34,21134887.089047726
+Heavy Rainfall,Qacha's Nek,Severe,7894,9751,553,Infrastructure & Relief,137,57566470.14709956
+Strong Winds,Berea,Low,4131,6272,96,Relief Supplies,21,17296244.846287135
+Drought,Mokhotlong,Low,27925,875,0,Food & Water Relief,240,74266026.96903692
+Drought,Qacha's Nek,Low,31686,7183,0,Food & Water Relief,90,30812232.069444727
+Strong Winds,Mokhotlong,Moderate,36724,7888,434,Medical Aid,21,49220467.56055058
+Heavy Rainfall,Mafeteng,Severe,10366,4631,398,Infrastructure & Relief,5,39343687.0542131
+Heavy Rainfall,Mohale's Hoek,Moderate,11259,5539,137,Infrastructure & Relief,104,14180421.980404798
+Strong Winds,Quthing,Moderate,31682,9254,560,Relief Supplies,122,33774063.92517155
+Drought,Butha-Buthe,Low,47357,2296,0,Food & Water Relief,180,72055771.6642793
+Heavy Rainfall,Maseru,Severe,39571,4083,287,Infrastructure & Relief,146,32112232.885092817
+Drought,Quthing,Low,22668,4683,0,Food & Water Relief,330,55885221.825031064
+Strong Winds,Leribe,Moderate,33953,2260,119,Shelter,119,13669712.985228263
+Drought,Berea,Low,38143,1356,0,Food & Water Relief,120,51168075.73930464
+Heavy Rainfall,Qacha's Nek,Severe,33569,7627,237,Infrastructure & Relief,89,39153445.141895734
+Heavy Rainfall,Butha-Buthe,Severe,13557,4658,435,Infrastructure & Relief,22,40348950.349342816
+Drought,Maseru,Low,2224,1476,0,Food & Water Relief,300,8503409.608078564
+Drought,Mokhotlong,Low,39519,9596,0,Food & Water Relief,210,66902879.6726294
+Strong Winds,Maseru,Moderate,17332,6119,103,Medical Aid,10,29922067.764488366
+Strong Winds,Mokhotlong,Moderate,14542,9214,65,Shelter,164,33428193.920864996
+Heavy Rainfall,Thaba-Tseka,Severe,19533,8605,565,Infrastructure & Relief,20,49702862.70151903
+Drought,Leribe,Low,24786,5210,0,Food & Water Relief,240,84801233.46438551
+Drought,Mafeteng,Low,42503,2029,0,Food & Water Relief,300,95712571.69365124
+Heavy Rainfall,Maseru,Severe,13609,2123,201,Infrastructure & Relief,119,25262656.311854564
+Drought,Mafeteng,Low,36560,3686,0,Food & Water Relief,300,73625455.09988679
+Heavy Rainfall,Qacha's Nek,Low,661,693,18,Infrastructure & Relief,150,1378771.147430166
+Strong Winds,Thaba-Tseka,Moderate,38361,967,63,Medical Aid,113,4217866.498417316
+Drought,Berea,Low,34437,930,0,Food & Water Relief,180,39377921.23320917
+Drought,Quthing,Low,34287,5337,0,Food & Water Relief,90,34539777.59791823
+Drought,Mohale's Hoek,Low,30754,2225,0,Food & Water Relief,270,88622846.44389041
+Strong Winds,Mafeteng,Low,30768,8429,49,Medical Aid,118,14105029.709621528
+Strong Winds,Mohale's Hoek,Low,25070,2000,50,Shelter,154,9747164.190838084
+Drought,Maseru,Low,8499,6152,0,Food & Water Relief,180,25126263.962142132
+Strong Winds,Mafeteng,Moderate,49209,9917,259,Relief Supplies,129,43295825.380331405
+Strong Winds,Mafeteng,Moderate,43321,785,59,Shelter,36,5565762.543736808
+Strong Winds,Qacha's Nek,Moderate,9567,4813,413,Relief Supplies,14,24407092.544340603
+Heavy Rainfall,Mohale's Hoek,Severe,35282,9933,204,Infrastructure & Relief,82,31386690.4755675
+Heavy Rainfall,Quthing,Moderate,16392,789,32,Infrastructure & Relief,148,13458893.896444108
+Drought,Mokhotlong,Low,12429,2639,0,Food & Water Relief,300,32546889.48625248
+Heavy Rainfall,Maseru,Severe,28728,3770,217,Infrastructure & Relief,140,39743307.69057816
+Strong Winds,Quthing,Moderate,6804,7445,628,Medical Aid,33,52972604.510238126
+Strong Winds,Qacha's Nek,Low,32816,672,27,Relief Supplies,177,3421565.739759047
+Strong Winds,Butha-Buthe,Moderate,12985,3748,329,Shelter,57,23719209.998848617
+Heavy Rainfall,Thaba-Tseka,Low,597,3850,85,Infrastructure & Relief,99,4225712.674224271
+Drought,Berea,Low,38323,2424,0,Food & Water Relief,180,73193723.25040856
+Heavy Rainfall,Qacha's Nek,Severe,11483,1849,115,Infrastructure & Relief,26,21283979.79344705
+Strong Winds,Butha-Buthe,Moderate,16780,5979,253,Medical Aid,6,32317460.97693184
+Drought,Mafeteng,Low,26890,6844,0,Food & Water Relief,120,27379104.88415073
+Drought,Qacha's Nek,Low,6911,107,0,Food & Water Relief,300,18315266.650740143
+Strong Winds,Maseru,Moderate,7739,6810,558,Medical Aid,42,49635249.50509
+Heavy Rainfall,Butha-Buthe,Severe,19706,5043,386,Infrastructure & Relief,129,43948026.008177966
+Drought,Qacha's Nek,Low,33880,787,0,Food & Water Relief,210,67011181.68745602
+Heavy Rainfall,Leribe,Low,3091,7283,128,Infrastructure & Relief,4,8647544.077555206
+Heavy Rainfall,Thaba-Tseka,Moderate,26670,8538,130,Infrastructure & Relief,133,20200753.01298122
+Drought,Quthing,Low,10087,745,0,Food & Water Relief,150,19591826.894022513
+Heavy Rainfall,Quthing,Severe,44232,9446,587,Infrastructure & Relief,161,71642987.97001863
+Strong Winds,Leribe,Moderate,18599,6550,337,Relief Supplies,128,33405037.295600064
+Heavy Rainfall,Berea,Severe,7480,6863,650,Infrastructure & Relief,162,44710397.16300959
+Heavy Rainfall,Leribe,Low,9627,255,14,Infrastructure & Relief,87,7824760.972204377
+Drought,Leribe,Low,33709,6140,0,Food & Water Relief,240,73231908.39408715
+Strong Winds,Maseru,Moderate,44833,8279,653,Shelter,77,64095951.918718025
+Drought,Butha-Buthe,Low,21625,7518,0,Food & Water Relief,270,47853561.90418113
+Heavy Rainfall,Mohale's Hoek,Low,641,2759,327,Infrastructure & Relief,113,11375734.93207212
+Strong Winds,Qacha's Nek,Moderate,23883,4349,101,Medical Aid,110,20142399.106784254
+Drought,Leribe,Low,42909,5494,0,Food & Water Relief,330,186363679.476637
+Heavy Rainfall,Quthing,Moderate,11502,1631,18,Infrastructure & Relief,168,9076479.31619852
+Strong Winds,Quthing,Low,7316,1862,77,Relief Supplies,8,4829372.002946113
+Heavy Rainfall,Quthing,Severe,41072,7889,597,Infrastructure & Relief,113,53041197.66214818
+Heavy Rainfall,Leribe,Low,1278,9877,660,Infrastructure & Relief,137,30497731.322411284
+Drought,Berea,Low,21461,827,0,Food & Water Relief,90,12622989.202161508
+Heavy Rainfall,Quthing,Severe,46214,6848,405,Infrastructure & Relief,132,64753922.66320529
+Drought,Mokhotlong,Low,43855,871,0,Food & Water Relief,240,129260242.59556855
+Heavy Rainfall,Qacha's Nek,Severe,18069,2494,256,Infrastructure & Relief,61,30504474.460196897
+Heavy Rainfall,Thaba-Tseka,Moderate,4878,7915,466,Infrastructure & Relief,168,40518145.67018664
+Heavy Rainfall,Leribe,Severe,18339,6992,851,Infrastructure & Relief,136,63354120.94488628
+Drought,Mafeteng,Low,38255,4797,0,Food & Water Relief,270,132106676.47997548
+Heavy Rainfall,Thaba-Tseka,Severe,5982,6476,776,Infrastructure & Relief,59,57354877.73365808
+Drought,Mokhotlong,Low,3612,5770,0,Food & Water Relief,150,13792237.567818716
+Strong Winds,Berea,Moderate,44699,8310,331,Shelter,161,44329543.28479135
+Strong Winds,Thaba-Tseka,Low,34255,3421,7,Shelter,175,5893317.585609832
+Drought,Berea,Low,22690,1975,0,Food & Water Relief,120,23752510.608428262
+Strong Winds,Mafeteng,Moderate,17477,1874,155,Shelter,143,7487055.412429569
+Strong Winds,Mokhotlong,Low,6389,5154,104,Relief Supplies,10,20376443.8030822
+Heavy Rainfall,Butha-Buthe,Severe,5158,7644,550,Infrastructure & Relief,166,46284849.825910255
+Drought,Qacha's Nek,Low,23285,4108,0,Food & Water Relief,150,35369280.28337562
+Drought,Thaba-Tseka,Low,38744,9528,0,Food & Water Relief,90,35359859.53710468
+Strong Winds,Mohale's Hoek,Low,35087,1230,17,Medical Aid,122,4448804.946135687
+Heavy Rainfall,Butha-Buthe,Severe,35091,1574,194,Infrastructure & Relief,48,36604676.59755574
+Heavy Rainfall,Quthing,Moderate,1641,1735,123,Infrastructure & Relief,165,9127939.777860617
+Strong Winds,Berea,Moderate,19490,6006,201,Relief Supplies,126,24394274.330915418
+Drought,Berea,Low,11620,1929,0,Food & Water Relief,210,27444471.519713566
+Heavy Rainfall,Berea,Severe,17938,5844,433,Infrastructure & Relief,4,42079015.058826625
+Heavy Rainfall,Mohale's Hoek,Severe,37726,6691,233,Infrastructure & Relief,170,37535943.70205359
+Strong Winds,Thaba-Tseka,Moderate,19056,5768,169,Shelter,18,23845727.433731526
+Strong Winds,Berea,Moderate,25872,4254,125,Shelter,68,15778748.297548218
+Strong Winds,Maseru,Moderate,16348,2452,140,Relief Supplies,87,9886138.881378176
+Drought,Leribe,Low,47133,9669,0,Food & Water Relief,150,59956745.44006033
+Drought,Maseru,Low,8991,238,0,Food & Water Relief,270,25166554.91323008
+Drought,Qacha's Nek,Low,16496,6726,0,Food & Water Relief,120,25627556.1797826
+Strong Winds,Leribe,Moderate,20719,8117,103,Relief Supplies,165,33849300.6066209
+Drought,Maseru,Low,19451,1407,0,Food & Water Relief,210,40847599.379485235
+Drought,Maseru,Low,25342,1808,0,Food & Water Relief,240,43244558.43573072
+Strong Winds,Berea,Low,1707,2060,45,Relief Supplies,147,5262637.881632312
+Heavy Rainfall,Mafeteng,Severe,30035,7266,694,Infrastructure & Relief,143,64726602.69375188
+Drought,Quthing,Low,39910,3925,0,Food & Water Relief,90,52175789.834971875
+Heavy Rainfall,Leribe,Severe,22690,6242,750,Infrastructure & Relief,116,70661459.32145837
+Strong Winds,Berea,Low,2884,4035,327,Medical Aid,69,15593441.729808716
+Strong Winds,Mokhotlong,Moderate,34405,4217,348,Relief Supplies,42,31534482.955246534
+Heavy Rainfall,Maseru,Severe,18111,6437,680,Infrastructure & Relief,19,53471526.893540725
+Heavy Rainfall,Qacha's Nek,Severe,19725,4308,487,Infrastructure & Relief,1,46606353.443127155
+Drought,Maseru,Low,21120,8168,0,Food & Water Relief,330,94709499.69605537
+Heavy Rainfall,Qacha's Nek,Severe,28682,4997,383,Infrastructure & Relief,142,40360264.050183006
+Strong Winds,Butha-Buthe,Low,2592,2230,122,Relief Supplies,119,6140378.624634182
+Heavy Rainfall,Thaba-Tseka,Moderate,41091,7455,321,Infrastructure & Relief,39,37974357.562172234
+Drought,Qacha's Nek,Low,18122,9265,0,Food & Water Relief,300,62084129.34366232
+Strong Winds,Mokhotlong,Moderate,28954,2468,144,Shelter,147,8382220.624337385
+Strong Winds,Leribe,Moderate,24364,9596,725,Medical Aid,74,65522523.40070193
+Heavy Rainfall,Mafeteng,Moderate,2089,9879,659,Infrastructure & Relief,152,40789755.8613322
+Drought,Mohale's Hoek,Low,46609,6946,0,Food & Water Relief,180,65956512.88380314
+Heavy Rainfall,Mokhotlong,Severe,39314,5045,353,Infrastructure & Relief,93,39559178.730011694
+Heavy Rainfall,Butha-Buthe,Moderate,3667,6452,342,Infrastructure & Relief,64,25726060.134352565
+Strong Winds,Quthing,Moderate,19508,5838,136,Medical Aid,82,26787039.77793187
+Drought,Leribe,Low,43648,9398,0,Food & Water Relief,90,48174286.22479954
+Drought,Maseru,Low,43908,8762,0,Food & Water Relief,90,64863767.193332545
+Drought,Thaba-Tseka,Low,6818,3896,0,Food & Water Relief,210,21560712.52696116
+Drought,Berea,Low,28599,4988,0,Food & Water Relief,330,67611898.8118582
+Strong Winds,Thaba-Tseka,Moderate,46468,1224,117,Medical Aid,47,8078484.969910754
+Heavy Rainfall,Leribe,Severe,5855,5068,454,Infrastructure & Relief,16,41196123.230340704
+Strong Winds,Quthing,Moderate,30654,3993,99,Shelter,137,10832967.962813916
+Drought,Mafeteng,Low,47877,7270,0,Food & Water Relief,240,132588902.86388826
+Heavy Rainfall,Mohale's Hoek,Moderate,9047,334,34,Infrastructure & Relief,47,9386803.830819508
+Strong Winds,Thaba-Tseka,Moderate,28672,3848,101,Relief Supplies,138,10020795.865805816
+Drought,Quthing,Low,41846,2258,0,Food & Water Relief,240,103202710.17026865
+Strong Winds,Quthing,Low,1901,3359,229,Shelter,175,18287097.871882617
+Strong Winds,Qacha's Nek,Moderate,12367,2845,282,Relief Supplies,162,19105831.431042828
+Strong Winds,Mohale's Hoek,Moderate,28538,4163,223,Shelter,7,24493042.11836837
+Strong Winds,Maseru,Low,21463,1072,6,Medical Aid,8,3790740.924662464
+Strong Winds,Mokhotlong,Moderate,48332,8935,615,Medical Aid,156,69009999.47138898
+Strong Winds,Mokhotlong,Moderate,49567,9533,515,Relief Supplies,56,47903091.705034055
+Heavy Rainfall,Mohale's Hoek,Severe,17116,9844,1113,Infrastructure & Relief,45,79152072.03753987
+Drought,Maseru,Low,13879,5202,0,Food & Water Relief,90,18406453.352240972
+Heavy Rainfall,Quthing,Severe,19490,8450,488,Infrastructure & Relief,105,54641177.83929096
+Drought,Qacha's Nek,Low,34964,2046,0,Food & Water Relief,120,34314125.37527892
+Strong Winds,Maseru,Moderate,45105,2745,209,Relief Supplies,3,16356645.308346216
+Heavy Rainfall,Mohale's Hoek,Low,1616,592,32,Infrastructure & Relief,70,2754773.4162767986
+Strong Winds,Mafeteng,Moderate,26351,2843,186,Relief Supplies,101,13524638.16226967
+Strong Winds,Butha-Buthe,Moderate,40454,6202,310,Relief Supplies,4,43174587.60338279
+Drought,Butha-Buthe,Low,34564,8536,0,Food & Water Relief,120,64588763.217784695
+Heavy Rainfall,Qacha's Nek,Severe,11217,3523,93,Infrastructure & Relief,86,16345794.261899877
+Strong Winds,Mohale's Hoek,Moderate,28191,2568,73,Shelter,171,11326287.449476503
+Strong Winds,Qacha's Nek,Moderate,19101,5067,321,Medical Aid,101,23166471.557727456
+Drought,Quthing,Low,37712,7718,0,Food & Water Relief,180,61483146.29983933
+Drought,Butha-Buthe,Low,2676,3843,0,Food & Water Relief,330,14356292.896186795
+Strong Winds,Leribe,Moderate,41046,3796,358,Medical Aid,173,25374571.681675397
+Strong Winds,Mafeteng,Moderate,17576,3262,81,Shelter,109,9592224.460063858
+Drought,Thaba-Tseka,Low,13102,3886,0,Food & Water Relief,330,28005968.50481928
+Strong Winds,Mohale's Hoek,Moderate,43861,1872,168,Shelter,56,13531734.369631927
+Drought,Maseru,Low,23126,1232,0,Food & Water Relief,270,83493890.31506519
+Strong Winds,Maseru,Low,5057,2279,22,Relief Supplies,109,8287305.500101966
+Strong Winds,Qacha's Nek,Moderate,39964,9683,146,Medical Aid,68,39850052.416256934
+Heavy Rainfall,Leribe,Low,35736,9682,39,Infrastructure & Relief,4,19083571.821544826
+Drought,Butha-Buthe,Low,27556,6714,0,Food & Water Relief,210,52482316.520536035
+Strong Winds,Maseru,Moderate,38044,924,59,Relief Supplies,168,5733806.813564304
+Drought,Mokhotlong,Low,20040,4407,0,Food & Water Relief,150,41744723.694258496
+Heavy Rainfall,Leribe,Severe,30706,3340,396,Infrastructure & Relief,155,48153855.55825402
+Drought,Quthing,Low,21475,3550,0,Food & Water Relief,240,49118079.968496524
+Heavy Rainfall,Maseru,Severe,25385,2808,240,Infrastructure & Relief,162,30892690.906097516
+Drought,Quthing,Low,9668,3822,0,Food & Water Relief,240,22731151.789123103
+Drought,Quthing,Low,11656,2900,0,Food & Water Relief,90,14470675.700438287
+Strong Winds,Quthing,Moderate,30066,7461,103,Medical Aid,1,27662915.608481504
+Drought,Mokhotlong,Low,14189,266,0,Food & Water Relief,330,37555052.42533016
+Strong Winds,Quthing,Moderate,22144,4457,339,Shelter,76,33357552.227140933
+Drought,Mokhotlong,Low,37555,4260,0,Food & Water Relief,90,32819787.48095149
+Heavy Rainfall,Berea,Severe,5446,8334,487,Infrastructure & Relief,59,43994029.32424828
+Strong Winds,Leribe,Low,5497,7132,167,Medical Aid,80,21629550.11784327
+Heavy Rainfall,Qacha's Nek,Moderate,46080,1955,189,Infrastructure & Relief,148,46156446.205013074
+Drought,Mafeteng,Low,28298,9829,0,Food & Water Relief,300,115264209.78656873
+Drought,Qacha's Nek,Low,41834,8051,0,Food & Water Relief,270,152661177.8655538
+Strong Winds,Berea,Moderate,22015,3297,52,Medical Aid,134,11244654.170589523
+Strong Winds,Maseru,Moderate,11308,6143,68,Relief Supplies,50,18985678.894377038
+Strong Winds,Leribe,Moderate,21705,6440,449,Relief Supplies,141,46370134.80664843
+Heavy Rainfall,Mokhotlong,Severe,16450,9841,214,Infrastructure & Relief,82,25552355.769255664
+Drought,Thaba-Tseka,Low,29740,9707,0,Food & Water Relief,90,27840968.01689101
+Heavy Rainfall,Quthing,Low,2488,3902,176,Infrastructure & Relief,2,6524279.934852915
+Heavy Rainfall,Mohale's Hoek,Low,4617,8445,218,Infrastructure & Relief,108,12469131.738793597
+Drought,Mafeteng,Low,36822,2949,0,Food & Water Relief,240,122877975.45984818
+Heavy Rainfall,Quthing,Severe,46036,7619,559,Infrastructure & Relief,65,54620388.978241526
+Drought,Thaba-Tseka,Low,14796,6509,0,Food & Water Relief,210,50272663.74990146
+Strong Winds,Qacha's Nek,Low,2313,8901,413,Shelter,45,39303422.25450479
+Drought,Berea,Low,582,2020,0,Food & Water Relief,180,3972401.7418622877
+Heavy Rainfall,Mohale's Hoek,Severe,44164,5037,369,Infrastructure & Relief,153,46301582.04373048
+Drought,Mafeteng,Low,4176,2526,0,Food & Water Relief,330,16969971.646435104
+Strong Winds,Quthing,Moderate,26140,4117,211,Shelter,151,14803976.003718488
+Drought,Mafeteng,Low,38387,5794,0,Food & Water Relief,90,30332368.111640174
+Heavy Rainfall,Qacha's Nek,Severe,10942,8352,945,Infrastructure & Relief,48,75560384.90029572
+Drought,Thaba-Tseka,Low,1861,9865,0,Food & Water Relief,150,10926141.497654466
+Heavy Rainfall,Leribe,Moderate,35261,969,64,Infrastructure & Relief,73,30200426.21981111
+Strong Winds,Mohale's Hoek,Moderate,24670,8124,294,Shelter,37,51919593.89932729
+Strong Winds,Butha-Buthe,Moderate,13355,3358,257,Shelter,168,24573546.21150453
+Heavy Rainfall,Maseru,Severe,26434,7797,865,Infrastructure & Relief,135,81002170.76202886
+Strong Winds,Mohale's Hoek,Moderate,27211,8103,206,Shelter,121,32859845.658858687
+Strong Winds,Mohale's Hoek,Low,32281,5203,20,Relief Supplies,84,23106473.919826552
+Drought,Leribe,Low,12856,295,0,Food & Water Relief,300,39934996.16810168
+Strong Winds,Thaba-Tseka,Moderate,14887,4027,152,Shelter,96,23889515.382558484
+Strong Winds,Mafeteng,Moderate,39389,1300,105,Relief Supplies,61,11032695.55369841
+Strong Winds,Mohale's Hoek,Low,48614,2694,38,Relief Supplies,87,12300412.810155934
+Strong Winds,Mokhotlong,Moderate,25027,7068,456,Shelter,160,37406390.96103552
+Heavy Rainfall,Mafeteng,Moderate,6020,3787,84,Infrastructure & Relief,33,9609752.699673709
+Heavy Rainfall,Berea,Moderate,5233,7181,498,Infrastructure & Relief,28,33002540.20922079
+Drought,Mokhotlong,Low,35562,3730,0,Food & Water Relief,240,70065902.61547577
+Heavy Rainfall,Qacha's Nek,Moderate,43870,5728,136,Infrastructure & Relief,175,38298638.203489125
+Heavy Rainfall,Berea,Severe,35216,9237,140,Infrastructure & Relief,177,28508660.859931413
+Strong Winds,Mokhotlong,Moderate,19571,5051,281,Shelter,49,22977907.028603487
+Drought,Mokhotlong,Low,30509,916,0,Food & Water Relief,270,75519109.62025476
+Strong Winds,Quthing,Moderate,32630,7474,540,Shelter,144,46400957.33092635
+Strong Winds,Mohale's Hoek,Moderate,40079,9388,631,Shelter,169,65916746.81625822
+Drought,Leribe,Low,7273,3916,0,Food & Water Relief,270,21470949.330254838
+Heavy Rainfall,Quthing,Moderate,29600,5094,138,Infrastructure & Relief,48,32437162.123934187
+Heavy Rainfall,Qacha's Nek,Moderate,3081,2665,203,Infrastructure & Relief,49,18212032.37590195
+Strong Winds,Butha-Buthe,Moderate,48437,6576,556,Relief Supplies,123,52740413.09273362
+Heavy Rainfall,Leribe,Moderate,14662,102,5,Infrastructure & Relief,60,9045128.547748929
+Drought,Thaba-Tseka,Low,44126,6339,0,Food & Water Relief,120,65352322.84815682
+Drought,Butha-Buthe,Low,45035,5267,0,Food & Water Relief,330,159898323.01373047
+Heavy Rainfall,Maseru,Moderate,3939,2954,313,Infrastructure & Relief,59,19184640.842704825
+Drought,Quthing,Low,36210,8511,0,Food & Water Relief,240,115078824.83122742
+Drought,Leribe,Low,16435,9095,0,Food & Water Relief,210,46696535.73385331
+Heavy Rainfall,Mohale's Hoek,Moderate,17499,6044,39,Infrastructure & Relief,139,16348281.880370911
+Drought,Berea,Low,19445,6639,0,Food & Water Relief,150,44377787.10511313
+Strong Winds,Mohale's Hoek,Moderate,11244,4434,194,Relief Supplies,173,18622354.10825546
+Strong Winds,Thaba-Tseka,Moderate,49408,1022,99,Medical Aid,132,7030834.607167928
+Drought,Mokhotlong,Low,38201,9655,0,Food & Water Relief,210,101343771.986858
+Strong Winds,Maseru,Moderate,39986,2681,69,Shelter,5,9547008.234718233
+Heavy Rainfall,Butha-Buthe,Moderate,20643,2203,186,Infrastructure & Relief,146,27637772.829438195
+Heavy Rainfall,Qacha's Nek,Low,2878,1305,124,Infrastructure & Relief,31,4666196.388510484
+Drought,Thaba-Tseka,Low,37728,7102,0,Food & Water Relief,150,64586236.99795624
+Strong Winds,Berea,Moderate,36118,3064,303,Shelter,152,14082764.34351628
+Heavy Rainfall,Berea,Severe,17875,6147,694,Infrastructure & Relief,85,65050686.34548058
+Strong Winds,Thaba-Tseka,Low,11276,167,12,Shelter,74,779828.3493344167
+Strong Winds,Quthing,Moderate,38663,2358,86,Medical Aid,59,10506394.228237856
+Strong Winds,Leribe,Low,22664,2927,49,Relief Supplies,153,12845506.491512826
+Heavy Rainfall,Butha-Buthe,Moderate,20110,6937,721,Infrastructure & Relief,59,64086134.65168558
+Drought,Quthing,Low,13788,2605,0,Food & Water Relief,240,26150676.88948587
+Strong Winds,Qacha's Nek,Moderate,10441,7186,92,Relief Supplies,112,13950887.960715363
+Strong Winds,Mokhotlong,Moderate,7726,5262,206,Relief Supplies,156,33337751.25926774
+Heavy Rainfall,Butha-Buthe,Severe,25880,9236,741,Infrastructure & Relief,43,55712973.59750999
+Heavy Rainfall,Mafeteng,Severe,24059,7229,720,Infrastructure & Relief,7,79238022.21515207
+Strong Winds,Qacha's Nek,Moderate,40650,6331,255,Medical Aid,37,21113734.22650414
+Heavy Rainfall,Berea,Severe,47330,3394,118,Infrastructure & Relief,124,34664257.061930634
+Drought,Maseru,Low,6250,3956,0,Food & Water Relief,150,15120777.13471399
+Drought,Thaba-Tseka,Low,47381,9054,0,Food & Water Relief,180,64865087.17552476
+Drought,Maseru,Low,20039,4070,0,Food & Water Relief,210,56479681.95272422
+Drought,Qacha's Nek,Low,25185,291,0,Food & Water Relief,300,56459760.34710478

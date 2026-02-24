@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
 import API from "../api/axios";
+import { ToastManager, ToastContainer } from "./Toast";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -9,8 +10,15 @@ export default function Login() {
   const [role, setRole] = useState("Coordinator");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [toasts, setToasts] = useState([]);
 
   const navigate = useNavigate();
+
+  // Subscribe to toast manager
+  useEffect(() => {
+    const unsubscribe = ToastManager.subscribe(setToasts);
+    return unsubscribe;
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,11 +26,14 @@ export default function Login() {
     setLoading(true);
 
     try {
+      console.log("🔐 Attempting login with:", { email, password: "***" });
+      
       const res = await API.post("/auth/login", {
         email,
         password,
-        role,
       });
+
+      console.log("✅ Login successful. Response:", res.data);
 
       const userData = {
         token: res.data.token,
@@ -34,17 +45,30 @@ export default function Login() {
         },
       };
 
+      console.log("💾 Storing user data:", userData);
       localStorage.setItem("user", JSON.stringify(userData));
+      
       const roleRoutes = {
-  Coordinator: "/dashboard",
-  "Finance Officer": "/finance-dashboard",
-  "Data Clerk": "/disaster-events",
-  "Administrator": "/admin-dashboard",
-};
+        "Coordinator": "/dashboard",
+        "Finance Officer": "/finance-dashboard",
+        "Data Clerk": "/disaster-events",
+        "Administrator": "/admin-dashboard",
+      };
 
-navigate(roleRoutes[res.data.role] || "/unauthorized");
+      const redirectPath = roleRoutes[res.data.role] || "/unauthorized";
+      console.log("🚀 Redirecting to:", redirectPath);
+      
+      // Show success notification
+      ToastManager.success(`✅ Welcome back, ${res.data.name}! Redirecting...`, 3000);
+      
+      // Redirect after brief delay to show notification
+      setTimeout(() => {
+        navigate(redirectPath);
+      }, 1500);
 
     } catch (err) {
+      console.error("❌ Login error:", err);
+      console.error("Error response:", err.response?.data);
       setError(
         err.response?.data?.message ||
           err.message ||
@@ -57,6 +81,14 @@ navigate(roleRoutes[res.data.role] || "/unauthorized");
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
+      {/* Toast Notifications */}
+      <ToastContainer 
+        toasts={toasts} 
+        onRemove={(id) => {
+          ToastManager.remove(id);
+        }}
+      />
+
       <div className="w-full max-w-md rounded-2xl bg-white px-8 py-10 shadow-2xl">
 
         {/* Header */}
