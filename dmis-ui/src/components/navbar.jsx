@@ -1,9 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Menu, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import "./navbar.css";
 
-export default function Navbar({ onMenuClick }) {
+export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
@@ -36,14 +36,6 @@ export default function Navbar({ onMenuClick }) {
   return (
     <div className="navbar">
       <div className="navbar-left">
-        <button
-          type="button"
-          className="menu-btn"
-          onClick={onMenuClick}
-          aria-label="Open navigation"
-        >
-          <Menu size={20} />
-        </button>
         <h2>{getPageTitle()}</h2>
       </div>
       <div className="user">

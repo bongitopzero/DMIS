@@ -21,6 +21,8 @@ import {
   getAuditTrail,
   getDisasterAuditLogs,
   trackChanges,
+  trackAllocationBudgetImpact,
+  getAllocationSummary,
 } from '../utils/financialUtils.js';
 
 /**
@@ -613,12 +615,34 @@ const getBudgetBreakdownByDisaster = async (req, res) => {
   }
 }
 
+/**
+ * @GET /allocation/budget-impact/:disasterId
+ * Get allocation impact on budget
+ */
+const getAllocationBudgetImpact = async (req, res) => {
+  try {
+    const { disasterId } = req.params;
+    
+    const impact = await trackAllocationBudgetImpact(disasterId, 0);
+    const summary = await getAllocationSummary(disasterId);
+
+    res.status(200).json({
+      budgetImpact: impact,
+      allocationSummary: summary,
+    });
+  } catch (error) {
+    console.error('Error getting allocation budget impact:', error);
+    res.status(500).json({ message: 'Error getting allocation budget impact', error: error.message });
+  }
+};
+
 export default {
   createBudget: createBudget,
   getBudgetsByDisaster: getBudgetsByDisaster,
   approveBudget: approveBudget,
   voidBudget: voidBudget,
   getBudgetBreakdownByDisaster: getBudgetBreakdownByDisaster,
+  getAllocationBudgetImpact: getAllocationBudgetImpact,
   createExpense: createExpense,
   getExpensesByDisaster: getExpensesByDisaster,
   approveExpense: approveExpense,

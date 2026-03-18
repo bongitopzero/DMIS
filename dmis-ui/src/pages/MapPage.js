@@ -15,6 +15,7 @@ const MapPage = () => {
 
   const [selectedDistrict, setSelectedDistrict] = useState("All Districts");
   const [selectedType, setSelectedType] = useState("All");
+  const [currentYearOnly, setCurrentYearOnly] = useState(true);
 
   const districts = [
     "All Districts",
@@ -31,26 +32,58 @@ const MapPage = () => {
   ];
 
   useEffect(() => {
-    fetchDisasters();
+    fetchData();
   }, []);
 
-  const fetchDisasters = async () => {
+  const fetchData = async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await API.get("/disasters");
-      setIncidentsData(res.data);
-    } catch (err) {
-      if (err.response?.status === 401) {
-        setError("Please log in to view disasters");
-      } else {
-        setError("Failed to load disasters");
+      // Fetch both disasters and incidents and merge into a single list
+      const [dRes, iRes] = await Promise.allSettled([
+        API.get("/disasters"),
+        API.get("/incidents")
+      ]);
+
+      const disasters = dRes.status === 'fulfilled' && Array.isArray(dRes.value.data) ? dRes.value.data : [];
+      const incidents = iRes.status === 'fulfilled' && Array.isArray(iRes.value.data) ? iRes.value.data : [];
+
+      // Merge lists and deduplicate by id or by key (type|district|date)
+      const keyFor = (it) => {
+        if (it._id) return `id:${it._id}`;
+        const t = (it.type || "").toString().toLowerCase().replace(/\s+/g, "_");
+        const d = normalize(it.district || it.location || "").slice(0, 40);
+        const dateStr = it.date ? new Date(it.date).toISOString().slice(0,10) : (it.createdAt ? new Date(it.createdAt).toISOString().slice(0,10) : "");
+        return `${t}|${d}|${dateStr}`;
+      };
+
+      const map = new Map();
+      [...disasters, ...incidents].forEach(it => {
+        const k = keyFor(it);
+        if (!map.has(k)) map.set(k, it);
+      });
+
+      let list = Array.from(map.values());
+
+      if (currentYearOnly) {
+        const year = new Date().getFullYear();
+        list = list.filter(item => {
+          const d = item.date ? new Date(item.date) : new Date(item.createdAt);
+          return d && d.getFullYear() === year;
+        });
       }
+
+      setIncidentsData(list);
+    } catch (err) {
+      setError("Failed to load map data");
       setIncidentsData([]);
     } finally {
       setLoading(false);
     }
   };
+
+  // Backwards-compatible alias for older calls
+  const fetchDisasters = () => fetchData();
 
   /* ===================== HELPERS ===================== */
 
@@ -147,6 +180,10 @@ const MapPage = () => {
         </div>
       </div>
     `);
+    // clicking a district will select it in the sidebar filters
+    layer.on('click', () => {
+      setSelectedDistrict(districtName);
+    });
   };
 
   /* ===================== FILTERING ===================== */
@@ -192,15 +229,13 @@ const MapPage = () => {
           <MapPin size={28} />
           <h2>GIS Map</h2>
         </div>
-        <p className="text-xs text-slate-500 mt-2">
-          Population baseline: 2.3M • 10-year incident history
-        </p>
 
-        <div className="sidebar-content">
+          <div className="sidebar-content">
+          
           {/* Refresh Button */}
           <button 
             className={`refresh-button ${loading ? "loading" : ""}`} 
-            onClick={fetchDisasters} 
+            onClick={fetchData} 
             disabled={loading}
           >
             <RefreshCw size={18} />

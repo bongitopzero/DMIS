@@ -43,6 +43,24 @@ export default function MapView({ disasters, selectedDisaster }) {
     return highest;
   };
 
+  const getHouseholdCount = (incident) => {
+    if (!incident) return 'N/A';
+    if (incident.numberOfHouseholdsAffected && Number(incident.numberOfHouseholdsAffected) > 0) return Number(incident.numberOfHouseholdsAffected);
+    if (incident.totalAffectedHouseholds && Number(incident.totalAffectedHouseholds) > 0) return Number(incident.totalAffectedHouseholds);
+    if (incident.households && typeof incident.households === 'string') {
+      const nums = incident.households.match(/\d+/g);
+      if (nums && nums.length > 0) return Math.max(...nums.map(n=>parseInt(n,10)));
+    }
+    if (incident.affectedPopulation && typeof incident.affectedPopulation === 'string') {
+      const nums = incident.affectedPopulation.match(/\d+/g);
+      if (nums && nums.length > 0) {
+        const val = Math.max(...nums.map(n=>parseInt(n,10)));
+        return Math.max(1, Math.round(val/5));
+      }
+    }
+    return 'N/A';
+  };
+
   // Enhanced normalize function to match district names (same as GIS Map page)
   const normalize = (value) => {
     if (!value) return "";
@@ -210,7 +228,7 @@ export default function MapView({ disasters, selectedDisaster }) {
                     </span>
                   </p>
                   <p style={{ margin: "3px 0", fontSize: "11px" }}>
-                    <strong>Households:</strong> {incident.households || "N/A"}
+                    <strong>Households:</strong> {getHouseholdCount(incident)}
                   </p>
                 </div>
               </Popup>

@@ -17,16 +17,29 @@ export default function Dashboard() {
   const [error, setError] = useState("");
   const [disastersByType, setDisastersByType] = useState({});
   const [financialByMonth, setFinancialByMonth] = useState({});
+  const [overview, setOverview] = useState(null);
 
   useEffect(() => {
     fetchDisasters();
     fetchDashboardStats();
+    fetchCoordinatorOverview();
     const interval = setInterval(() => {
       fetchDisasters();
       fetchDashboardStats();
+      fetchCoordinatorOverview();
     }, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const fetchCoordinatorOverview = async () => {
+    try {
+      const res = await API.get("/coordinator/overview");
+      setOverview(res.data || null);
+    } catch (err) {
+      // quietly ignore if endpoint not available or not authorized
+      console.debug("Coordinator overview not available:", err?.message || err);
+    }
+  };
 
   const fetchDashboardStats = async () => {
     try {
@@ -157,30 +170,30 @@ export default function Dashboard() {
       {/* Summary Cards - 4 columns */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <SummaryCard
-          title="Total Disasters"
-          value={activeIncidents}
-          subtitle={`${stats.byStatus.verified || 0} verified`}
+          title="Current Year Incidents"
+          value={overview?.currentYear?.incidentsCount ?? activeIncidents}
+          subtitle={`${overview?.currentYear?.verifiedIncidents ?? (stats.byStatus.verified || 0)} verified`}
           icon={<AlertCircle className="w-5 h-5 text-critical" />}
           bgColor="bg-red-50"
         />
         <SummaryCard
           title="Districts Affected"
           value={Object.keys(stats.byDistrict).length}
-          subtitle={`${stats.bySeverity.high || 0} high severity`}
+          subtitle={`${overview?.currentYear?.highSeverityCount ?? (stats.bySeverity.high || 0)} high severity`}
           icon={<Users className="w-5 h-5 text-blue-500" />}
           bgColor="bg-blue-50"
         />
         <SummaryCard
-          title="Total Budget"
-          value={`M ${totalBudget}M`}
-          subtitle="M 2.7M spent"
+          title="Allocated Funds"
+          value={overview?.currentYear?.totalAllocatedFunds ? `M ${overview.currentYear.totalAllocatedFunds}` : `M ${totalBudget}M`}
+          subtitle={overview?.currentYear ? `Requested: M ${overview.currentYear.totalRequestedFunds}` : "M 2.7M spent"}
           icon={<DollarSign className="w-5 h-5 text-green-500" />}
           bgColor="bg-green-50"
         />
         <SummaryCard
           title="Active Response"
-          value={stats.byStatus.responding || 0}
-          subtitle={`${stats.byStatus.submitted || 0} pending approval`}
+          value={overview?.currentYear?.verifiedIncidents ?? (stats.byStatus.responding || 0)}
+          subtitle={`${overview?.currentYear?.incidentsCount ?? (stats.byStatus.submitted || 0)} total`}
           icon={<TrendingUp className="w-5 h-5 text-emerald-500" />}
           bgColor="bg-emerald-50"
         />

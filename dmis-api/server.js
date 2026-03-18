@@ -7,10 +7,12 @@ import cors from "cors";
 // Import routes
 import authRoutes from "./routes/auth.js";
 import disasterRoutes from "./routes/disasters.js";
+import incidentRoutes from "./routes/incidents.js";
 import fundRoutes from "./routes/fundRoutes.js";
 import forecastingRoutes from "./routes/forecasting.js";
 import financialRoutes from "./routes/financial.js";
 import allocationRoutes from "./routes/allocation.js";
+import coordinatorRoutes from "./routes/coordinator.js";
 
 dotenv.config();
 const app = express();
@@ -28,10 +30,12 @@ app.get("/", (req, res) => {
 // Mount routes
 app.use("/api/auth", authRoutes);
 app.use("/api/disasters", disasterRoutes);
+app.use("/api/incidents", incidentRoutes);
 app.use("/api/funds", fundRoutes);
 app.use("/api/forecasting", forecastingRoutes);
 app.use("/api/financial", financialRoutes);
 app.use("/api/allocation", allocationRoutes);
+app.use('/api/coordinator', coordinatorRoutes);
 
 
 // Connect to MongoDB

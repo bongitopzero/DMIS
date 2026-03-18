@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../api/axios';
+import { Link } from 'react-router-dom';
 import { Users, Settings, UserPlus, Edit, Trash2, Shield, Eye, EyeOff } from 'lucide-react';
 import './AdminDashboard.css';
 
@@ -404,6 +405,9 @@ const AdminDashboard = () => {
       <div className="dashboard-header">
         <h1>Administrator Dashboard</h1>
         <p>Manage users and configure system settings</p>
+        <div style={{ marginTop: 8 }}>
+          <Link to="/admin-dashboard/settings" className="btn-secondary">Open System Settings Page</Link>
+        </div>
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}

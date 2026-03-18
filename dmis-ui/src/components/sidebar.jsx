@@ -14,10 +14,11 @@ import {
   CheckCircle,
   FileText,
   Plus,
+  Menu,
 } from "lucide-react";
 import "./sidebar.css";
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed = false, onToggle }) {
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const userRole = user?.user?.role || "";
@@ -25,7 +26,7 @@ export default function Sidebar() {
   const isActive = (path) => location.pathname === path ? "active" : "";
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
       {/* Logo */}
       <div className="sidebar-logo">
         <div className="logo-box">
@@ -35,6 +36,14 @@ export default function Sidebar() {
           <h3>DMIS</h3>
           <p>LESOTHO DMA</p>
         </div>
+        <button
+          className="sidebar-toggle"
+          onClick={() => onToggle && onToggle()}
+          aria-label="Toggle sidebar"
+          title="Toggle sidebar"
+        >
+          <Menu size={18} />
+        </button>
       </div>
 
       <nav className="sidebar-nav">
@@ -57,37 +66,37 @@ export default function Sidebar() {
               <li className={isActive("/dashboard")}>
                 <Link to="/dashboard">
                   <BarChart3 size={20} />
-                  <span>Dashboard</span>
+                    <span className="nav-text">Dashboard</span>
                 </Link>
               </li>
               <li className={isActive("/disaster-events")}>
                 <Link to="/disaster-events">
                   <MessageSquare size={20} />
-                  <span>Incident Management</span>
+                  <span className="nav-text">Incident Management</span>
                 </Link>
               </li>
               <li className={isActive("/gis-map")}>
                 <Link to="/gis-map">
                   <Map size={20} />
-                  <span>GIS Map</span>
+                  <span className="nav-text">GIS Map</span>
                 </Link>
               </li>
               <li className={isActive("/analysis")}>
                 <Link to="/analysis">
                   <TrendingUp size={20} />
-                  <span>Analysis</span>
+                  <span className="nav-text">Analysis</span>
                 </Link>
               </li>
               <li className={isActive("/forecasting")}>
                 <Link to="/forecasting">
                   <Zap size={20} />
-                  <span>Forecasting</span>
+                  <span className="nav-text">Forecasting</span>
                 </Link>
               </li>
               <li>
                 <Link to="/dashboard">
                   <Settings size={20} />
-                  <span>Settings</span>
+                  <span className="nav-text">Settings</span>
                 </Link>
               </li>
             </>
@@ -99,43 +108,32 @@ export default function Sidebar() {
               <li className={isActive("/finance-dashboard")}>
                 <Link to="/finance-dashboard">
                   <DollarSign size={20} />
-                  <span>Finance Dashboard</span>
+                    <span className="nav-text">Finance Dashboard</span>
                 </Link>
               </li>
               <li className={isActive("/aid-allocation")}>
                 <Link to="/aid-allocation">
                   <Zap size={20} />
-                  <span>Aid Allocation</span>
+                  <span className="nav-text">Aid Allocation</span>
                 </Link>
               </li>
               <li className={isActive("/budget-allocation")}>
                 <Link to="/budget-allocation">
                   <BookOpen size={20} />
-                  <span>Budget Allocation</span>
+                  <span className="nav-text">Budget Allocation</span>
                 </Link>
               </li>
-              <li className={isActive("/expense-log")}>
-                <Link to="/expense-log">
-                  <Receipt size={20} />
-                  <span>Expense Log</span>
-                </Link>
-              </li>
+              {/* Expense Log removed */}
               <li className={isActive("/audit-trail")}>
                 <Link to="/audit-trail">
                   <BarChart3 size={20} />
-                  <span>Finance Audit Trail</span>
+                  <span className="nav-text">Finance Audit Trail</span>
                 </Link>
               </li>
               <li className={isActive("/forecasting")}>
                 <Link to="/forecasting">
                   <TrendingUp size={20} />
-                  <span>Forecasting</span>
-                </Link>
-              </li>
-              <li className={isActive("/approved-disasters")}>
-                <Link to="/approved-disasters">
-                  <CheckCircle size={20} />
-                  <span>Approved Disasters</span>
+                  <span className="nav-text">Forecasting</span>
                 </Link>
               </li>
             </>
@@ -147,13 +145,13 @@ export default function Sidebar() {
               <li className={isActive("/my-submissions")}>
                 <Link to="/my-submissions">
                   <FileText size={20} />
-                  <span>My Submissions</span>
+                  <span className="nav-text">My Submissions</span>
                 </Link>
               </li>
               <li className={isActive("/new-disaster-report")}>
                 <Link to="/new-disaster-report">
                   <Plus size={20} />
-                  <span>New Disaster Report</span>
+                  <span className="nav-text">New Disaster Report</span>
                 </Link>
               </li>
             </>

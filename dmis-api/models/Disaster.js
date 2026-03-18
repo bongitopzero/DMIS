@@ -82,6 +82,10 @@ const DisasterSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    numberOfHouseholdsAffected: {
+      type: Number,
+      default: 0
+    },
     households: {
       type: String,
       default: "0-10"
@@ -265,5 +269,34 @@ const DisasterSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Normalize district helper (shared format with Incident)
+function normalizeDistrictName(val) {
+  if (!val) return val;
+  let s = val.toString().trim();
+  s = s.replace(/[’‘]/g, "'");
+  s = s.replace(/\s+/g, ' ');
+  s = s.toLowerCase()
+    .split(' ')
+    .map((w) => (w.length ? w[0].toUpperCase() + w.slice(1) : w))
+    .join(' ');
+  return s;
+}
+
+// Ensure district normalization on document save
+DisasterSchema.pre('save', function () {
+  if (this.district) this.district = normalizeDistrictName(this.district);
+});
+
+// Ensure district normalized on updates via findOneAndUpdate
+DisasterSchema.pre('findOneAndUpdate', function () {
+  const update = this.getUpdate();
+  if (!update) return;
+  if (update.district) update.district = normalizeDistrictName(update.district);
+  if (update.$set && update.$set.district) update.$set.district = normalizeDistrictName(update.$set.district);
+});
+
+// Compound index to reduce accidental duplicates (type + district + date)
+DisasterSchema.index({ type: 1, district: 1, date: 1 }, { unique: false });
 
 export default mongoose.model("Disaster", DisasterSchema);

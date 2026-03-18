@@ -8,6 +8,7 @@ export default function NewDisasterReport() {
   const [activeTab, setActiveTab] = useState("header");
   const [households, setHouseholds] = useState([]);
   const [expandedHousehold, setExpandedHousehold] = useState(null);
+  const [autoSaved, setAutoSaved] = useState(false);
   const [savedDisasters, setSavedDisasters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [expandedDisaster, setExpandedDisaster] = useState(null);
@@ -167,6 +168,35 @@ export default function NewDisasterReport() {
       );
       return;
     }
+    // Duplicate check: query recent incidents to avoid double-reporting
+    try {
+      const incRes = await API.get("/incidents");
+      const incidentsList = incRes.data || [];
+      const normalize = (v) => (v || "").toString().toLowerCase().replace(/['\s-]/g, "").trim();
+      const candidateType = headerData.disasterType.toLowerCase().replace(/\s+/g, "_");
+      const candidateDistrict = normalize(headerData.district);
+      const candidateDate = headerData.dateOfOccurrence ? new Date(headerData.dateOfOccurrence) : null;
+
+      const similar = incidentsList.filter((it) => {
+        try {
+          const itType = (it.type || "").toString().toLowerCase().replace(/[\s-]+/g, "_");
+          const itDistrict = normalize(it.district);
+          const itDate = it.date ? new Date(it.date) : new Date(it.createdAt);
+          const withinWindow = candidateDate && Math.abs(itDate - candidateDate) <= 1000 * 60 * 60 * 24 * 7; // 7 days
+          return itDistrict === candidateDistrict && (itType === candidateType) && (withinWindow || !candidateDate);
+        } catch (e) {
+          return false;
+        }
+      });
+
+      if (similar.length > 0) {
+        const preview = similar.slice(0, 3).map(s => `${s.type} — ${s.district} — ${new Date(s.date || s.createdAt).toLocaleDateString()}`).join('\n');
+        const proceed = window.confirm(`Similar incident(s) were reported recently:\n\n${preview}\n\nCreate this disaster anyway? Press Cancel to review.`);
+        if (!proceed) return;
+      }
+    } catch (err) {
+      console.debug('Duplicate check failed, continuing:', err?.message || err);
+    }
 
     setLoading(true);
     try {
@@ -324,6 +354,23 @@ export default function NewDisasterReport() {
   const maxHouseholds = parseInt(headerData.numberOfHouseholdsAffected) || 16;
   const householdsProgress = (households.length / maxHouseholds) * 100;
 
+  // When the recorded households reach the expected maximum, auto-save and navigate to summary
+  useEffect(() => {
+    if (maxHouseholds > 0 && households.length === maxHouseholds && !autoSaved) {
+      // small delay to let UI settle
+      const t = setTimeout(() => {
+        handleSaveDisaster();
+        setAutoSaved(true);
+      }, 250);
+      return () => clearTimeout(t);
+    }
+  }, [households.length, maxHouseholds, autoSaved]);
+
+  // Reset autosave flag when header changed (new disaster)
+  useEffect(() => {
+    setAutoSaved(false);
+  }, [headerData.numberOfHouseholdsAffected, headerData.disasterType, headerData.district, headerData.dateOfOccurrence]);
+
   return (
     <div className="new-disaster-report">
       {/* Header */}
@@ -368,7 +415,7 @@ export default function NewDisasterReport() {
 
             <div className="form-grid">
               <div className="form-group">
-                <label>Disaster Type *</label>
+                <label className="required">Disaster Type</label>
                 <select
                   name="disasterType"
                   value={headerData.disasterType}
@@ -384,7 +431,7 @@ export default function NewDisasterReport() {
               </div>
 
               <div className="form-group">
-                <label>District *</label>
+                <label className="required">District</label>
                 <select
                   name="district"
                   value={headerData.district}
@@ -400,7 +447,7 @@ export default function NewDisasterReport() {
               </div>
 
               <div className="form-group">
-                <label>Date of Occurrence *</label>
+                <label className="required">Date of Occurrence</label>
                 <input
                   type="date"
                   name="dateOfOccurrence"
@@ -410,7 +457,7 @@ export default function NewDisasterReport() {
               </div>
 
               <div className="form-group">
-                <label>Severity Level *</label>
+                <label className="required">Severity Level</label>
                 <select
                   name="severityLevel"
                   value={headerData.severityLevel}
@@ -426,7 +473,7 @@ export default function NewDisasterReport() {
               </div>
 
               <div className="form-group">
-                <label>Number of Households Affected *</label>
+                <label className="required">Number of Households Affected</label>
                 <input
                   type="number"
                   name="numberOfHouseholdsAffected"
@@ -501,7 +548,7 @@ export default function NewDisasterReport() {
                           </div>
 
                           <div className="form-group">
-                            <label>Head of Household Name *</label>
+                            <label className="required">Head of Household Name</label>
                             <input
                               type="text"
                               value={household.headName}
@@ -511,7 +558,7 @@ export default function NewDisasterReport() {
                           </div>
 
                           <div className="form-group">
-                            <label>Village / Location *</label>
+                            <label className="required">Village / Location</label>
                             <input
                               type="text"
                               value={household.village}
@@ -521,17 +568,17 @@ export default function NewDisasterReport() {
                           </div>
 
                           <div className="form-group">
-                            <label>Gender *</label>
+                            <label className="required">Gender</label>
                             <p className="value-display">{household.gender}</p>
                           </div>
 
                           <div className="form-group">
-                            <label>Age *</label>
+                            <label className="required">Age</label>
                             <p className="value-display">{household.age}</p>
                           </div>
 
                           <div className="form-group">
-                            <label>Household Size *</label>
+                            <label className="required">Household Size</label>
                             <p className="value-display">{household.householdSize}</p>
                           </div>
 
@@ -575,7 +622,7 @@ export default function NewDisasterReport() {
                 </div>
 
                 <div className="form-group">
-                  <label>Head of Household Name *</label>
+                  <label className="required">Head of Household Name</label>
                   <input
                     type="text"
                     name="headName"
@@ -587,7 +634,7 @@ export default function NewDisasterReport() {
                 </div>
 
                 <div className="form-group">
-                  <label>Village / Location *</label>
+                  <label className="required">Village / Location</label>
                   <input
                     type="text"
                     name="village"
@@ -599,7 +646,7 @@ export default function NewDisasterReport() {
                 </div>
 
                 <div className="form-group">
-                  <label>Gender *</label>
+                  <label className="required">Gender</label>
                   <select
                     name="gender"
                     value={householdForm.gender}
@@ -613,7 +660,7 @@ export default function NewDisasterReport() {
                 </div>
 
                 <div className="form-group">
-                  <label>Age *</label>
+                  <label className="required">Age</label>
                   <input
                     type="number"
                     name="age"
@@ -627,7 +674,7 @@ export default function NewDisasterReport() {
                 </div>
 
                 <div className="form-group">
-                  <label>Household Size *</label>
+                  <label className="required">Household Size</label>
                   <input
                     type="number"
                     name="householdSize"
@@ -640,7 +687,7 @@ export default function NewDisasterReport() {
                 </div>
 
                 <div className="form-group">
-                  <label>Source of Income *</label>
+                  <label className="required">Source of Income</label>
                   <select
                     name="sourceOfIncome"
                     value={householdForm.sourceOfIncome}

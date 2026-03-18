@@ -40,7 +40,8 @@ router.post("/register", async (req, res) => {
       token,
     });
   } catch (err) {
-    console.error(err);
+    console.error('Register error:', err);
+    if (err && err.stack) console.error(err.stack);
     res.status(500).json({ message: "Server error" });
   }
 });

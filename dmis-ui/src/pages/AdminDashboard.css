@@ -80,12 +80,12 @@
 }
 
 .btn-primary {
-  background-color: #2563eb;
+  background-color: var(--primary);
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #1d4ed8;
+  filter: brightness(0.9);
 }
 
 .btn-secondary {

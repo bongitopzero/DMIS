@@ -6,6 +6,13 @@
 import express from 'express';
 import allocationController from '../controllers/allocationController.js';
 import { protect } from '../middleware/auth.js';
+import {
+  validateAllocationRequest,
+  validateBudgetAvailability,
+  checkAllocationPermissions,
+  validateStatusTransition,
+  logAllocationAction,
+} from '../middleware/allocationValidation.js';
 
 const router = express.Router();
 
@@ -72,36 +79,77 @@ router.post('/calculate-score', protect, (req, res) => {
  * Create aid allocation request
  * Role: Finance Officer, Administrator
  */
-router.post('/create-request', protect, (req, res) => {
-  const user = req.headers.user
-    ? JSON.parse(req.headers.user)
-    : req.user || {};
-  if (!['Finance Officer', 'Administrator'].includes(user.role)) {
-    return res.status(403).json({
-      message: 'Insufficient permissions to create allocation requests',
-    });
-  }
+router.post(
+  '/create-request',
+  protect,
+  validateAllocationRequest,
+  validateBudgetAvailability,
+  logAllocationAction('CREATE'),
+  (req, res) => {
+    const user = req.headers.user
+      ? JSON.parse(req.headers.user)
+      : req.user || {};
+    if (!['Finance Officer', 'Administrator'].includes(user.role)) {
+      return res.status(403).json({
+        message: 'Insufficient permissions to create allocation requests',
+      });
+    }
 
-  allocationController.createAllocationRequest(req, res);
-});
+    // Check budget status and warn if critical
+    if (req.budgetInfo?.budgetCritical) {
+      console.warn(`Budget critical warning for allocation - ${req.budgetInfo.remainingBudget} remaining`);
+    }
+
+    allocationController.createAllocationRequest(req, res);
+  }
+);
 
 /**
  * PUT /api/allocation/requests/:requestId/approve
  * Approve allocation request
  * Role: Finance Officer, Administrator
  */
-router.put('/requests/:requestId/approve', protect, (req, res) => {
-  const user = req.headers.user
-    ? JSON.parse(req.headers.user)
-    : req.user || {};
-  if (!['Finance Officer', 'Administrator'].includes(user.role)) {
-    return res.status(403).json({
-      message: 'Insufficient permissions to approve allocations',
-    });
-  }
+router.put(
+  '/requests/:requestId/approve',
+  protect,
+  validateStatusTransition,
+  logAllocationAction('APPROVE'),
+  (req, res) => {
+    const user = req.headers.user
+      ? JSON.parse(req.headers.user)
+      : req.user || {};
+    if (!['Finance Officer', 'Administrator'].includes(user.role)) {
+      return res.status(403).json({
+        message: 'Insufficient permissions to approve allocations',
+      });
+    }
 
-  allocationController.approveAllocationRequest(req, res);
-});
+    allocationController.approveAllocationRequest(req, res);
+  }
+);
+
+/**
+ * PUT /api/allocation/requests/:requestId/disburse
+ * Mark allocation disbursed and create expense records
+ */
+router.put(
+  '/requests/:requestId/disburse',
+  protect,
+  validateStatusTransition,
+  logAllocationAction('DISBURSE'),
+  (req, res) => {
+    const user = req.headers.user
+      ? JSON.parse(req.headers.user)
+      : req.user || {};
+    if (!['Finance Officer', 'Administrator'].includes(user.role)) {
+      return res.status(403).json({
+        message: 'Insufficient permissions to disburse allocations',
+      });
+    }
+
+    allocationController.disburseAllocationRequest(req, res);
+  }
+);
 
 /**
  * ALLOCATION PLAN ROUTES
@@ -132,6 +180,15 @@ router.post('/plans', protect, (req, res) => {
  */
 router.get('/plans/:disasterId', protect, (req, res) => {
   allocationController.getAllocationPlansByDisaster(req, res);
+});
+
+/**
+ * GET /api/allocation/requests/:disasterId
+ * Get all allocation requests for a disaster
+ * Role: All authenticated users
+ */
+router.get('/requests/:disasterId', protect, (req, res) => {
+  allocationController.getAllocationRequestsByDisaster(req, res);
 });
 
 /**

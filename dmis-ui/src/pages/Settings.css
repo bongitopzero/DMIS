@@ -53,8 +53,8 @@
 
 .settings-btn {
   border: 1px solid var(--border-color);
-  background: var(--card-bg);
-  color: var(--text-primary);
+  background: var(--primary);
+  color: white;
   padding: 8px 14px;
   border-radius: 8px;
   cursor: pointer;
@@ -63,14 +63,35 @@
 }
 
 .settings-btn:hover {
-  background: var(--bg-secondary);
+  filter: brightness(0.95);
 }
 
 .settings-btn.danger {
-  border-color: var(--color-danger-500);
-  color: var(--color-danger-700);
+  border-color: var(--danger);
+  background: var(--danger);
+  color: white;
 }
 
 .settings-btn.danger:hover {
   background: var(--color-danger-100);
+}
+
+/* inputs inside settings */
+.settings-row input {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  min-width: 160px;
+}
+
+@media (max-width: 640px) {
+  .settings-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .settings-row input {
+    width: 100%;
+  }
 }

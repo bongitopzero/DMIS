@@ -6,6 +6,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 import DisasterEvents from "./components/DisasterEvents";
+import IncidentManagement from "./pages/IncidentManagement.jsx";
 import NewDisasterReport from "./components/NewDisasterReport";
 import MySubmissions from "./components/MySubmissions";
 
@@ -13,12 +14,13 @@ import FundManagement from "./pages/FundManagement.jsx";
 import FinancialDashboard from "./pages/FinancialDashboard.jsx";
 import AidAllocation from "./pages/AidAllocation.jsx";
 import BudgetAllocation from "./pages/BudgetAllocation.jsx";
-import ExpenseLog from "./pages/ExpenseLog.jsx";
+// ExpenseLog removed per request
 import FinanceAuditTrail from "./pages/FinanceAuditTrail.jsx";
 import ApprovedDisasters from "./pages/ApprovedDisasters.jsx";
 import MapPage from "./pages/MapPage";
 import Analysis from "./pages/Analysis.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import SystemSettings from "./pages/SystemSettings.jsx";
 import Forecasting from "./pages/Forecasting.jsx";
 
 import Sidebar from "./components/sidebar";
@@ -29,9 +31,11 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import "./App.css";
 
 function Layout({ children }) {
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
+
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <Sidebar />
+      <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((s) => !s)} />
       <div className="flex-1 flex flex-col">
         <Navbar />
         <main className="flex-1 overflow-y-auto">
@@ -95,16 +99,7 @@ function App() {
           }
         />
 
-        <Route
-          path="/expense-log"
-          element={
-            <ProtectedRoute allowedRoles={["Finance Officer"]}>
-              <Layout>
-                <ExpenseLog />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+        {/** Expense Log route removed */}
 
         <Route
           path="/audit-trail"
@@ -120,7 +115,7 @@ function App() {
         <Route
           path="/approved-disasters"
           element={
-            <ProtectedRoute allowedRoles={["Finance Officer"]}>
+            <ProtectedRoute allowedRoles={["Coordinator","Administrator"]}>
               <Layout>
                 <ApprovedDisasters />
               </Layout>
@@ -162,6 +157,17 @@ function App() {
         />
 
         <Route
+          path="/incidents"
+          element={
+            <ProtectedRoute allowedRoles={["Coordinator", "Data Clerk"]}>
+              <Layout>
+                <IncidentManagement />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/fund-management"
           element={
             <ProtectedRoute allowedRoles={["Finance Officer"]}>
@@ -197,7 +203,7 @@ function App() {
         <Route
           path="/forecasting"
           element={
-            <ProtectedRoute allowedRoles={["Coordinator"]}>
+            <ProtectedRoute allowedRoles={["Coordinator", "Finance Officer"]}>
               <Layout>
                 <Forecasting />
               </Layout>
@@ -211,6 +217,17 @@ function App() {
             <ProtectedRoute allowedRoles={["Administrator"]}>
               <Layout>
                 <AdminDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin-dashboard/settings"
+          element={
+            <ProtectedRoute allowedRoles={["Administrator"]}>
+              <Layout>
+                <SystemSettings />
               </Layout>
             </ProtectedRoute>
           }
