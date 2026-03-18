@@ -99,7 +99,7 @@ export default function Settings() {
         </section>
 
         <section className="settings-card">
-          <h2>Preferences</h2>
+          <h2>Appearance</h2>
           <div className="settings-row">
             <span>Theme</span>
             <button type="button" className="settings-btn" onClick={toggleTheme}>
