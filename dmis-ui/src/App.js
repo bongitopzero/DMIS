@@ -22,6 +22,7 @@ import Analysis from "./pages/Analysis.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import SystemSettings from "./pages/SystemSettings.jsx";
 import Forecasting from "./pages/Forecasting.jsx";
+import Settings from "./pages/Settings";  // <-- ADD THIS IMPORT
 
 import Sidebar from "./components/sidebar";
 import Navbar from "./components/navbar";
@@ -228,6 +229,18 @@ function App() {
             <ProtectedRoute allowedRoles={["Administrator"]}>
               <Layout>
                 <SystemSettings />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ADD THIS NEW ROUTE FOR SETTINGS */}
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute allowedRoles={["Coordinator", "Finance Officer", "Data Clerk", "Administrator"]}>
+              <Layout>
+                <Settings />
               </Layout>
             </ProtectedRoute>
           }

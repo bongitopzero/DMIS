@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import "./Settings.css";
 
+
 export default function Settings() {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
@@ -20,9 +21,17 @@ export default function Settings() {
   const token = localStorage.getItem("dmisToken");
 
   const handleSignOut = () => {
+    // Clear all authentication data
     localStorage.removeItem("dmisToken");
     localStorage.removeItem("user");
-    navigate("/login");
+    localStorage.removeItem("token"); // Clear any alternative token names
+    sessionStorage.clear(); // Clear session storage as backup
+    
+    // Navigate to login
+    navigate("/login", { replace: true });
+    
+    // Force reload to clear any React state
+    window.location.reload();
   };
 
   const handleSave = async (e) => {
@@ -35,12 +44,20 @@ export default function Settings() {
       return;
     }
 
+    if (!user._id) {
+      setError("User ID not found. Please sign in again.");
+      return;
+    }
+
     const payload = { name, ministry };
     if (password) payload.password = password;
 
     try {
       setLoading(true);
-      const res = await fetch(`/api/auth/users/${user._id}`, {
+      
+      // Use full URL or ensure proxy is set in package.json
+      const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+      const res = await fetch(`${baseUrl}/api/auth/users/${user._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -50,12 +67,18 @@ export default function Settings() {
       });
 
       if (!res.ok) {
+        if (res.status === 401) {
+          // Token expired - sign out
+          handleSignOut();
+          throw new Error("Session expired. Please sign in again.");
+        }
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || body.message || "Failed to update profile");
       }
 
       const updated = await res.json();
-      // update localStorage user object
+      
+      // Update localStorage user object
       const stored = JSON.parse(localStorage.getItem("user") || "{}");
       stored.user = { ...stored.user, ...updated };
       localStorage.setItem("user", JSON.stringify(stored));
@@ -79,61 +102,114 @@ export default function Settings() {
 
       <form className="settings-grid" onSubmit={handleSave}>
         <section className="settings-card">
-          <h2>Profile</h2>
+          <h2>Profile Information</h2>
           <div className="settings-row">
-            <span>Name</span>
-            <input value={name} onChange={(e) => setName(e.target.value)} />
+            <span>Full Name</span>
+            <input 
+              type="text"
+              value={name} 
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your name"
+            />
           </div>
           <div className="settings-row">
-            <span>Email</span>
-            <strong>{user.email || ""}</strong>
+            <span>Email Address</span>
+            <strong className="email-display">{user.email || ""}</strong>
           </div>
           <div className="settings-row">
-            <span>Role</span>
-            <strong>{user.role || ""}</strong>
+            <span>User Role</span>
+            <strong className="role-badge">{user.role || ""}</strong>
           </div>
           <div className="settings-row">
-            <span>Ministry</span>
-            <input value={ministry} onChange={(e) => setMinistry(e.target.value)} />
+            <span>Ministry/Department</span>
+            <input 
+              type="text"
+              value={ministry} 
+              onChange={(e) => setMinistry(e.target.value)}
+              placeholder="Enter your ministry"
+            />
           </div>
         </section>
 
         <section className="settings-card">
           <h2>Appearance</h2>
           <div className="settings-row">
-            <span>Theme</span>
-            <button type="button" className="settings-btn" onClick={toggleTheme}>
-              {theme === "light" ? "Switch to Dark" : "Switch to Light"}
+            <span>Color Theme</span>
+            <button 
+              type="button" 
+              className="settings-btn theme-toggle" 
+              onClick={toggleTheme}
+            >
+              {theme === "light" ? "🌙 Switch to Dark" : "☀️ Switch to Light"}
             </button>
-          </div>
-
-          <h2>Change Password</h2>
-          <div className="settings-row">
-            <span>New password</span>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          </div>
-          <div className="settings-row">
-            <span>Confirm</span>
-            <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
           </div>
         </section>
 
         <section className="settings-card">
-          <h2>Session</h2>
+          <h2>Change Password</h2>
+          <div className="settings-row">
+            <span>New Password</span>
+            <input 
+              type="password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter new password"
+              minLength="6"
+            />
+          </div>
+          <div className="settings-row">
+            <span>Confirm Password</span>
+            <input 
+              type="password" 
+              value={confirmPassword} 
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm new password"
+              minLength="6"
+            />
+          </div>
+          {password && confirmPassword && password !== confirmPassword && (
+            <div className="password-mismatch">Passwords do not match</div>
+          )}
+        </section>
+
+        <section className="settings-card logout-section">
+          <h2>Session Management</h2>
           <div className="settings-row">
             <span>Signed in as</span>
             <strong>{user.email || ""}</strong>
           </div>
+          <div className="settings-row">
+            <span>Account Status</span>
+            <span className="status-badge active">Active</span>
+          </div>
 
-          {error && <div style={{ color: 'var(--danger)', fontSize: '0.9rem' }}>{error}</div>}
-          {success && <div style={{ color: 'var(--success)', fontSize: '0.9rem' }}>{success}</div>}
+          {error && (
+            <div className="error-message">
+              <span>⚠️</span> {error}
+            </div>
+          )}
+          
+          {success && (
+            <div className="success-message">
+              <span>✓</span> {success}
+            </div>
+          )}
 
-          <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-            <button type="submit" className="settings-btn" disabled={loading}>
-              {loading ? 'Saving…' : 'Save changes'}
+          <div className="button-group">
+            <button 
+              type="submit" 
+              className="settings-btn primary" 
+              disabled={loading}
+            >
+              {loading ? 'Saving Changes...' : '💾 Save Profile'}
             </button>
-            <button type="button" className="settings-btn danger" onClick={handleSignOut}>
-              Sign out
+            
+            <button 
+              type="button" 
+              className="settings-btn logout-btn" 
+              onClick={handleSignOut}
+            >
+              🚪 Sign Out
             </button>
           </div>
         </section>

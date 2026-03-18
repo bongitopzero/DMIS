@@ -4,14 +4,12 @@ import {
   DollarSign,
   Zap,
   BookOpen,
-  Receipt,
   BarChart3,
   TrendingUp,
   Users,
   Settings,
   Map,
   MessageSquare,
-  CheckCircle,
   FileText,
   Plus,
   Menu,
@@ -54,7 +52,13 @@ export default function Sidebar({ collapsed = false, onToggle }) {
               <li className={isActive("/admin-dashboard")}>
                 <Link to="/admin-dashboard">
                   <Users size={20} />
-                  <span>Admin Dashboard</span>
+                  <span className="nav-text">Admin Dashboard</span>
+                </Link>
+              </li>
+              <li className={isActive("/settings")}>
+                <Link to="/settings">
+                  <Settings size={20} />
+                  <span className="nav-text">Settings</span>
                 </Link>
               </li>
             </>
@@ -66,7 +70,7 @@ export default function Sidebar({ collapsed = false, onToggle }) {
               <li className={isActive("/dashboard")}>
                 <Link to="/dashboard">
                   <BarChart3 size={20} />
-                    <span className="nav-text">Dashboard</span>
+                  <span className="nav-text">Dashboard</span>
                 </Link>
               </li>
               <li className={isActive("/disaster-events")}>
@@ -93,8 +97,8 @@ export default function Sidebar({ collapsed = false, onToggle }) {
                   <span className="nav-text">Forecasting</span>
                 </Link>
               </li>
-              <li>
-                <Link to="/dashboard">
+              <li className={isActive("/settings")}>
+                <Link to="/settings">
                   <Settings size={20} />
                   <span className="nav-text">Settings</span>
                 </Link>
@@ -108,7 +112,7 @@ export default function Sidebar({ collapsed = false, onToggle }) {
               <li className={isActive("/finance-dashboard")}>
                 <Link to="/finance-dashboard">
                   <DollarSign size={20} />
-                    <span className="nav-text">Finance Dashboard</span>
+                  <span className="nav-text">Finance Dashboard</span>
                 </Link>
               </li>
               <li className={isActive("/aid-allocation")}>
@@ -123,7 +127,6 @@ export default function Sidebar({ collapsed = false, onToggle }) {
                   <span className="nav-text">Budget Allocation</span>
                 </Link>
               </li>
-              {/* Expense Log removed */}
               <li className={isActive("/audit-trail")}>
                 <Link to="/audit-trail">
                   <BarChart3 size={20} />
@@ -134,6 +137,12 @@ export default function Sidebar({ collapsed = false, onToggle }) {
                 <Link to="/forecasting">
                   <TrendingUp size={20} />
                   <span className="nav-text">Forecasting</span>
+                </Link>
+              </li>
+              <li className={isActive("/settings")}>
+                <Link to="/settings">
+                  <Settings size={20} />
+                  <span className="nav-text">Settings</span>
                 </Link>
               </li>
             </>
@@ -152,6 +161,12 @@ export default function Sidebar({ collapsed = false, onToggle }) {
                 <Link to="/new-disaster-report">
                   <Plus size={20} />
                   <span className="nav-text">New Disaster Report</span>
+                </Link>
+              </li>
+              <li className={isActive("/settings")}>
+                <Link to="/settings">
+                  <Settings size={20} />
+                  <span className="nav-text">Settings</span>
                 </Link>
               </li>
             </>
