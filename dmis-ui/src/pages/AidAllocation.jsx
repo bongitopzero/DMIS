@@ -887,4 +887,3 @@ export default function AidAllocation() {
     </div>
   );
 }
-
