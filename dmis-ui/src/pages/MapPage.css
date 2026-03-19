@@ -33,7 +33,7 @@
 
 .sidebar-header h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
 }
 
@@ -50,7 +50,7 @@
 
 .filter-section h3 {
   margin: 0 0 12px 0;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--text-primary, #1f2937);
   text-transform: uppercase;
@@ -65,7 +65,7 @@
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -104,7 +104,7 @@
   padding: 10px 14px;
   border: 1px solid var(--border-color, #e5e7eb);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-primary, #374151);
   background: var(--card-bg, white);
   cursor: pointer;
@@ -139,7 +139,7 @@
   align-items: center;
   gap: 6px;
   transition: all 0.2s ease;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--text-secondary, #6b7280);
 }
@@ -226,13 +226,13 @@
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   padding: 10px 12px;
-  font-size: 12px;
+  font-size: 14px;
   color: #1f2937;
 }
 
 .legend-title {
   font-weight: 700;
-  font-size: 12px;
+  font-size: 14px;
   margin-bottom: 6px;
   color: #0f172a;
 }
@@ -280,7 +280,7 @@
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--text-primary, #374151);
   backdrop-filter: blur(10px);
@@ -294,7 +294,7 @@
 
 /* Incident Popup Styling */
 .incident-popup {
-  font-size: 13px;
+  font-size: 14px;
   color: #374151;
   line-height: 1.6;
 }
@@ -397,7 +397,7 @@
   .map-overlay {
     top: 10px;
     right: 10px;
-    font-size: 12px;
+    font-size: 14px;
     padding: 10px 12px;
   }
 
