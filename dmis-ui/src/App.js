@@ -14,7 +14,6 @@ import FundManagement from "./pages/FundManagement.jsx";
 import FinancialDashboard from "./pages/FinancialDashboard.jsx";
 import AidAllocation from "./pages/AidAllocation.jsx";
 import BudgetAllocation from "./pages/BudgetAllocation.jsx";
-// ExpenseLog removed per request
 import FinanceAuditTrail from "./pages/FinanceAuditTrail.jsx";
 import ApprovedDisasters from "./pages/ApprovedDisasters.jsx";
 import MapPage from "./pages/MapPage";
