@@ -97,6 +97,7 @@ const MapPage = () => {
     const normalized = (severity || "").toString().toLowerCase().trim();
     switch (normalized) {
       case "high":
+      case "critical":
         return "#EF4444";
       case "medium":
         return "#F97316";
@@ -111,7 +112,7 @@ const MapPage = () => {
     (value || "").toString().toLowerCase().replace(/[\s-]+/g, "_").trim();
   const normalizeSeverity = (value) =>
     (value || "").toString().toLowerCase().trim();
-  const severityRank = { low: 1, medium: 2, high: 3 };
+  const severityRank = { low: 1, medium: 2, high: 3, critical: 4 };
   const getHighestSeverity = (items) => {
     let highest = null;
     let highestScore = 0;
@@ -164,7 +165,7 @@ const MapPage = () => {
 
     // Count by severity
     const severityCounts = {
-      high: incidents.filter(i => normalizeSeverity(i.severity) === "high").length,
+      high: incidents.filter(i => normalizeSeverity(i.severity) === "high" || normalizeSeverity(i.severity) === "critical").length,
       medium: incidents.filter(i => normalizeSeverity(i.severity) === "medium").length,
       low: incidents.filter(i => normalizeSeverity(i.severity) === "low").length
     };
@@ -174,7 +175,7 @@ const MapPage = () => {
         <strong style="font-size: 14px; color: #1e293b;">${districtName}</strong><br/>
         <div style="margin-top: 8px; font-size: 13px;">
           <strong>Total Incidents:</strong> ${incidents.length}<br/>
-          ${severityCounts.high > 0 ? `<span style="color: #EF4444;">● High: ${severityCounts.high}</span><br/>` : ''}
+          ${severityCounts.high > 0 ? `<span style="color: #EF4444;">● Critical/High: ${severityCounts.high}</span><br/>` : ''}
           ${severityCounts.medium > 0 ? `<span style="color: #F97316;">● Medium: ${severityCounts.medium}</span><br/>` : ''}
           ${severityCounts.low > 0 ? `<span style="color: #22C55E;">● Low: ${severityCounts.low}</span>` : ''}
         </div>
@@ -195,18 +196,18 @@ const MapPage = () => {
     return districtMatch && typeMatch;
   });
 
-  // District coordinates mapping (using normalized keys)
+  // CORRECTED District coordinates mapping for Lesotho
   const districtCoordinates = {
-    "berea": [-29.3, 28.3],
-    "buthabuthe": [-28.8, 28.2],
-    "leribe": [-28.9, 28.0],
-    "mafeteng": [-29.8, 27.5],
-    "maseru": [-29.31, 27.48],
-    "mohaleshoek": [-30.1, 27.5],
-    "mokhotlong": [-29.3, 29.1],
-    "qachasnek": [-30.1, 28.7],
-    "quthing": [-30.4, 27.7],
-    "thabatseka": [-29.5, 28.6],
+    "berea": [-29.1667, 27.9167],      // Berea district
+    "buthabuthe": [-28.7667, 28.2333], // Butha-Buthe district
+    "leribe": [-28.8833, 28.0500],     // Leribe district
+    "mafeteng": [-29.8333, 27.2500],   // Mafeteng district
+    "maseru": [-29.3167, 27.4833],     // Maseru district (capital)
+    "mohaleshoek": [-30.1500, 27.4667], // Mohale's Hoek district
+    "mokhotlong": [-29.2833, 29.0667], // Mokhotlong district
+    "qachasnek": [-30.1167, 28.7000],  // Qacha's Nek district
+    "quthing": [-30.4000, 27.7000],    // Quthing district
+    "thabatseka": [-29.5167, 28.6000], // Thaba-Tseka district
   };
 
   // Prepare incidents with coordinates
@@ -214,10 +215,13 @@ const MapPage = () => {
     const normalizedDistrict = normalize(incident.district);
     const coords = districtCoordinates[normalizedDistrict] || [-29.6, 28.3];
     
+    // Add small random offset to prevent markers from stacking exactly on top of each other
+    const randomOffset = 0.02; // About 2km offset
+    
     return {
       ...incident,
-      latitude: incident.latitude || coords[0] + (Math.random() - 0.5) * 0.1,
-      longitude: incident.longitude || coords[1] + (Math.random() - 0.5) * 0.1,
+      latitude: incident.latitude || coords[0] + (Math.random() - 0.5) * randomOffset,
+      longitude: incident.longitude || coords[1] + (Math.random() - 0.5) * randomOffset,
     };
   });
 
@@ -301,20 +305,32 @@ const MapPage = () => {
                 <span>Drought</span>
               </button>
               <button
-                className={`type-button ${selectedType === "heavy_rainfall" ? "active" : ""}`}
-                onClick={() => setSelectedType("heavy_rainfall")}
+                className={`type-button ${selectedType === "flooding" || selectedType === "heavy_rainfall" ? "active" : ""}`}
+                onClick={() => setSelectedType("flooding")}
               >
                 <Droplets size={20} />
-                <span>Heavy Rainfall</span>
+                <span>Flooding</span>
               </button>
               <button
-                className={`type-button ${selectedType === "strong_winds" ? "active" : ""}`}
+                className={`type-button ${selectedType === "strong_winds" || selectedType === "storm" ? "active" : ""}`}
                 onClick={() => setSelectedType("strong_winds")}
               >
                 <Wind size={20} />
                 <span>Strong Winds</span>
               </button>
             </div>
+          </div>
+
+          {/* Current Year Toggle */}
+          <div className="filter-section">
+            <label className="year-toggle">
+              <input
+                type="checkbox"
+                checked={currentYearOnly}
+                onChange={(e) => setCurrentYearOnly(e.target.checked)}
+              />
+              <span>Current Year Only</span>
+            </label>
           </div>
 
           {/* Statistics */}
@@ -335,7 +351,7 @@ const MapPage = () => {
             <div className="legend-title">Severity Levels</div>
             <div className="legend-item">
               <span className="legend-dot high"></span>
-              <span className="legend-label">High</span>
+              <span className="legend-label">Critical/High</span>
             </div>
             <div className="legend-item">
               <span className="legend-dot medium"></span>
@@ -353,7 +369,7 @@ const MapPage = () => {
       <div className="map-container">
         <MapContainer
           center={[-29.6, 28.3]}
-          zoom={7}
+          zoom={7.5}
           style={{ height: "100%", width: "100%" }}
         >
           <TileLayer
@@ -391,7 +407,7 @@ const MapPage = () => {
                     {incident.region && <span> - {incident.region}</span>}
                   </p>
                   <p style={{ margin: "4px 0", fontSize: "12px" }}>
-                    <strong>Location:</strong> {incident.location}
+                    <strong>Location:</strong> {incident.location || incident.district}
                   </p>
                   <p style={{ margin: "4px 0", fontSize: "12px" }}>
                     <strong>Severity:</strong>{" "}
@@ -404,7 +420,7 @@ const MapPage = () => {
                     </span>
                   </p>
                   <p style={{ margin: "4px 0", fontSize: "12px" }}>
-                    <strong>Affected:</strong> {incident.households || "N/A"} households
+                    <strong>Affected:</strong> {incident.households || incident.numberOfHouseholdsAffected || "N/A"} households
                   </p>
                   <p style={{ margin: "4px 0", fontSize: "12px" }}>
                     <strong>Status:</strong> {incident.status || "reported"}
@@ -423,7 +439,6 @@ const MapPage = () => {
             </CircleMarker>
           ))}
         </MapContainer>
-
       </div>
     </div>
   );

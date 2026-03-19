@@ -1587,4 +1587,4 @@ function FundDetailsList({ funds }) {
     </div>
   );
 }
-export default Analysis;
+
