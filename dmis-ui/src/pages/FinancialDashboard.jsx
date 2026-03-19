@@ -156,16 +156,6 @@ export default function FinancialDashboard() {
 
   return (
     <div className="financial-dashboard">
-      {/* Header */}
-      <div className="dashboard-header">
-        <div>
-          <h1>Finance Dashboard</h1>
-          <p className="subtitle">
-            Financial governance overview — budget allocation, expenditure, and accountability
-          </p>
-        </div>
-      </div>
-
       {/* View Selector */}
       <div className="view-selector">
         <label>View:</label>

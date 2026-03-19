@@ -14,6 +14,15 @@ export default function Navbar() {
     if (path === "/gis-map") return "GIS Map";
     if (path === "/finance-dashboard") return "Finance Dashboard";
     if (path === "/fund-management") return "Fund Management";
+    if (path === "/aid-allocation") return "Aid Allocation";
+    if (path === "/admin-dashboard") return "Administrator Dashboard";
+    if (path === "/forecasting") return "Forecasting";
+    if (path === "/analysis") return "Analysis";
+    if (path === "/approved-disasters") return "Approved Disasters";
+    if (path === "/budget-allocation") return "Budget Allocation";
+    if (path === "/expense-log") return "Expense Log";
+    if (path === "/finance-audit-trail") return "Finance Audit Trail";
+    if (path === "/allocation-dashboard") return "Financial Allocation";
     return "Dashboard";
   };
 

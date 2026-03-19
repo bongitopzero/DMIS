@@ -1,26 +1,17 @@
 .aid-allocation {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: white;
+}
+
+.aid-allocation-content {
   padding: 2rem;
   background-color: #f5f7fa;
-  min-height: 100vh;
+  flex: 1;
 }
 
-/* Page Header */
-.page-header {
-  margin-bottom: 2rem;
-}
-
-.page-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
-.page-header .subtitle {
-  font-size: 0.95rem;
-  color: #6b7280;
-  font-weight: 500;
-}
+/* Removed old page-header styling - now using PageHeader component */
 
 /* Disaster Selector Section */
 .disaster-selector-section {

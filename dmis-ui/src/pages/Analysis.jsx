@@ -136,12 +136,7 @@ export default function Analysis() {
     <div className="p-6 bg-slate-50 min-h-screen">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">System Analysis</h1>
-          <p className="text-slate-600 mt-1">
-            Comprehensive analysis of the disaster management system
-          </p>
-        </div>
+
         <button
           onClick={exportAnalysis}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"

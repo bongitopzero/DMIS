@@ -128,15 +128,7 @@ export default function AllocationDashboard({ disasterId }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-8 shadow-lg">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold mb-2">💰 Financial Allocation</h1>
-          <p className="text-blue-100">
-            Fair and transparent disaster aid allocation system
-          </p>
-        </div>
-      </div>
+
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Summary Cards */}

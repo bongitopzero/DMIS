@@ -376,11 +376,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-      <div className="dashboard-header">
-        <h1>Administrator Dashboard</h1>
-        <p>Manage users and configure system settings</p>
-      </div>
-
       {error && <div className="alert alert-error">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 

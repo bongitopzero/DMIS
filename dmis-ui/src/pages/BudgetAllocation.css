@@ -1,0 +1,12 @@
+.budget-allocation-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: white;
+}
+
+.budget-allocation-content {
+  padding: 2rem;
+  flex: 1;
+  background-color: #f5f7fa;
+}

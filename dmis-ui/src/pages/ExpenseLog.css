@@ -1,0 +1,12 @@
+.expense-log-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: white;
+}
+
+.expense-log-content {
+  padding: 2rem;
+  flex: 1;
+  background-color: #f5f7fa;
+}
