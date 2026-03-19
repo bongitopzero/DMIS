@@ -214,4 +214,23 @@ router.get('/auditlogs/entity/:entityId/:entityType', protect, async (req, res) 
   }
 });
 
+/**
+ * GET /api/financial/allocation-budget-impact/:disasterId
+ * Get allocation impact on budget
+ * Role: Finance Officer, Administrator
+ */
+router.get('/allocation-budget-impact/:disasterId', protect, async (req, res) => {
+  try {
+    const user = JSON.parse(req.headers.user || '{}');
+    if (!['Finance Officer', 'Administrator'].includes(user.role)) {
+      return res.status(403).json({ message: 'Insufficient permissions to view budget impact' });
+    }
+    
+    await financialController.getAllocationBudgetImpact(req, res);
+  } catch (error) {
+    console.error('Route error:', error);
+    res.status(500).json({ message: 'Route error', error: error.message });
+  }
+});
+
 export default router;

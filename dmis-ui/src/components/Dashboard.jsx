@@ -17,16 +17,29 @@ export default function Dashboard() {
   const [error, setError] = useState("");
   const [disastersByType, setDisastersByType] = useState({});
   const [financialByMonth, setFinancialByMonth] = useState({});
+  const [overview, setOverview] = useState(null);
 
   useEffect(() => {
     fetchDisasters();
     fetchDashboardStats();
+    fetchCoordinatorOverview();
     const interval = setInterval(() => {
       fetchDisasters();
       fetchDashboardStats();
+      fetchCoordinatorOverview();
     }, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const fetchCoordinatorOverview = async () => {
+    try {
+      const res = await API.get("/coordinator/overview");
+      setOverview(res.data || null);
+    } catch (err) {
+      // quietly ignore if endpoint not available or not authorized
+      console.debug("Coordinator overview not available:", err?.message || err);
+    }
+  };
 
   const fetchDashboardStats = async () => {
     try {
@@ -90,7 +103,7 @@ export default function Dashboard() {
     const stats = {
       byType: {},
       byDistrict: {},
-      bySeverity: { low: 0, medium: 0, high: 0 },
+      bySeverity: { low: 0, medium: 0, high: 0, critical: 0 },
       byStatus: { reported: 0, submitted: 0, verified: 0, responding: 0, closed: 0 }
     };
 
@@ -103,7 +116,16 @@ export default function Dashboard() {
       
       // Count by severity
       if (d.severity) {
-        stats.bySeverity[d.severity] = (stats.bySeverity[d.severity] || 0) + 1;
+        const severity = d.severity.toLowerCase();
+        if (severity.includes('critical') || severity === 'high' && d.status !== 'closed') {
+          stats.bySeverity.critical = (stats.bySeverity.critical || 0) + 1;
+        } else if (severity.includes('high')) {
+          stats.bySeverity.high = (stats.bySeverity.high || 0) + 1;
+        } else if (severity.includes('medium')) {
+          stats.bySeverity.medium = (stats.bySeverity.medium || 0) + 1;
+        } else if (severity.includes('low')) {
+          stats.bySeverity.low = (stats.bySeverity.low || 0) + 1;
+        }
       }
       
       // Count by status
@@ -121,14 +143,70 @@ export default function Dashboard() {
   const topDistricts = Object.entries(stats.byDistrict)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
-    .map(([district, count]) => ({
-      district,
-      active: count,
-      severity: count > 50 ? 'High' : count > 20 ? 'Moderate' : 'Low',
-      riskColor: count > 50 ? 'critical' : count > 20 ? 'moderate' : 'low'
-    }));
+    .map(([district, count]) => {
+      // Calculate risk level based on severity of disasters in that district
+      const districtDisasters = disasters.filter(d => d.district === district);
+      const hasCritical = districtDisasters.some(d => 
+        d.severity?.toLowerCase().includes('critical') || 
+        (d.severity?.toLowerCase().includes('high') && d.status !== 'closed')
+      );
+      const hasHigh = districtDisasters.some(d => d.severity?.toLowerCase().includes('high'));
+      
+      let riskLevel = 'Low';
+      let riskColor = 'low';
+      
+      if (hasCritical) {
+        riskLevel = 'Critical';
+        riskColor = 'critical';
+      } else if (hasHigh) {
+        riskLevel = 'High';
+        riskColor = 'moderate';
+      } else if (count > 3) {
+        riskLevel = 'Moderate';
+        riskColor = 'moderate';
+      }
+      
+      return {
+        district,
+        active: count,
+        severity: riskLevel,
+        riskColor
+      };
+    });
 
-  const totalBudget = 9.8; // Example: M 9.8M
+  // Calculate actual allocated funds from data
+  const calculateAllocatedFunds = () => {
+    let total = 0;
+    disasters.forEach(d => {
+      if (d.allocatedBudget) {
+        total += parseFloat(d.allocatedBudget) || 0;
+      }
+    });
+    return total / 1000000; // Convert to millions
+  };
+
+  // Calculate actual requested funds
+  const calculateRequestedFunds = () => {
+    let total = 0;
+    disasters.forEach(d => {
+      if (d.requestedBudget) {
+        total += parseFloat(d.requestedBudget) || 0;
+      } else if (d.estimatedCost) {
+        total += parseFloat(d.estimatedCost) || 0;
+      }
+    });
+    return total / 1000000; // Convert to millions
+  };
+
+  const totalAllocated = calculateAllocatedFunds();
+  const totalRequested = calculateRequestedFunds();
+  const totalSpent = totalAllocated * 0.65; // Estimate 65% of allocated is spent
+
+  // Count critical disasters
+  const criticalDisasters = disasters.filter(d => 
+    d.severity?.toLowerCase().includes('critical') || 
+    (d.severity?.toLowerCase().includes('high') && d.status !== 'closed')
+  ).length;
 
   const handleApproveDisaster = async (disasterId) => {
     try {
@@ -157,30 +235,30 @@ export default function Dashboard() {
       {/* Summary Cards - 4 columns */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <SummaryCard
-          title="Total Disasters"
-          value={activeIncidents}
-          subtitle={`${stats.byStatus.verified || 0} verified`}
+          title="Current Year Incidents"
+          value={overview?.currentYear?.incidentsCount ?? activeIncidents}
+          subtitle={`${stats.byStatus.verified || 0} verified · ${stats.byStatus.submitted || 0} pending`}
           icon={<AlertCircle className="w-5 h-5 text-critical" />}
           bgColor="bg-red-50"
         />
         <SummaryCard
           title="Districts Affected"
           value={Object.keys(stats.byDistrict).length}
-          subtitle={`${stats.bySeverity.high || 0} high severity`}
+          subtitle={`${stats.bySeverity.high || 0} high · ${stats.bySeverity.critical || 0} critical`}
           icon={<Users className="w-5 h-5 text-blue-500" />}
           bgColor="bg-blue-50"
         />
         <SummaryCard
-          title="Total Budget"
-          value={`M ${totalBudget}M`}
-          subtitle="M 2.7M spent"
+          title="Allocated Funds"
+          value={totalAllocated > 0 ? `M ${totalAllocated.toFixed(1)}` : "M 0"}
+          subtitle={totalRequested > 0 ? `Requested: M ${totalRequested.toFixed(1)}` : "No requests"}
           icon={<DollarSign className="w-5 h-5 text-green-500" />}
           bgColor="bg-green-50"
         />
         <SummaryCard
-          title="Active Response"
-          value={stats.byStatus.responding || 0}
-          subtitle={`${stats.byStatus.submitted || 0} pending approval`}
+          title="Critical Disasters"
+          value={criticalDisasters}
+          subtitle={`${stats.byStatus.responding || 0} active responses`}
           icon={<TrendingUp className="w-5 h-5 text-emerald-500" />}
           bgColor="bg-emerald-50"
         />
@@ -199,7 +277,15 @@ export default function Dashboard() {
                   <p className="font-semibold text-text">{disaster.type?.toUpperCase()} in {disaster.district}</p>
                   <p className="text-sm text-muted">
                     {disaster.numberOfHouseholdsAffected || 0} household(s) | 
-                    Severity: <span style={{ textTransform: 'capitalize', fontWeight: '600' }}>{disaster.severity}</span>
+                    Severity: <span style={{ 
+                      textTransform: 'capitalize', 
+                      fontWeight: '600',
+                      color: disaster.severity?.toLowerCase().includes('critical') ? '#B94A48' : 
+                             disaster.severity?.toLowerCase().includes('high') ? '#C9A227' : 
+                             disaster.severity?.toLowerCase().includes('medium') ? '#4E8A64' : '#3b82f6'
+                    }}>
+                      {disaster.severity}
+                    </span>
                   </p>
                 </div>
                 <button
@@ -241,20 +327,16 @@ export default function Dashboard() {
           </div>
         </div>
 
+        
         {/* Recent Disasters - 1/3 width */}
-        <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-text">Recent Disasters</h2>
-            <a href="#" className="text-xs text-blue-600 font-medium hover:underline">
-              View All →
-            </a>
-          </div>
-          <RecentDisasters
-            disasters={disasters}
-            selectedDisaster={selectedDisaster}
-            onSelectDisaster={setSelectedDisaster}
-          />
-        </div>
+<div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
+  <h2 className="text-lg font-semibold text-text mb-4">Recent Disasters</h2>
+  <RecentDisasters
+    disasters={disasters}
+    selectedDisaster={selectedDisaster}
+    onSelectDisaster={setSelectedDisaster}
+  />
+</div>
       </div>
 
       {/* Charts & Table Section */}
@@ -291,27 +373,35 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {topDistricts.map((row, idx) => (
-                <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
-                  <td className="py-3 px-3 text-text font-medium">{row.district}</td>
-                  <td className="py-3 px-3 text-text">{row.active} incidents</td>
-                  <td className="py-3 px-3">
-                    <span
-                      className={`px-2 py-1 text-xs font-semibold rounded-full text-white`}
-                      style={{
-                        backgroundColor:
-                          row.riskColor === "critical"
-                            ? "#B94A48"
-                            : row.riskColor === "moderate"
-                            ? "#C9A227"
-                            : "#4E8A64",
-                      }}
-                    >
-                      {row.severity}
-                    </span>
+              {topDistricts.length > 0 ? (
+                topDistricts.map((row, idx) => (
+                  <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
+                    <td className="py-3 px-3 text-text font-medium">{row.district}</td>
+                    <td className="py-3 px-3 text-text">{row.active} incidents</td>
+                    <td className="py-3 px-3">
+                      <span
+                        className={`px-2 py-1 text-xs font-semibold rounded-full text-white`}
+                        style={{
+                          backgroundColor:
+                            row.riskColor === "critical"
+                              ? "#B94A48"
+                              : row.riskColor === "moderate"
+                              ? "#C9A227"
+                              : "#4E8A64",
+                        }}
+                      >
+                        {row.severity}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className="py-4 text-center text-muted">
+                    No district data available
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -375,13 +465,12 @@ function DisastersByTypeChart({ disastersByType }) {
               <div
                 className="w-8 rounded transition-all hover:opacity-75"
                 style={{
-                  height: `${height}px`,
+                  height: `${Math.max(height, 20)}px`,
                   backgroundColor: color,
-                  minHeight: "20px"
                 }}
                 title={`${type}: ${count} disasters`}
               ></div>
-              <p className="text-xs text-muted mt-2 truncate">{type}</p>
+              <p className="text-xs text-muted mt-2 truncate max-w-16">{type}</p>
               <p className="text-xs font-semibold text-text">{count}</p>
             </div>
           );
@@ -451,10 +540,14 @@ function FinancialOverviewChart({ financialByMonth }) {
                 style={{
                   height: `${Math.max(height, 20)}px`
                 }}
-                title={`${monthName}: M ${(amount / 1000).toFixed(1)}K`}
+                title={`${monthName}: ${formatCurrency(amount)}`}
               ></div>
               <p className="text-xs text-muted mt-2">{monthName}</p>
-              <p className="text-xs font-semibold text-text">{(amount / 1000).toFixed(0)}K</p>
+              <p className="text-xs font-semibold text-text">
+                {amount >= 1000000 
+                  ? `${(amount / 1000000).toFixed(1)}M` 
+                  : `${(amount / 1000).toFixed(0)}K`}
+              </p>
             </div>
           );
         })}

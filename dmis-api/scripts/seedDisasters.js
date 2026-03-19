@@ -1,98 +1,125 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-import Disaster from "../models/Disaster.js";
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import Disaster from '../models/Disaster.js';
+import HouseholdAssessment from '../models/HouseholdAssessment.js';
+import AidAllocationRequest from '../models/AidAllocationRequest.js';
 
 dotenv.config();
 
-async function seedDisasters() {
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ MongoDB connected");
+const SESOTHO_FIRST = [
+  'Thabo','Tšepo','Kabelo','Mpho','Pule','Ntate','Keletso','Lebohang','Nonofo','Rorisang',
+  'Makatse','Makhotso','Nthabiseng','Motheo','Moshoeshoe','Mokete','Mothusi','Mamashe','Kholofelo','Lerato'
+];
+const SESOTHO_LAST = [
+  'Mokhosi','Mathebe','Mokhosi','Monyai','Mokhothu','Lekhooa','Sekhonyana','Mabela','Mofolo','Ramahlokoana',
+  'Mokone','Pheko','Mekoa','Tšita','Mokhoro','Mokete','Mapheto','Mofokeng','Sekhonyane','Mokhesi'
+];
 
-    // Clear existing disasters
-    await Disaster.deleteMany({});
-    console.log("🗑️ Cleared existing disasters");
+const villages = [
+  'Ha Motala','Ha Nkonki','Ha Mafa','Ha Sello','Ha Tšoeu','Ha Monyane','Ha Matata','Ha Lebona','Ha Ralejoe','Ha Pheto'
+];
 
-    // Create test disasters
-    const disasters = [
-      {
-        name: "Maseru Heavy Rainfall - October 2023",
-        type: "heavy_rainfall",
-        district: "Maseru",
-        village: "Ha Nthathane",
-        latitude: -29.61,
-        longitude: 27.48,
-        affectedPopulation: "500-1000",
-        households: "50-100",
-        affectedHouses: 75,
-        damages: "Flooded homes, damaged crops, washed away livestock",
-        damageCost: 150000,
-        needs: "Emergency shelter, food, water, medical supplies",
-        severity: "high",
-        status: "responding"
-      },
-      {
-        name: "Strong Winds - Leribe District",
-        type: "strong_winds",
-        district: "Leribe",
-        village: "Ha Hlalele",
-        latitude: -29.33,
-        longitude: 27.83,
-        affectedPopulation: "300-500",
-        households: "30-50",
-        affectedHouses: 42,
-        damages: "Roof damage, fallen trees, infrastructure damage",
-        damageCost: 200000,
-        needs: "Building materials, tools, temporary shelter",
-        severity: "high",
-        status: "responding"
-      },
-      {
-        name: "Mafeteng Flooding - November 2023",
-        type: "heavy_rainfall",
-        district: "Mafeteng",
-        village: "Mafeteng Town",
-        latitude: -29.80,
-        longitude: 27.28,
-        affectedPopulation: "1000-2000",
-        households: "100-200",
-        affectedHouses: 150,
-        damages: "Flash flooding, washed away roads, damaged infrastructure",
-        damageCost: 300000,
-        needs: "Road rehabilitation, Emergency supplies, Temporary housing",
-        severity: "high",
-        status: "verified"
-      },
-      {
-        name: "Berea Drought - December 2023",
-        type: "drought",
-        district: "Berea",
-        village: "Ha Kena",
-        latitude: -29.49,
-        longitude: 27.65,
-        affectedPopulation: "2000-5000",
-        households: "200-400",
-        affectedHouses: 0,
-        damages: "Crop failure, livestock deaths, water scarcity",
-        damageCost: 180000,
-        needs: "Water supply, Food aid, Agricultural support",
-        severity: "medium",
-        status: "reported"
-      }
-    ];
+const districts = [
+  'Maseru','Leribe','Berea','Mafeteng','Mohale\'s Hoek','Quthing','Qacha\'s Nek','Butha-Buthe','Thaba-Tseka','Mokhotlong'
+];
 
-    const created = await Disaster.insertMany(disasters);
-    console.log(`✅ Created ${created.length} test disasters`);
-    
-    created.forEach((d) => {
-      console.log(`   - ${d.district} - ${d.type} (${d.severity})`);
-    });
-
-    process.exit(0);
-  } catch (err) {
-    console.error("❌ Error:", err.message);
-    process.exit(1);
-  }
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-seedDisasters();
+function randFrom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function sesothoName() {
+  return `${randFrom(SESOTHO_FIRST)} ${randFrom(SESOTHO_LAST)}`;
+}
+
+function damageDescription() {
+  const templates = [
+    'Roof partially collapsed; major water ingress to main living room and loss of bedding and food stocks.',
+    'Severe structural damage to main roof and walls; livestock pen destroyed and maize stores lost.',
+    'Flooding of household floor level; electrical points damaged and kitchen facilities destroyed.',
+    'Wind gusts tore off roof sheeting; internal walls cracked; family lost cooking equipment.',
+    'Drought induced crop failure and water shortage; livestock weakened and some died.',
+    'House roof collapsed during storm; family displaced, children and elderly affected.',
+    'Partial roof and window damage; contamination of household water sources; sanitation impacted.',
+    'Severe damage to granary and food reserves; immediate food assistance required.',
+    'Household kitchen and sleeping area inundated; mattresses and clothing destroyed.',
+    'Multiple rooms damaged, roof supports compromised; urgent repair and shelter materials needed.'
+  ];
+  return randFrom(templates);
+}
+
+async function seed() {
+  await mongoose.connect(process.env.MONGO_URI);
+  console.log('Connected to MongoDB');
+
+  const created = [];
+
+  for (let i = 0; i < 20; i++) {
+    const district = randFrom(districts);
+    const village = randFrom(villages);
+    const householdsCount = randInt(10, 40);
+
+    const occurrence = new Date(Date.now() - randInt(0, 30) * 24 * 3600 * 1000);
+    const disasterPayload = {
+      type: randFrom(['drought','heavy_rainfall','strong_winds']),
+      district,
+      village,
+      affectedPopulation: `${householdsCount} households`,
+      totalAffectedHouseholds: householdsCount,
+      households: `${Math.min(0, householdsCount)}-${householdsCount}`,
+      damages: 'See household assessments',
+      needs: 'See household assessments',
+      severity: randFrom(['low','medium','high']),
+      status: 'reported',
+      numberOfHouseholdsAffected: householdsCount,
+      date: occurrence,
+      occurrenceDate: occurrence,
+    };
+
+    const disaster = await Disaster.create(disasterPayload);
+
+    const households = [];
+    for (let h = 0; h < householdsCount; h++) {
+      const headName = sesothoName();
+      const age = randInt(20, 80);
+      const householdSize = randInt(1, 10);
+
+      // Map disaster.type (snake-case) to assessment disasterType enum (Title Case)
+      const disasterTypeMapping = {
+        drought: 'Drought',
+        heavy_rainfall: 'Heavy Rainfall',
+        strong_winds: 'Strong Winds',
+      };
+
+      const assessment = await HouseholdAssessment.create({
+        disasterId: disaster._id,
+        householdId: `HH-${String(h + 1).padStart(3,'0')}`,
+        headOfHousehold: { name: headName, age, gender: randFrom(['Male','Female']) },
+        householdSize,
+        childrenUnder5: randInt(0, Math.min(3, householdSize)),
+        monthlyIncome: randInt(500, 15000),
+        incomeCategory: 'Low',
+        disasterType: disasterTypeMapping[disaster.type] || 'Drought',
+        damageDescription: damageDescription(),
+        damageSeverityLevel: randInt(1,4),
+        assessedBy: 'Data Clerk',
+        location: { village, district }
+      });
+      households.push(assessment);
+    }
+
+    console.log(`Created disaster ${disaster._id} with ${householdsCount} households`);
+    created.push({ disaster, households });
+  }
+
+  console.log(`Created ${created.length} disasters.`);
+  await mongoose.disconnect();
+  console.log('Disconnected from MongoDB');
+}
+
+seed().catch(err => {
+  console.error('Seeding failed', err);
+  process.exit(1);
+});
+

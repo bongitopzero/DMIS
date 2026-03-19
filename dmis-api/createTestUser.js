@@ -27,7 +27,8 @@ const createTestUsers = async () => {
         name: "Data Clerk",
         email: "clerk@dmis.com",
         password: "clerk123",
-        role: "Data Clerk"
+        role: "Data Clerk",
+        ministry: "Ministry of Health"
       },
       {
         name: "System Administrator",
@@ -56,7 +57,8 @@ const createTestUsers = async () => {
         name: userData.name,
         email: userData.email,
         password: hashedPassword,
-        role: userData.role
+        role: userData.role,
+        ministry: userData.ministry || null
       });
 
       console.log(`✅ Created: ${userData.email} (${userData.role})`);

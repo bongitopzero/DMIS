@@ -9,6 +9,7 @@ import AidAllocationRequest from '../models/AidAllocationRequest.js';
 import AllocationPlan from '../models/AllocationPlan.js';
 import AssistancePackage from '../models/AssistancePackage.js';
 import AuditLog from '../models/AuditLog.js';
+import Expense from '../models/Expense.js';
 import {
   calculateCompositeScore,
   getAidTier,
@@ -54,6 +55,31 @@ const createHouseholdAssessment = async (req, res) => {
       return res.status(400).json({
         message: 'Missing required fields',
       });
+    }
+
+    // Enforce disaster household limit if available
+    try {
+      const Disaster = (await import('../models/Disaster.js')).default;
+      const disaster = await Disaster.findById(disasterId).lean();
+      if (disaster) {
+        // Determine max households for this disaster from several possible fields
+        const maxFromNumberField = disaster.numberOfHouseholdsAffected || disaster.totalAffectedHouseholds || 0;
+        let maxHouseholds = parseInt(maxFromNumberField) || 0;
+        if (!maxHouseholds && disaster.affectedPopulation) {
+          // Try parsing strings like '5 households'
+          const m = (disaster.affectedPopulation || '').match(/(\d+)/);
+          if (m) maxHouseholds = parseInt(m[1]);
+        }
+
+        if (maxHouseholds > 0) {
+          const currentCount = await HouseholdAssessment.countDocuments({ disasterId });
+          if (currentCount >= maxHouseholds) {
+            return res.status(400).json({ message: 'All households for this disaster have already been recorded' });
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Could not enforce household limit:', err.message || err);
     }
 
     // Determine income category
@@ -269,7 +295,7 @@ const createAllocationRequest = async (req, res) => {
       status: 'Allocated',
     });
 
-    // Log audit trail
+    // Log audit trail with detailed allocation breakdown
     await createAuditLog({
       actionType: 'CREATE',
       entityType: 'AidAllocationRequest',
@@ -278,9 +304,17 @@ const createAllocationRequest = async (req, res) => {
       performedBy: req.user?.id,
       performerRole: req.user?.role || 'Finance Officer',
       newValues: allocationRequest.toObject(),
+      changes: {
+        requestId: requestId,
+        householdId: assessment.householdId,
+        allocatedPackages: allocatedPackages,
+        totalEstimatedCost: totalEstimatedCost,
+        aidTier: aidTier,
+        status: override ? 'Pending Approval' : 'Proposed',
+      },
       reason: override
-        ? `Aid allocation created with override: ${overrideReason}`
-        : 'Aid allocation created based on scoring rules',
+        ? `Aid allocation created with override: ${overrideReason} - Total: M${totalEstimatedCost}`
+        : `Aid allocation created based on scoring rules - Total: M${totalEstimatedCost}`,
     });
 
     res.status(201).json({
@@ -306,22 +340,23 @@ const approveAllocationRequest = async (req, res) => {
     const { requestId } = req.params;
     const { justification } = req.body;
 
-    const request = await AidAllocationRequest.findByIdAndUpdate(
-      requestId,
-      {
-        status: 'Approved',
-        'approvalStatus.approvedBy': req.user?.id,
-        'approvalStatus.approvalDate': new Date(),
-        'approvalStatus.justification': justification,
-      },
-      { new: true }
-    );
-
+    const request = await AidAllocationRequest.findById(requestId);
     if (!request) {
       return res.status(404).json({ message: 'Allocation request not found' });
     }
 
-    // Log audit trail
+    // Update status and approval details
+    request.status = 'Approved';
+    request.approvalStatus = {
+      ...request.approvalStatus,
+      approvedBy: req.user?.id ||req.body.approverId,
+      approvalDate: new Date(),
+      justification: justification || 'Approved for disbursement',
+    };
+
+    await request.save();
+
+    // Log audit trail with detailed approval breakdown
     await createAuditLog({
       actionType: 'APPROVE',
       entityType: 'AidAllocationRequest',
@@ -329,8 +364,17 @@ const approveAllocationRequest = async (req, res) => {
       disasterId: request.disasterId,
       performedBy: req.user?.id,
       performerRole: req.user?.role || 'Finance Officer',
-      newValues: request.toObject(),
-      reason: `Allocation approved. Total cost: M${request.totalEstimatedCost}`,
+      previousValues: { status: 'Proposed' },
+      newValues: { status: 'Approved' },
+      changes: {
+        status: 'Proposed → Approved',
+        requestId: request.requestId,
+        approvedPackages: request.allocatedPackages,
+        approvedAmount: request.totalEstimatedCost,
+        approvalDate: new Date(),
+        approvedBy: req.user?.id || req.body.approverId,
+      },
+      reason: `Allocation approved - Total Amount: M${request.totalEstimatedCost} - ${request.allocatedPackages?.length || 0} packages approved`,
     });
 
     res.json({
@@ -343,6 +387,123 @@ const approveAllocationRequest = async (req, res) => {
       message: 'Error approving request',
       error: error.message,
     });
+  }
+};
+
+/**
+ * @PUT /api/allocation/requests/:requestId/disburse
+ * Mark allocation request as disbursed, create expense(s) to reflect budget deduction,
+ * and create audit log entry so it appears in finance audit trail.
+ */
+const disburseAllocationRequest = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const { disbursementData } = req.body; // { disbursedDate, disbursedAmount, disbursementMethod, referenceNumber }
+
+    const request = await AidAllocationRequest.findById(requestId);
+    if (!request) return res.status(404).json({ message: 'Allocation request not found' });
+
+    if (request.status !== 'Approved') {
+      return res.status(400).json({ message: 'Only approved allocations can be disbursed' });
+    }
+
+    // Set disbursement data
+    request.status = 'Disbursed';
+    request.disbursementData = {
+      disbursedDate: disbursementData?.disbursedDate || new Date(),
+      disbursedAmount: disbursementData?.disbursedAmount || request.totalEstimatedCost,
+      disbursementMethod: disbursementData?.disbursementMethod || 'Bank Transfer',
+      referenceNumber: disbursementData?.referenceNumber || `DISB-${request.requestId}-${Date.now()}`,
+    };
+
+    await request.save();
+
+    // Create expense records per category to reduce budget remaining (financial utils compute remaining from expenses)
+    const categorySums = {};
+    (request.allocatedPackages || []).forEach((p) => {
+      const cat = p.category || 'Other';
+      categorySums[cat] = (categorySums[cat] || 0) + (p.totalCost || 0);
+    });
+
+    const createdExpenses = [];
+    for (const [category, amount] of Object.entries(categorySums)) {
+      const expense = new Expense({
+        disasterId: request.disasterId,
+        category,
+        vendorName: 'Allocation Disbursement',
+        vendorRegistrationNumber: 'SYSTEM',
+        invoiceNumber: `AL-DISB-${request.requestId}-${category.replace(/\s+/g, '')}-${Date.now()}`,
+        bankReferenceNumber: request.disbursementData.referenceNumber,
+        amount: amount,
+        supportingDocumentUrl: null,
+        paymentMethod: request.disbursementData.disbursementMethod,
+        loggedBy: req.user?.id || 'System',
+        approvedBy: req.user?.id || 'System',
+        approvalDate: new Date(),
+        status: 'Approved',
+        receipientName: request.householdId || null,
+        receipientBankAccount: null,
+        description: `Disbursement for allocation ${request.requestId} - ${category}`,
+      });
+
+      await expense.save();
+      createdExpenses.push(expense);
+
+      // Create audit log for the expense creation so it shows up in finance audit trail
+      await AuditLog.create({
+        action: 'EXPENSE_CREATED_BY_DISBURSE',
+        disasterId: request.disasterId,
+        actorId: req.user?.id || null,
+        actorRole: req.user?.role || 'Finance Officer',
+        entityType: 'Expense',
+        entityId: expense._id,
+        details: {
+          note: `Auto-created expense for allocation disbursement ${request.requestId}`,
+          allocationRequestId: request._id,
+          amount: expense.amount,
+          category: expense.category,
+        },
+      });
+    }
+
+    // Update the linked household assessment status if present
+    if (request.householdAssessmentId) {
+      try {
+        await HouseholdAssessment.findByIdAndUpdate(request.householdAssessmentId, { status: 'Disbursed' });
+      } catch (err) {
+        console.warn('Could not update household assessment status:', err.message || err);
+      }
+    }
+
+    // Create audit log for allocation disbursement with detailed breakdown
+    await AuditLog.create({
+      action: 'ALLOCATION_DISBURSED',
+      disasterId: request.disasterId,
+      actorId: req.user?.id || null,
+      actorRole: req.user?.role || 'Finance Officer',
+      entityType: 'AidAllocationRequest',
+      entityId: request._id,
+      details: {
+        requestId: request.requestId,
+        householdId: request.householdId,
+        allocationStatus: 'Approved → Disbursed',
+        disbursedPackages: request.allocatedPackages,
+        totalDisbursedAmount: request.totalEstimatedCost,
+        disbursementData: request.disbursementData,
+        disbursedExpenses: createdExpenses.map((e) => ({
+          _id: e._id,
+          category: e.category,
+          amount: e.amount,
+          referenceNumber: e.bankReferenceNumber,
+        })),
+        createdExpenseCount: createdExpenses.length,
+      },
+    });
+
+    res.json({ message: 'Allocation disbursed and expenses created', disbursement: request.disbursementData, expenses: createdExpenses.length });
+  } catch (error) {
+    console.error('Error disbursing allocation:', error);
+    res.status(500).json({ message: 'Error disbursing allocation', error: error.message });
   }
 };
 
@@ -581,6 +742,35 @@ const getDashboardStats = async (req, res) => {
 };
 
 /**
+ * @GET /api/allocation/requests/:disasterId
+ * Get all allocation requests for a disaster
+ */
+const getAllocationRequestsByDisaster = async (req, res) => {
+  try {
+    const { disasterId } = req.params;
+    const { status } = req.query;
+
+    let query = { disasterId: new mongoose.Types.ObjectId(disasterId) };
+    if (status) query.status = status;
+
+    const requests = await AidAllocationRequest.find(query)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.json({
+      count: requests.length,
+      requests,
+    });
+  } catch (error) {
+    console.error('Error fetching allocation requests:', error);
+    res.status(500).json({
+      message: 'Error fetching allocation requests',
+      error: error.message,
+    });
+  }
+};
+
+/**
  * Helper: Create audit log
  */
 async function createAuditLog(logData) {
@@ -597,7 +787,9 @@ export default {
   calculateAllocationScore,
   createAllocationRequest,
   approveAllocationRequest,
+  disburseAllocationRequest,
   generateAllocationPlan,
   getAllocationPlansByDisaster,
+  getAllocationRequestsByDisaster,
   getDashboardStats,
 };

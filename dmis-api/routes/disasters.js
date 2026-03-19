@@ -152,6 +152,8 @@ router.post("/", protect, async (req, res) => {
     
     const disaster = await Disaster.create({
       ...req.body,
+      // Persist numeric household count if provided
+      numberOfHouseholdsAffected: req.body.numberOfHouseholdsAffected || req.body.totalAffectedHouseholds || (req.body.affectedPopulation && (parseInt((req.body.affectedPopulation.match(/(\d+)/) || [0])[0]) || 0)),
       latitude: coords[0],
       longitude: coords[1],
       village: req.body.location, // Store location as village

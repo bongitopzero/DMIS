@@ -6,9 +6,9 @@
 @tailwind utilities;
 
 /* --------------------------- */
-/* Theme Variables */
+/* Theme Variables - Light Mode (Default) */
 /* --------------------------- */
-:root[data-theme="light"] {
+:root {
   --bg-primary: #ffffff;
   --bg-secondary: #f8f9fa;
   --bg-tertiary: #e9ecef;
@@ -18,23 +18,47 @@
   --border-color: #dee2e6;
   --border-light: #e9ecef;
   --card-bg: #ffffff;
-  --card-shadow: rgba(0, 0, 0, 0.1);
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --hover-bg: #f1f3f5;
   --input-bg: #ffffff;
   --input-border: #ced4da;
-  --sidebar-bg: #2c3e50;
-  --sidebar-text: #ecf0f1;
+  --input-placeholder: #adb5bd;
+  --sidebar-bg: linear-gradient(135deg, #1e3a5f 0%, #0f2438 100%);
+  --sidebar-text: rgba(255, 255, 255, 0.7);
+  --sidebar-text-active: #ffffff;
   --sidebar-hover: #34495e;
   --navbar-bg: #ffffff;
-  --navbar-shadow: rgba(0, 0, 0, 0.1);
+  --navbar-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --navbar-text: #212529;
   --success: #28a745;
+  --success-light: #d4edda;
   --warning: #ffc107;
+  --warning-light: #fff3cd;
   --danger: #dc3545;
+  --danger-light: #f8d7da;
   --info: #17a2b8;
-  --primary: #1e40af;
+  --info-light: #d1ecf1;
+  --primary: #1e3a5f;
+  --primary-light: #e6f0ff;
+  --primary-dark: #0f2438;
+  --gradient-primary-start: #1e3a5f;
+  --gradient-primary-end: #0f2438;
+  
+  /* Severity colors */
+  --severity-critical: #b91c1c;
+  --severity-critical-light: #fee2e2;
+  --severity-high: #ef4444;
+  --severity-high-light: #fee2e2;
+  --severity-medium: #f97316;
+  --severity-medium-light: #ffedd5;
+  --severity-low: #22c55e;
+  --severity-low-light: #dcfce7;
 }
 
-:root[data-theme="dark"] {
+/* --------------------------- */
+/* Dark Mode Variables */
+/* --------------------------- */
+[data-theme="dark"] {
   --bg-primary: #1a1d23;
   --bg-secondary: #22262e;
   --bg-tertiary: #2a2f39;
@@ -44,20 +68,41 @@
   --border-color: #3a3f4b;
   --border-light: #2e3440;
   --card-bg: #22262e;
-  --card-shadow: rgba(0, 0, 0, 0.3);
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
   --hover-bg: #2a2f39;
   --input-bg: #2a2f39;
   --input-border: #3a3f4b;
-  --sidebar-bg: #1e2229;
-  --sidebar-text: #e4e6eb;
+  --input-placeholder: #6b7280;
+  --sidebar-bg: linear-gradient(135deg, #0f1a2c 0%, #0a1420 100%);
+  --sidebar-text: rgba(255, 255, 255, 0.6);
+  --sidebar-text-active: #ffffff;
   --sidebar-hover: #2a2f39;
   --navbar-bg: #22262e;
-  --navbar-shadow: rgba(0, 0, 0, 0.3);
+  --navbar-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --navbar-text: #e4e6eb;
   --success: #2ea043;
+  --success-light: #1e3a2e;
   --warning: #d29922;
+  --warning-light: #3d2e1a;
   --danger: #f85149;
+  --danger-light: #3d1e1e;
   --info: #1f6feb;
+  --info-light: #1a3a5c;
   --primary: #58a6ff;
+  --primary-light: #1a3a5c;
+  --primary-dark: #0f2a4a;
+  --gradient-primary-start: #2d4b6e;
+  --gradient-primary-end: #1a2f42;
+  
+  /* Severity colors - Adjusted for dark mode */
+  --severity-critical: #ef4444;
+  --severity-critical-light: #7f1d1d;
+  --severity-high: #f97316;
+  --severity-high-light: #7b341e;
+  --severity-medium: #fbbf24;
+  --severity-medium-light: #854d0e;
+  --severity-low: #4ade80;
+  --severity-low-light: #14532d;
 }
 
 /* --------------------------- */
@@ -69,6 +114,7 @@
     background-color: var(--bg-primary);
     color: var(--text-primary);
     transition: background-color 0.3s ease, color 0.3s ease;
+    font-size: 17px; /* REDUCED from 18px */
   }
 }
 
@@ -94,18 +140,19 @@ body,
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 17px; /* REDUCED from 18px */
+  line-height: 1.5; /* REDUCED from 1.6 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #2E2E2E;
-  background: transparent;
+  color: var(--text-primary);
+  background: var(--bg-primary);
 }
 
 /* Optional code font */
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+  font-size: 15px; /* REDUCED from 16px */
 }
 
 /* --------------------------- */
@@ -114,5 +161,351 @@ code {
 .leaflet-container {
   height: 100%;
   width: 100%;
-  background: transparent;
+  background: var(--bg-tertiary);
+}
+
+/* Required field marker */
+label.required::after {
+  content: " *";
+  color: var(--danger);
+  margin-left: 4px;
+}
+
+/* --------------------------- */
+/* Button Styles - Improved */
+/* --------------------------- */
+button,
+.btn,
+.btn-primary,
+input[type="submit"],
+.button {
+  background: var(--primary) !important;
+  color: #fff !important;
+  border: 1px solid rgba(0,0,0,0.08);
+  padding: 0.6rem 1rem; /* REDUCED from 0.75rem 1.25rem */
+  border-radius: 0.4rem; /* REDUCED from 0.5rem */
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  transition: all 0.2s ease;
+  font-weight: 500;
+  font-size: 0.95rem; /* REDUCED from 1rem */
+}
+
+button:hover,
+.btn:hover,
+.btn-primary:hover,
+input[type="submit"]:hover,
+.button:hover {
+  background: linear-gradient(135deg, var(--gradient-primary-start), var(--gradient-primary-end)) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+button:focus,
+.btn:focus,
+input[type="submit"]:focus,
+.button:focus {
+  outline: 3px solid var(--primary-light);
+  outline-offset: 2px;
+}
+
+button:disabled,
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Secondary button */
+.btn-secondary {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--hover-bg) !important;
+  transform: translateY(-1px);
+}
+
+/* --------------------------- */
+/* Input Styles */
+/* --------------------------- */
+input, select, textarea {
+  background: var(--input-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--input-border);
+  border-radius: 0.4rem; /* REDUCED from 0.5rem */
+  padding: 0.6rem 0.9rem; /* REDUCED from 0.75rem 1rem */
+  transition: all 0.2s ease;
+  font-size: 0.95rem; /* REDUCED from 1rem */
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--input-placeholder);
+  font-size: 0.95rem; /* REDUCED from 1rem */
+}
+
+/* --------------------------- */
+/* Card Styles */
+/* --------------------------- */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 0.65rem; /* REDUCED from 0.75rem */
+  padding: 1.5rem; /* REDUCED from 1.75rem */
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.card h1, .card h2, .card h3 {
+  margin-bottom: 0.9rem; /* REDUCED from 1rem */
+}
+
+.card p {
+  font-size: 1rem; /* REDUCED from 1.1rem */
+  line-height: 1.5; /* REDUCED from 1.6 */
+}
+
+/* --------------------------- */
+/* Table Styles */
+/* --------------------------- */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  padding: 0.9rem 1.1rem; /* REDUCED from 1rem 1.25rem */
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.95rem; /* REDUCED from 1rem */
+  border-bottom: 2px solid var(--border-color);
+}
+
+.table td {
+  padding: 0.9rem 1.1rem; /* REDUCED from 1rem 1.25rem */
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.95rem; /* REDUCED from 1rem */
+}
+
+.table tr:hover {
+  background: var(--hover-bg);
+}
+
+/* --------------------------- */
+/* Badge Styles */
+/* --------------------------- */
+.badge {
+  display: inline-block;
+  padding: 0.3rem 0.9rem; /* REDUCED from 0.35rem 1rem */
+  border-radius: 9999px;
+  font-size: 0.8rem; /* REDUCED from 0.875rem */
+  font-weight: 600;
+  line-height: 1.4; /* REDUCED from 1.5 */
+}
+
+.badge-success {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.badge-warning {
+  background: var(--warning-light);
+  color: var(--warning);
+}
+
+.badge-danger {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.badge-info {
+  background: var(--info-light);
+  color: var(--info);
+}
+
+/* Severity badges */
+.badge-critical {
+  background: var(--severity-critical-light);
+  color: var(--severity-critical);
+}
+
+.badge-high {
+  background: var(--severity-high-light);
+  color: var(--severity-high);
+}
+
+.badge-medium {
+  background: var(--severity-medium-light);
+  color: var(--severity-medium);
+}
+
+.badge-low {
+  background: var(--severity-low-light);
+  color: var(--severity-low);
+}
+
+/* --------------------------- */
+/* Headings */
+/* --------------------------- */
+h1 {
+  font-size: 2rem; /* REDUCED from 2.25rem */
+  font-weight: 700;
+  margin-bottom: 1rem; /* REDUCED from 1.25rem */
+  color: var(--text-primary);
+}
+
+h2 {
+  font-size: 1.7rem; /* REDUCED from 1.875rem */
+  font-weight: 600;
+  margin-bottom: 0.9rem; /* REDUCED from 1rem */
+  color: var(--text-primary);
+}
+
+h3 {
+  font-size: 1.4rem; /* REDUCED from 1.5rem */
+  font-weight: 600;
+  margin-bottom: 0.8rem; /* REDUCED from 0.875rem */
+  color: var(--text-primary);
+}
+
+h4 {
+  font-size: 1.2rem; /* REDUCED from 1.25rem */
+  font-weight: 600;
+  margin-bottom: 0.7rem; /* REDUCED from 0.75rem */
+  color: var(--text-primary);
+}
+
+/* --------------------------- */
+/* Links */
+/* --------------------------- */
+a {
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.95rem; /* REDUCED from 1rem */
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+/* --------------------------- */
+/* Scrollbar Styling */
+/* --------------------------- */
+::-webkit-scrollbar {
+  width: 9px; /* REDUCED from 10px */
+  height: 9px; /* REDUCED from 10px */
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-tertiary);
+  border-radius: 4.5px; /* REDUCED from 5px */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* --------------------------- */
+/* Utility Classes */
+/* --------------------------- */
+.text-muted {
+  color: var(--text-secondary) !important;
+  font-size: 0.95rem; /* REDUCED from 1rem */
+}
+
+.text-small {
+  font-size: 0.8rem; /* REDUCED from 0.875rem */
+}
+
+.text-large {
+  font-size: 1.2rem; /* REDUCED from 1.25rem */
+}
+
+.bg-primary {
+  background: var(--bg-primary) !important;
+}
+
+.bg-secondary {
+  background: var(--bg-secondary) !important;
+}
+
+.border-default {
+  border-color: var(--border-color) !important;
+}
+
+/* --------------------------- */
+/* Form Labels */
+/* --------------------------- */
+label {
+  font-size: 0.95rem; /* REDUCED from 1rem */
+  font-weight: 500;
+  margin-bottom: 0.4rem; /* REDUCED from 0.5rem */
+  display: block;
+  color: var(--text-primary);
+}
+
+/* --------------------------- */
+/* Stats/Summary Cards */
+/* --------------------------- */
+.stat-value {
+  font-size: 2.2rem; /* REDUCED from 2.5rem */
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.stat-label {
+  font-size: 1rem; /* REDUCED from 1.1rem */
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* --------------------------- */
+/* Navigation/Menu Items */
+/* --------------------------- */
+.nav-item {
+  font-size: 1rem; /* REDUCED from 1.1rem */
+  padding: 0.65rem 0.9rem; /* REDUCED from 0.75rem 1rem */
+}
+
+/* --------------------------- */
+/* Modal/Dialog Content */
+/* --------------------------- */
+.modal-content {
+  font-size: 1rem; /* REDUCED from 1.1rem */
+  line-height: 1.5; /* REDUCED from 1.6 */
+}
+
+.modal-title {
+  font-size: 1.6rem; /* REDUCED from 1.75rem */
+  font-weight: 600;
+}
+
+/* --------------------------- */
+/* Tooltips */
+/* --------------------------- */
+.tooltip {
+  font-size: 0.8rem; /* REDUCED from 0.875rem */
+  padding: 0.4rem 0.9rem; /* REDUCED from 0.5rem 1rem */
 }

@@ -87,26 +87,26 @@ export default function AllocationDashboard({ disasterId }) {
     );
   }
 
-  // Chart data
+  // Chart data with safe values
   const vulnerabilityData = [
     {
       name: "Basic (0-3)",
-      value: Math.floor((stats?.pendingAssessments || 0) * 0.4),
+      value: stats?.pendingAssessments ? Math.floor(stats.pendingAssessments * 0.4) : 0,
       fill: "#10b981",
     },
     {
       name: "Moderate (4-6)",
-      value: Math.floor((stats?.approvedAllocations || 0) * 0.5),
+      value: stats?.approvedAllocations ? Math.floor(stats.approvedAllocations * 0.5) : 0,
       fill: "#f59e0b",
     },
     {
       name: "Severe (7-9)",
-      value: Math.floor((stats?.disbursedAllocations || 0) * 0.3),
+      value: stats?.disbursedAllocations ? Math.floor(stats.disbursedAllocations * 0.3) : 0,
       fill: "#ef4444",
     },
     {
       name: "Critical (10+)",
-      value: Math.floor((stats?.pendingAllocations || 0) * 0.2),
+      value: stats?.pendingAllocations ? Math.floor(stats.pendingAllocations * 0.2) : 0,
       fill: "#8b5cf6",
     },
   ];
@@ -114,15 +114,15 @@ export default function AllocationDashboard({ disasterId }) {
   const budgetData = [
     {
       category: "Pending",
-      value: Math.floor((stats?.estimatedNeed || 0) * 0.3),
+      value: stats?.estimatedNeed ? Math.floor(stats.estimatedNeed * 0.3) : 0,
     },
     {
       category: "Approved",
-      value: (stats?.approvedTotal || 0),
+      value: stats?.approvedTotal || 0,
     },
     {
       category: "Disbursed",
-      value: (stats?.disbursedTotal || 0),
+      value: stats?.disbursedTotal || 0,
     },
   ];
 
@@ -145,7 +145,7 @@ export default function AllocationDashboard({ disasterId }) {
           />
           <SummaryCard
             icon={AlertCircle}
-            title="awaiting"
+            title="Awaiting"
             value={stats?.pendingAllocations || 0}
             subtitle="Approval"
             bgColor="bg-yellow-50"
@@ -277,11 +277,11 @@ export default function AllocationDashboard({ disasterId }) {
             ]}
             data={assessments.map((a) => [
               a.householdId,
-              a.headOfHousehold.name,
-              a.disasterType,
-              `Level ${a.damageSeverityLevel}`,
-              `M${a.monthlyIncome.toLocaleString()}`,
-              <StatusBadge key="status" status={a.status} />,
+              a.headOfHousehold?.name || "N/A",
+              a.disasterType || "N/A",
+              `Level ${a.damageSeverityLevel || 0}`,
+              `M${(a.monthlyIncome || 0).toLocaleString()}`,
+              <StatusBadge key={`status-${a._id}`} status={a.status || "Pending"} />,
             ])}
           />
         )}
@@ -289,19 +289,19 @@ export default function AllocationDashboard({ disasterId }) {
         {activeTab === "allocations" && (
           <DataTable
             title="Allocation Requests"
-            columns=[
+            columns={[
               "Household ID",
               "Composite Score",
               "Aid Tier",
               "Estimated Cost",
               "Status",
-            ]
+            ]}
             data={allocations.map((a) => [
               a.householdId,
-              a.compositeScore,
+              a.compositeScore || 0,
               a.aidTier || "—",
               `M${(a.totalEstimatedCost || 0).toLocaleString()}`,
-              <StatusBadge key="status" status={a.status} />,
+              <StatusBadge key={`status-${a._id}`} status={a.status || "Pending"} />,
             ])}
           />
         )}
@@ -309,19 +309,19 @@ export default function AllocationDashboard({ disasterId }) {
         {activeTab === "plans" && (
           <DataTable
             title="Allocation Plans"
-            columns=[
+            columns={[
               "Plan ID",
               "Plan Name",
               "Households",
               "Total Budget",
               "Status",
-            ]
+            ]}
             data={plans.map((p) => [
               p.planId,
               p.planName,
-              p.totalHouseholdsCovered,
-              `M${p.totalBudgetRequired.toLocaleString()}`,
-              <StatusBadge key="status" status={p.status} />,
+              p.totalHouseholdsCovered || 0,
+              `M${(p.totalBudgetRequired || 0).toLocaleString()}`,
+              <StatusBadge key={`status-${p._id}`} status={p.status || "Draft"} />,
             ])}
           />
         )}
@@ -423,12 +423,13 @@ function StatusBadge({ status }) {
     Disbursed: "bg-emerald-100 text-emerald-800",
     Draft: "bg-slate-100 text-slate-800",
     "In Progress": "bg-blue-100 text-blue-800",
+    Pending: "bg-yellow-100 text-yellow-800", // Added default pending
   };
 
   return (
     <span
       className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-        styles[status] || styles["Pending Review"]
+        styles[status] || styles["Pending"]
       }`}
     >
       {status}

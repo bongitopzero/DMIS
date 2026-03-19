@@ -42,6 +42,7 @@ export default function Login() {
           name: res.data.name,
           email: res.data.email,
           role: res.data.role,
+          ministry: res.data.ministry || "",
         },
       };
 
@@ -120,7 +121,6 @@ export default function Login() {
               <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
                 type="email"
-                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -138,7 +138,6 @@ export default function Login() {
               <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               <input
                 type="password"
-                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

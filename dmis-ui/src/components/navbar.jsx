@@ -1,11 +1,26 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import "./navbar.css";
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  
+  // Get user information from localStorage
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const userName = user?.user?.name || "User";
+  const userRole = user?.user?.role || "";
+  
+  // Get user initials (first letter of first and last name)
+  const getInitials = (name) => {
+    const parts = name.trim().split(" ");
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
 
   const getPageTitle = () => {
     const path = location.pathname;
@@ -13,6 +28,7 @@ export default function Navbar() {
     if (path === "/disaster-events") return "Disaster Events";
     if (path === "/gis-map") return "GIS Map";
     if (path === "/finance-dashboard") return "Finance Dashboard";
+<<<<<<< HEAD
     if (path === "/fund-management") return "Fund Management";
     if (path === "/aid-allocation") return "Aid Allocation";
     if (path === "/admin-dashboard") return "Administrator Dashboard";
@@ -23,29 +39,19 @@ export default function Navbar() {
     if (path === "/expense-log") return "Expense Log";
     if (path === "/finance-audit-trail") return "Finance Audit Trail";
     if (path === "/allocation-dashboard") return "Financial Allocation";
+=======
+    if (path === "/finance-center") return "Finance Center";
+    if (path === "/finance/reports") return "Finance Reports";
+>>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
     return "Dashboard";
   };
 
   return (
     <div className="navbar">
-      <h2>{getPageTitle()}</h2>
+      <div className="navbar-left">
+        <h2>{getPageTitle()}</h2>
+      </div>
       <div className="user">
-        {/* Notification Bell */}
-        <svg
-          className="icon-btn"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-        </svg>
-
         {/* Theme Toggle */}
         <button
           className="theme-toggle-btn"
@@ -55,22 +61,15 @@ export default function Navbar() {
           {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
         </button>
 
-        {/* User Profile */}
-        <div className="user-avatar">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-        </div>
+        {/* User Profile with Initials */}
+        <button
+          type="button"
+          className="user-avatar"
+          title={`${userName} (${userRole})`}
+          onClick={() => navigate("/settings")}
+        >
+          <span className="user-initials">{getInitials(userName)}</span>
+        </button>
       </div>
     </div>
   );

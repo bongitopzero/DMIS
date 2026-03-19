@@ -44,25 +44,51 @@ function AddDisaster() {
       <h2>Report Disaster</h2>
 
       <form onSubmit={handleSubmit}>
-        <input name="type" placeholder="Type (drought)" onChange={handleChange} required />
-        <input name="district" placeholder="District" onChange={handleChange} required />
-        <input name="affectedPopulation" type="number" placeholder="Affected Population" onChange={handleChange} required />
-        <input name="damages" placeholder="Damages" onChange={handleChange} required />
-        <input name="needs" placeholder="Needs" onChange={handleChange} required />
-        <input 
-          name="numberOfHouseholdsAffected" 
-          type="number" 
-          placeholder="Number of Households Affected" 
-          onChange={handleChange} 
-          required 
-          min="1"
-        />
+        <div>
+          <label className="required">Type</label>
+          <input name="type" placeholder="Type (drought)" onChange={handleChange} required />
+        </div>
 
-        <select name="severity" onChange={handleChange}>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
+        <div>
+          <label className="required">District</label>
+          <input name="district" placeholder="District" onChange={handleChange} required />
+        </div>
+
+        <div>
+          <label className="required">Affected Population</label>
+          <input name="affectedPopulation" type="number" placeholder="Affected Population" onChange={handleChange} required />
+        </div>
+
+        <div>
+          <label className="required">Damages</label>
+          <input name="damages" placeholder="Damages" onChange={handleChange} required />
+        </div>
+
+        <div>
+          <label className="required">Needs</label>
+          <input name="needs" placeholder="Needs" onChange={handleChange} required />
+        </div>
+
+        <div>
+          <label className="required">Number of Households Affected</label>
+          <input 
+            name="numberOfHouseholdsAffected" 
+            type="number" 
+            placeholder="Number of Households Affected" 
+            onChange={handleChange} 
+            required 
+            min="1"
+          />
+        </div>
+
+        <div>
+          <label>Severity</label>
+          <select name="severity" onChange={handleChange}>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
 
         <button type="submit">Submit Disaster</button>
       </form>

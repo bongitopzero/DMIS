@@ -11,7 +11,27 @@
   flex: 1;
 }
 
+<<<<<<< HEAD
 /* Removed old page-header styling - now using PageHeader component */
+=======
+/* Page Header */
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.page-header .subtitle {
+  font-size: 0.95rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+>>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
 
 /* Disaster Selector Section */
 .disaster-selector-section {
@@ -536,6 +556,459 @@
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.85rem;
   color: #6b7280;
+}
+
+/* Allocation Requests Section */
+.allocation-requests-section {
+  padding: 1.5rem;
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.allocation-requests-section h3 {
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.allocation-requests-section h4 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.allocation-requests-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.allocation-requests-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.allocation-requests-table thead {
+  background-color: #f3f4f6;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.allocation-requests-table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #4b5563;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.allocation-requests-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.allocation-requests-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.status-badge.status-proposed {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.status-pending {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.status-approved {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.status-disbursed {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-complete {
+  color: #059669;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Allocation summary KPI cards in Summary tab */
+.allocation-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.allocation-summary-card {
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.allocation-summary-card.pending {
+  border-color: #facc15;
+  background: #fffbeb;
+}
+
+.allocation-summary-card.allocated {
+  border-color: #4ade80;
+  background: #ecfdf3;
+}
+
+.allocation-summary-card .summary-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+}
+
+.allocation-summary-card .summary-main {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.allocation-summary-card .summary-number {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.allocation-summary-card .summary-caption {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.allocation-summary-card .summary-sub {
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-small {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-approve {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-approve:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.btn-disburse {
+  background-color: #10b981;
+  color: white;
+}
+
+.btn-disburse:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+.btn-small:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Audit Logs Section */
+.audit-logs-section {
+  margin-top: 2rem;
+}
+
+.audit-logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.audit-log-entry {
+  padding: 1rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  border-left: 4px solid #3b82f6;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.log-action {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.log-date {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.log-details {
+  color: #4b5563;
+  font-size: 0.85rem;
+  font-family: 'Monaco', 'Courier New', monospace;
+  background-color: white;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.allocation-modal {
+  max-width: 550px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.btn-close:hover {
+  color: #1f2937;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.plan-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.detail-row label {
+  font-weight: 600;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.detail-row span {
+  color: #1f2937;
+  font-size: 0.9rem;
+}
+
+.cost-value {
+  font-weight: 700;
+  color: #059669;
+  font-size: 1rem;
+}
+
+.packages-section {
+  margin-top: 1rem;
+}
+
+.packages-section label {
+  display: block;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.packages-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.package-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 0.5rem;
+  color: #065f46;
+  font-size: 0.9rem;
+}
+
+.package-detail-item span:first-child {
+  font-weight: 500;
+}
+
+.package-detail-item span:last-child {
+  font-weight: 700;
+  color: #059669;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.form-group textarea {
+  padding: 0.625rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  resize: vertical;
+  color: #1f2937;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.btn-secondary,
+.btn-primary {
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary {
+  background-color: #e5e7eb;
+  color: #1f2937;
+}
+
+.btn-secondary:hover {
+  background-color: #d1d5db;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Responsive */

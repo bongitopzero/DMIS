@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup, Tooltip } from "react-leaflet";
+import { MapPin, RefreshCw, Cloud, Droplets, Wind, Grid } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import "../leafletFix";
 import API from "../api/axios";
@@ -14,8 +15,7 @@ const MapPage = () => {
 
   const [selectedDistrict, setSelectedDistrict] = useState("All Districts");
   const [selectedType, setSelectedType] = useState("All");
-
-  const disasterTypes = ["drought", "heavy_rainfall", "strong_winds"];
+  const [currentYearOnly, setCurrentYearOnly] = useState(true);
 
   const districts = [
     "All Districts",
@@ -32,31 +32,72 @@ const MapPage = () => {
   ];
 
   useEffect(() => {
-    fetchDisasters();
+    fetchData();
   }, []);
 
-  const fetchDisasters = async () => {
+  const fetchData = async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await API.get("/disasters");
-      setIncidentsData(res.data);
+      // Fetch both disasters and incidents and merge into a single list
+      const [dRes, iRes] = await Promise.allSettled([
+        API.get("/disasters"),
+        API.get("/incidents")
+      ]);
+
+      const disasters = dRes.status === 'fulfilled' && Array.isArray(dRes.value.data) ? dRes.value.data : [];
+      const incidents = iRes.status === 'fulfilled' && Array.isArray(iRes.value.data) ? iRes.value.data : [];
+
+      // Merge lists and deduplicate by id or by key (type|district|date)
+      const keyFor = (it) => {
+        if (it._id) return `id:${it._id}`;
+        const t = (it.type || "").toString().toLowerCase().replace(/\s+/g, "_");
+        const d = normalize(it.district || it.location || "").slice(0, 40);
+        const dateStr = it.date ? new Date(it.date).toISOString().slice(0,10) : (it.createdAt ? new Date(it.createdAt).toISOString().slice(0,10) : "");
+        return `${t}|${d}|${dateStr}`;
+      };
+
+      const map = new Map();
+      [...disasters, ...incidents].forEach(it => {
+        const k = keyFor(it);
+        if (!map.has(k)) map.set(k, it);
+      });
+
+      let list = Array.from(map.values());
+
+      if (currentYearOnly) {
+        const year = new Date().getFullYear();
+        list = list.filter(item => {
+          const d = item.date ? new Date(item.date) : new Date(item.createdAt);
+          return d && d.getFullYear() === year;
+        });
+      }
+
+      setIncidentsData(list);
     } catch (err) {
-      setError("Failed to load disasters");
+      setError("Failed to load map data");
       setIncidentsData([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Backwards-compatible alias for older calls
+  const fetchDisasters = () => fetchData();
+
   /* ===================== HELPERS ===================== */
 
-  const normalize = (value) =>
-    value?.toLowerCase().replace(/['-]/g, "").trim();
+  // Normalize district names for matching
+  const normalize = (value) => {
+    if (!value) return "";
+    return value.toLowerCase().replace(/['\s-]/g, "").trim();
+  };
 
   const getSeverityColor = (severity) => {
-    switch (severity) {
+    const normalized = (severity || "").toString().toLowerCase().trim();
+    switch (normalized) {
       case "high":
+      case "critical":
         return "#EF4444";
       case "medium":
         return "#F97316";
@@ -67,64 +108,106 @@ const MapPage = () => {
     }
   };
 
+  const normalizeType = (value) =>
+    (value || "").toString().toLowerCase().replace(/[\s-]+/g, "_").trim();
+  const normalizeSeverity = (value) =>
+    (value || "").toString().toLowerCase().trim();
+  const severityRank = { low: 1, medium: 2, high: 3, critical: 4 };
+  const getHighestSeverity = (items) => {
+    let highest = null;
+    let highestScore = 0;
+    items.forEach((item) => {
+      const key = normalizeSeverity(item.severity);
+      const score = severityRank[key] || 0;
+      if (score > highestScore) {
+        highestScore = score;
+        highest = key;
+      }
+    });
+    return highest;
+  };
+
   /* ===================== DISTRICT STYLING ===================== */
 
   const styleDistrict = (feature) => {
     const districtName = feature.properties.NAME_1;
+    const normalizedGeoDistrict = normalize(districtName);
 
-    const match = incidentsData.find(
-      (i) =>
-        normalize(i.district) === normalize(districtName) &&
-        (selectedType === "All" || i.type === selectedType)
+    // Find matching disasters for this district
+    const matchingDisasters = incidentsData.filter(
+      (i) => normalize(i.district) === normalizedGeoDistrict
     );
 
+    // Check if there's a match with the current type filter
+    const typeFiltered = selectedType === "All"
+      ? matchingDisasters
+      : matchingDisasters.filter((i) => normalizeType(i.type) === selectedType);
+
+    // Get the highest severity if multiple disasters
+    const highestSeverity = getHighestSeverity(typeFiltered);
+
     return {
-      fillColor: match ? getSeverityColor(match.severity) : "#E5E7EB",
+      fillColor: highestSeverity ? getSeverityColor(highestSeverity) : "#E5E7EB",
       weight: 1.5,
       opacity: 1,
       color: "#1F2937",
-      fillOpacity: match ? 0.7 : 0.4
+      fillOpacity: highestSeverity ? 0.7 : 0.4
     };
   };
 
   const onEachDistrict = (feature, layer) => {
     const districtName = feature.properties.NAME_1;
+    const normalizedGeoDistrict = normalize(districtName);
 
     const incidents = incidentsData.filter(
-      (i) => normalize(i.district) === normalize(districtName)
+      (i) => normalize(i.district) === normalizedGeoDistrict
     );
 
+    // Count by severity
+    const severityCounts = {
+      high: incidents.filter(i => normalizeSeverity(i.severity) === "high" || normalizeSeverity(i.severity) === "critical").length,
+      medium: incidents.filter(i => normalizeSeverity(i.severity) === "medium").length,
+      low: incidents.filter(i => normalizeSeverity(i.severity) === "low").length
+    };
+
     layer.bindPopup(`
-      <strong>${districtName}</strong><br/>
-      Incidents: ${incidents.length}
+      <div style="font-family: sans-serif; min-width: 150px;">
+        <strong style="font-size: 14px; color: #1e293b;">${districtName}</strong><br/>
+        <div style="margin-top: 8px; font-size: 13px;">
+          <strong>Total Incidents:</strong> ${incidents.length}<br/>
+          ${severityCounts.high > 0 ? `<span style="color: #EF4444;">● Critical/High: ${severityCounts.high}</span><br/>` : ''}
+          ${severityCounts.medium > 0 ? `<span style="color: #F97316;">● Medium: ${severityCounts.medium}</span><br/>` : ''}
+          ${severityCounts.low > 0 ? `<span style="color: #22C55E;">● Low: ${severityCounts.low}</span>` : ''}
+        </div>
+      </div>
     `);
+    // clicking a district will select it in the sidebar filters
+    layer.on('click', () => {
+      setSelectedDistrict(districtName);
+    });
   };
 
   /* ===================== FILTERING ===================== */
 
   const filteredIncidents = incidentsData.filter((incident) => {
     const districtMatch =
-      selectedDistrict === "All Districts" || incident.district === selectedDistrict;
-    const typeMatch = selectedType === "All" || incident.type === selectedType;
+      selectedDistrict === "All Districts" || normalize(incident.district) === normalize(selectedDistrict);
+    const typeMatch = selectedType === "All" || normalizeType(incident.type) === selectedType;
     return districtMatch && typeMatch;
   });
 
-  // District coordinates mapping
+  // CORRECTED District coordinates mapping for Lesotho
   const districtCoordinates = {
-    "berea": [-29.3, 28.3],
-    "buthabuthe": [-28.8, 28.2],
-    "butha-buthe": [-28.8, 28.2],
-    "leribe": [-28.9, 28.0],
-    "mafeteng": [-29.8, 27.5],
-    "maseru": [-29.31, 27.48],
-    "mohale's hoek": [-30.1, 27.5],
-    "mohaleshoek": [-30.1, 27.5],
-    "mokhotlong": [-29.3, 29.1],
-    "qacha's nek": [-30.1, 28.7],
-    "qachasnek": [-30.1, 28.7],
-    "quthing": [-30.4, 27.7],
-    "thaba-tseka": [-29.5, 28.6],
-    "thabatseka": [-29.5, 28.6],
+    "berea": [-29.1667, 27.9167],      // Berea district
+    "buthabuthe": [-28.7667, 28.2333], // Butha-Buthe district
+    "leribe": [-28.8833, 28.0500],     // Leribe district
+    "mafeteng": [-29.8333, 27.2500],   // Mafeteng district
+    "maseru": [-29.3167, 27.4833],     // Maseru district (capital)
+    "mohaleshoek": [-30.1500, 27.4667], // Mohale's Hoek district
+    "mokhotlong": [-29.2833, 29.0667], // Mokhotlong district
+    "qachasnek": [-30.1167, 28.7000],  // Qacha's Nek district
+    "quthing": [-30.4000, 27.7000],    // Quthing district
+    "thabatseka": [-29.5167, 28.6000], // Thaba-Tseka district
   };
 
   // Prepare incidents with coordinates
@@ -132,64 +215,161 @@ const MapPage = () => {
     const normalizedDistrict = normalize(incident.district);
     const coords = districtCoordinates[normalizedDistrict] || [-29.6, 28.3];
     
+    // Add small random offset to prevent markers from stacking exactly on top of each other
+    const randomOffset = 0.02; // About 2km offset
+    
     return {
       ...incident,
-      latitude: incident.latitude || coords[0] + (Math.random() - 0.5) * 0.1,
-      longitude: incident.longitude || coords[1] + (Math.random() - 0.5) * 0.1,
+      latitude: incident.latitude || coords[0] + (Math.random() - 0.5) * randomOffset,
+      longitude: incident.longitude || coords[1] + (Math.random() - 0.5) * randomOffset,
     };
   });
 
   return (
     <div className="gis-map-page">
-      <div className="gis-controls">
-        <h3>Map Summary</h3>
+      {/* Sidebar */}
+      <div className="map-sidebar">
+        <div className="sidebar-header">
+          <MapPin size={28} />
+          <h2>GIS Map</h2>
+        </div>
 
-        <button onClick={fetchDisasters} disabled={loading}>
-          {loading ? "Loading..." : "Refresh"}
-        </button>
+          <div className="sidebar-content">
+          
+          {/* Refresh Button */}
+          <button 
+            className={`refresh-button ${loading ? "loading" : ""}`} 
+            onClick={fetchData} 
+            disabled={loading}
+          >
+            <RefreshCw size={18} />
+            {loading ? "Loading..." : "Refresh Data"}
+          </button>
 
-        {error && <div className="error-message">{error}</div>}
+          {error && <div className="error-message" style={{
+            padding: "12px",
+            background: "#fee2e2",
+            border: "1px solid #fecaca",
+            borderRadius: "8px",
+            color: "#991b1b",
+            fontSize: "13px",
+            marginTop: "12px"
+          }}>{error}</div>}
 
-        <label>Filter by District</label>
-        <select
-          value={selectedDistrict}
-          onChange={(e) => setSelectedDistrict(e.target.value)}
-        >
-          {districts.map((d) => (
-            <option key={d} value={d}>
-              {d}
-            </option>
-          ))}
-        </select>
+          {!loading && !error && incidentsData.length === 0 && (
+            <div className="info-message" style={{
+              padding: "12px",
+              background: "#dbeafe",
+              border: "1px solid #bfdbfe",
+              borderRadius: "8px",
+              color: "#1e40af",
+              fontSize: "13px",
+              marginTop: "12px"
+            }}>
+              No disasters found. Make sure you're logged in.
+            </div>
+          )}
 
-        <h4>Disaster Types</h4>
-        <label>
-          <input
-            type="radio"
-            value="All"
-            checked={selectedType === "All"}
-            onChange={(e) => setSelectedType(e.target.value)}
-          />
-          All
-        </label>
+          {/* District Filter */}
+          <div className="filter-section">
+            <h3>District</h3>
+            <select
+              className="district-select"
+              value={selectedDistrict}
+              onChange={(e) => setSelectedDistrict(e.target.value)}
+            >
+              {districts.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {disasterTypes.map((type) => (
-          <label key={type}>
-            <input
-              type="radio"
-              value={type}
-              checked={selectedType === type}
-              onChange={(e) => setSelectedType(e.target.value)}
-            />
-            {type.replace("_", " ")}
-          </label>
-        ))}
+          {/* Disaster Type Filter */}
+          <div className="filter-section">
+            <h3>Disaster Type</h3>
+            <div className="disaster-types-grid">
+              <button
+                className={`type-button ${selectedType === "All" ? "active" : ""}`}
+                onClick={() => setSelectedType("All")}
+              >
+                <Grid size={20} />
+                <span>All Disasters</span>
+              </button>
+              <button
+                className={`type-button ${selectedType === "drought" ? "active" : ""}`}
+                onClick={() => setSelectedType("drought")}
+              >
+                <Cloud size={20} />
+                <span>Drought</span>
+              </button>
+              <button
+                className={`type-button ${selectedType === "flooding" || selectedType === "heavy_rainfall" ? "active" : ""}`}
+                onClick={() => setSelectedType("flooding")}
+              >
+                <Droplets size={20} />
+                <span>Flooding</span>
+              </button>
+              <button
+                className={`type-button ${selectedType === "strong_winds" || selectedType === "storm" ? "active" : ""}`}
+                onClick={() => setSelectedType("strong_winds")}
+              >
+                <Wind size={20} />
+                <span>Strong Winds</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Current Year Toggle */}
+          <div className="filter-section">
+            <label className="year-toggle">
+              <input
+                type="checkbox"
+                checked={currentYearOnly}
+                onChange={(e) => setCurrentYearOnly(e.target.checked)}
+              />
+              <span>Current Year Only</span>
+            </label>
+          </div>
+
+          {/* Statistics */}
+          <div className="map-stats">
+            <div className="stats-grid">
+              <div className="stat-item">
+                <p className="stat-number">{filteredIncidents.length}</p>
+                <p className="stat-label">Showing</p>
+              </div>
+              <div className="stat-item">
+                <p className="stat-number">{incidentsData.length}</p>
+                <p className="stat-label">Total</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="severity-legend">
+            <div className="legend-title">Severity Levels</div>
+            <div className="legend-item">
+              <span className="legend-dot high"></span>
+              <span className="legend-label">Critical/High</span>
+            </div>
+            <div className="legend-item">
+              <span className="legend-dot medium"></span>
+              <span className="legend-label">Medium</span>
+            </div>
+            <div className="legend-item">
+              <span className="legend-dot low"></span>
+              <span className="legend-label">Low</span>
+            </div>
+          </div>
+        </div>
       </div>
 
+      {/* Map Container */}
       <div className="map-container">
         <MapContainer
           center={[-29.6, 28.3]}
-          zoom={7}
+          zoom={7.5}
           style={{ height: "100%", width: "100%" }}
         >
           <TileLayer
@@ -224,9 +404,10 @@ const MapPage = () => {
                   <hr style={{ margin: "6px 0", border: "none", borderTop: "1px solid #e2e8f0" }} />
                   <p style={{ margin: "4px 0", fontSize: "12px" }}>
                     <strong>District:</strong> {incident.district}
+                    {incident.region && <span> - {incident.region}</span>}
                   </p>
                   <p style={{ margin: "4px 0", fontSize: "12px" }}>
-                    <strong>Location:</strong> {incident.location}
+                    <strong>Location:</strong> {incident.location || incident.district}
                   </p>
                   <p style={{ margin: "4px 0", fontSize: "12px" }}>
                     <strong>Severity:</strong>{" "}
@@ -239,7 +420,7 @@ const MapPage = () => {
                     </span>
                   </p>
                   <p style={{ margin: "4px 0", fontSize: "12px" }}>
-                    <strong>Affected:</strong> {incident.households || "N/A"} households
+                    <strong>Affected:</strong> {incident.households || incident.numberOfHouseholdsAffected || "N/A"} households
                   </p>
                   <p style={{ margin: "4px 0", fontSize: "12px" }}>
                     <strong>Status:</strong> {incident.status || "reported"}
@@ -253,6 +434,7 @@ const MapPage = () => {
               </Popup>
               <Tooltip direction="top" offset={[0, -10]}>
                 {incident.type?.replace("_", " ")} - {incident.district}
+                {incident.region && ` (${incident.region})`}
               </Tooltip>
             </CircleMarker>
           ))}

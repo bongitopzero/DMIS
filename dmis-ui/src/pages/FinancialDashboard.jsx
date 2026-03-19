@@ -22,6 +22,7 @@ export default function FinancialDashboard() {
   const [selectedDisaster, setSelectedDisaster] = useState("");
   const [budgets, setBudgets] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [stats, setStats] = useState({
     totalBudget: 0,
     totalSpent: 0,
@@ -34,10 +35,10 @@ export default function FinancialDashboard() {
     const fetchDisasters = async () => {
       try {
         const res = await API.get("/disasters");
-        setDisasters(res.data);
-        if (res.data.length > 0) {
-          setSelectedDisaster(res.data[0]._id);
-        }
+        const list = res.data?.disasters || res.data || [];
+        setDisasters(list);
+        // default to aggregated/all view (empty string keeps "All Approved Disasters")
+        setSelectedDisaster("");
       } catch (err) {
         console.error("Error fetching disasters:", err);
       }
@@ -47,31 +48,55 @@ export default function FinancialDashboard() {
 
   // Fetch financial data when disaster changes
   useEffect(() => {
-    if (selectedDisaster) {
-      fetchFinancialData();
-    }
-  }, [selectedDisaster]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Only fetch once we know the disasters list (for the "All" overview)
+    if (!selectedDisaster && disasters.length === 0) return;
+    // fetch for selected disaster or aggregate across all when empty
+    fetchFinancialData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDisaster, disasters]);
 
   const fetchFinancialData = async () => {
     try {
-      const [budgetsRes, expensesRes] = await Promise.all([
-        API.get(`/api/financial/budgets/${selectedDisaster}`),
-        API.get(`/api/financial/expenses/${selectedDisaster}`),
-      ]);
+      setIsLoading(true);
+      let budgetsAcc = [];
+      let expensesAcc = [];
 
-      setBudgets(budgetsRes.data || []);
-      setExpenses(expensesRes.data || []);
+      if (!selectedDisaster) {
+        // aggregate across all disasters
+        const ids = disasters.map(d => d._id || d.id).filter(Boolean);
+        // fetch in sequence to avoid overwhelming the API
+        for (const id of ids) {
+          try {
+            const bRes = await API.get(`/financial/budgets/${id}`);
+            const eRes = await API.get(`/financial/expenses/${id}`);
+            const bData = bRes.data?.budgets || bRes.data || [];
+            const eData = eRes.data?.expenses || eRes.data || [];
+            budgetsAcc = budgetsAcc.concat(bData);
+            expensesAcc = expensesAcc.concat(eData);
+          } catch (err) {
+            console.warn('Failed to fetch financial data for disaster', id, err?.message || err);
+          }
+        }
+      } else {
+        const bRes = await API.get(`/financial/budgets/${selectedDisaster}`);
+        const eRes = await API.get(`/financial/expenses/${selectedDisaster}`);
+        budgetsAcc = bRes.data?.budgets || bRes.data || [];
+        expensesAcc = eRes.data?.expenses || eRes.data || [];
+      }
+
+      setBudgets(budgetsAcc || []);
+      setExpenses(expensesAcc || []);
 
       // Calculate stats
-      const totalBudget = budgetsRes.data.reduce(
-        (sum, b) => sum + (b.approvalStatus === "Approved" ? b.allocatedAmount : 0),
+      const totalBudget = (budgetsAcc || []).reduce(
+        (sum, b) => sum + (b.approvalStatus === "Approved" ? (b.allocatedAmount || 0) : 0),
         0
       );
-      const totalSpent = expensesRes.data.reduce(
-        (sum, e) => sum + (e.status === "Approved" ? e.amount : 0),
+      const totalSpent = (expensesAcc || []).reduce(
+        (sum, e) => sum + (e.status === "Approved" ? (e.amount || 0) : 0),
         0
       );
-      const pendingApproval = budgetsRes.data.filter(
+      const pendingApproval = (budgetsAcc || []).filter(
         (b) => b.approvalStatus === "Pending"
       ).length;
 
@@ -84,6 +109,8 @@ export default function FinancialDashboard() {
     } catch (err) {
       console.error("Error fetching financial data:", err);
       ToastManager.error("Failed to load financial data");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -148,14 +175,63 @@ export default function FinancialDashboard() {
     });
   };
 
+  const getSpendingByDisasterData = () => {
+    // Aggregate approved spend by disaster and join with disaster metadata for labels
+    const totalsByDisaster = {};
+    expenses
+      .filter((e) => e.status === "Approved")
+      .forEach((e) => {
+        const key = e.disasterId?.toString();
+        if (!key) return;
+        totalsByDisaster[key] = (totalsByDisaster[key] || 0) + (e.amount || 0);
+      });
+
+    return Object.entries(totalsByDisaster)
+      .map(([disasterId, amount]) => {
+        const meta =
+          disasters.find((d) => (d._id || d.id)?.toString() === disasterId) || {};
+
+        const labelFromMeta =
+          meta.disasterCode ||
+          meta.incidentTitle ||
+          meta.title ||
+          (meta.type && meta.district
+            ? `${meta.type} - ${meta.district}`
+            : meta.type || meta.district || "Unlabelled");
+
+        return {
+          disaster: labelFromMeta,
+          amount,
+        };
+      })
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 8);
+  };
+
   const COLORS = ["#006B94", "#EC6B56", "#F5A623", "#2ECC71", "#9013FE", "#FF6B6B"];
   const chartData = getCategoryChartData();
   const spendingData = getSpendingDistributionData();
   const topVendors = getTopVendorsData();
   const budgetHealth = getBudgetHealthData();
+  const spendingByDisaster = getSpendingByDisasterData();
 
   return (
     <div className="financial-dashboard">
+<<<<<<< HEAD
+=======
+      {/* Header */}
+      <div className="dashboard-header">
+        <div>
+          <h1>Finance Dashboard</h1>
+          <p className="subtitle">
+            {selectedDisaster
+              ? "Focused view for a single disaster — budget allocation, expenditure, and accountability"
+              : "System-wide financial overview — aggregate budget allocation, expenditure, and accountability across all approved disasters"}
+          </p>
+        </div>
+      </div>
+
+>>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
       {/* View Selector */}
       <div className="view-selector">
         <label>View:</label>
@@ -173,53 +249,62 @@ export default function FinancialDashboard() {
         </select>
       </div>
 
-      {selectedDisaster && (
+      {/* High-level summary */}
+      <div className="kpi-cards">
+        <div className="kpi-card">
+          <div className="kpi-icon" style={{ backgroundColor: "#e8f4f8" }}>
+            <DollarSign size={24} color="#006B94" />
+          </div>
+          <div className="kpi-content">
+            <p className="kpi-label">
+              {selectedDisaster ? "TOTAL ALLOCATED (DISASTER)" : "TOTAL ALLOCATED (ALL DISASTERS)"}
+            </p>
+            <p className="kpi-value">M{(stats.totalBudget || 0).toLocaleString()}</p>
+          </div>
+        </div>
+
+        <div className="kpi-card">
+          <div className="kpi-icon" style={{ backgroundColor: "#fce8e6" }}>
+            <TrendingUp size={24} color="#EC6B56" />
+          </div>
+          <div className="kpi-content">
+            <p className="kpi-label">
+              {selectedDisaster ? "TOTAL SPENT (DISASTER)" : "TOTAL SPENT (ALL DISASTERS)"}
+            </p>
+            <p className="kpi-value">M{(stats.totalSpent || 0).toLocaleString()}</p>
+          </div>
+        </div>
+
+        <div className="kpi-card">
+          <div className="kpi-icon" style={{ backgroundColor: "#e8f5e9" }}>
+            <AlertCircle size={24} color="#2ECC71" />
+          </div>
+          <div className="kpi-content">
+            <p className="kpi-label">REMAINING</p>
+            <p className="kpi-value" style={{ color: "#2ECC71" }}>
+              M{(stats.remaining || 0).toLocaleString()}
+            </p>
+          </div>
+        </div>
+
+        <div className="kpi-card">
+          <div className="kpi-icon" style={{ backgroundColor: "#fff3e0" }}>
+            <BarChart3 size={24} color="#F5A623" />
+          </div>
+          <div className="kpi-content">
+            <p className="kpi-label">PENDING APPROVAL</p>
+            <p className="kpi-value">{stats.pendingApproval}</p>
+          </div>
+        </div>
+      </div>
+
+      {isLoading && (
+        <p className="no-data">Loading latest financial metrics…</p>
+      )}
+
+      {!isLoading && (
         <>
           {/* KPI Cards */}
-          <div className="kpi-cards">
-            <div className="kpi-card">
-              <div className="kpi-icon" style={{ backgroundColor: "#e8f4f8" }}>
-                <DollarSign size={24} color="#006B94" />
-              </div>
-              <div className="kpi-content">
-                <p className="kpi-label">TOTAL ALLOCATED</p>
-                <p className="kpi-value">M{(stats.totalBudget / 1000000).toFixed(1)}M</p>
-              </div>
-            </div>
-
-            <div className="kpi-card">
-              <div className="kpi-icon" style={{ backgroundColor: "#fce8e6" }}>
-                <TrendingUp size={24} color="#EC6B56" />
-              </div>
-              <div className="kpi-content">
-                <p className="kpi-label">TOTAL SPENT</p>
-                <p className="kpi-value">M{(stats.totalSpent / 1000000).toFixed(1)}M</p>
-              </div>
-            </div>
-
-            <div className="kpi-card">
-              <div className="kpi-icon" style={{ backgroundColor: "#e8f5e9" }}>
-                <AlertCircle size={24} color="#2ECC71" />
-              </div>
-              <div className="kpi-content">
-                <p className="kpi-label">REMAINING</p>
-                <p className="kpi-value" style={{ color: "#2ECC71" }}>
-                  M{(stats.remaining / 1000000).toFixed(1)}M
-                </p>
-              </div>
-            </div>
-
-            <div className="kpi-card">
-              <div className="kpi-icon" style={{ backgroundColor: "#fff3e0" }}>
-                <BarChart3 size={24} color="#F5A623" />
-              </div>
-              <div className="kpi-content">
-                <p className="kpi-label">PENDING APPROVAL</p>
-                <p className="kpi-value">{stats.pendingApproval}</p>
-              </div>
-            </div>
-          </div>
-
           {/* Charts Container */}
           <div className="charts-container">
             {/* Budget vs Actual Chart */}
@@ -239,6 +324,28 @@ export default function FinancialDashboard() {
                 </ResponsiveContainer>
               ) : (
                 <p className="no-data">No budget data available</p>
+              )}
+            </div>
+
+            {/* Spend by Disaster */}
+            <div className="chart-card">
+              <h3>Spending by Disaster (Top 8)</h3>
+              {spendingByDisaster.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={spendingByDisaster}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="disaster" hide />
+                    <YAxis />
+                    <Tooltip
+                      formatter={(value) => `M${(value / 1000).toFixed(0)}K`}
+                      labelFormatter={(label) => label}
+                    />
+                    <Legend />
+                    <Bar dataKey="amount" name="Total Spent" fill="#9013FE" />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="no-data">No spending data available</p>
               )}
             </div>
 
@@ -288,7 +395,7 @@ export default function FinancialDashboard() {
                         />
                       </div>
                       <div className="vendor-amount">
-                        M{(vendor.amount / 1000).toFixed(0)}K ({(vendor.amount / stats.totalSpent * 100).toFixed(0)}%)
+                        M{(vendor.amount || 0).toLocaleString()} ({stats.totalSpent ? ((vendor.amount / stats.totalSpent) * 100).toFixed(0) : 0}%)
                       </div>
                     </div>
                   ))
@@ -326,17 +433,6 @@ export default function FinancialDashboard() {
             </div>
           </div>
 
-          {/* Financial Governance Section */}
-          <div className="governance-section">
-            <h3>Financial Governance</h3>
-            <ul className="governance-rules">
-              <li>All budget allocations require Coordinator approval before spending</li>
-              <li>Expenditure invoices are automatically detected and blocked</li>
-              <li>Finance Officers cannot approve their own expense/reimbursement (duress).</li>
-              <li>No records can be deleted — only voided with documented reason</li>
-              <li>Complete audit trail maintained for every financial action</li>
-            </ul>
-          </div>
         </>
       )}
     </div>

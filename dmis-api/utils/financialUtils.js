@@ -358,6 +358,68 @@ function trackChanges(oldValues, newValues) {
   return changes;
 }
 
+/**
+ * Track allocation impact on budget
+ */
+async function trackAllocationBudgetImpact(disasterId, allocationAmount) {
+  try {
+    // Get total budget for disaster
+    const totalBudget = await getTotalBudgetByDisaster(disasterId);
+    
+    // Get total committed (allocations that are approved or disbursed)
+    const AidAllocationRequest = (await import('../models/AidAllocationRequest.js')).default;
+    const allocations = await AidAllocationRequest.find({
+      disasterId: disasterId,
+      status: { $in: ['Approved', 'Disbursed'] }
+    });
+    
+    const totalCommitted = allocations.reduce((sum, alloc) => sum + (alloc.totalEstimatedCost || 0), 0);
+    const totalSpent = await getTotalSpendingByDisaster(disasterId);
+    
+    return {
+      totalBudget,
+      totalCommitted,
+      totalSpent,
+      remainingUncommitted: totalBudget - totalCommitted,
+      remainingAfterAllocation: totalBudget - totalCommitted - allocationAmount,
+      projectedOverrun: Math.max(0, (totalCommitted + allocationAmount) - totalBudget),
+      budgetHealthStatus: 
+        (totalCommitted + allocationAmount) > (totalBudget * 0.9) ? 'CRITICAL' :
+        (totalCommitted + allocationAmount) > (totalBudget * 0.7) ? 'WARNING' :
+        'HEALTHY'
+    };
+  } catch (error) {
+    console.error('Error tracking allocation budget impact:', error);
+    throw new Error('Failed to track allocation budget impact');
+  }
+}
+
+/**
+ * Get allocation summary by status
+ */
+async function getAllocationSummary(disasterId) {
+  try {
+    const AidAllocationRequest = (await import('../models/AidAllocationRequest.js')).default;
+    
+    const summary = await AidAllocationRequest.aggregate([
+      { $match: { disasterId: new (await import('mongoose')).default.Types.ObjectId(disasterId) } },
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 },
+          totalAmount: { $sum: '$totalEstimatedCost' }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    return summary;
+  } catch (error) {
+    console.error('Error getting allocation summary:', error);
+    throw new Error('Failed to get allocation summary');
+  }
+}
+
 export {
   getTotalSpentByCategory,
   getApprovedBudgetByCategory,
@@ -373,6 +435,8 @@ export {
   getAuditTrail,
   getDisasterAuditLogs,
   trackChanges,
+  trackAllocationBudgetImpact,
+  getAllocationSummary,
 };
 
 export default {
@@ -390,4 +454,6 @@ export default {
   getAuditTrail,
   getDisasterAuditLogs,
   trackChanges,
+  trackAllocationBudgetImpact,
+  getAllocationSummary,
 };
