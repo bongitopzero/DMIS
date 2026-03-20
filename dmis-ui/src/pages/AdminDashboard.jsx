@@ -402,17 +402,12 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-<<<<<<< HEAD
-=======
       <div className="dashboard-header">
-        <h1>Administrator Dashboard</h1>
         <p>Manage users and configure system settings</p>
         <div style={{ marginTop: 8 }}>
           <Link to="/admin-dashboard/settings" className="btn-secondary">Open System Settings Page</Link>
         </div>
       </div>
-
->>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
       {error && <div className="alert alert-error">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 

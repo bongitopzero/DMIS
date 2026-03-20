@@ -71,12 +71,6 @@ export default function FinanceAuditTrail() {
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
-<<<<<<< HEAD
-        
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500 text-lg">Finance Audit Trail module coming soon...</p>
-=======
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Finance Audit Trail</h1>
         <p className="text-gray-500 mb-6">Immutable record of all financial actions — no deletions allowed</p>
 
         <div className="flex gap-3 mb-4 items-center">

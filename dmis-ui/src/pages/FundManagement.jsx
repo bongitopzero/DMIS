@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-import React from "react";
-import { Landmark } from "lucide-react";
-import "./FundManagement.css";
-
-export default function FundManagement() {
-  return (
-    <div className="fund-management-page">
-      <div className="fund-management-content">
-        <div className="placeholder-section">
-          <p>This dashboard is accessible only by Finance Officers.</p>
-        </div>
-      </div>
-=======
 import React, { useState, useEffect } from "react";
 import API from "../api/axios";
 import {
@@ -28,6 +14,7 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
+  Landmark,
 } from "lucide-react";
 import "./FundManagement.css";
 
@@ -253,7 +240,6 @@ export default function FundManagement({ embedded = false }) {
       {!embedded && (
         <div className="dashboard-header">
           <div>
-            <h1 className="dashboard-title">Financial Management</h1>
             <p className="dashboard-subtitle">
               Manage funds, track expenses, and monitor financial health
             </p>

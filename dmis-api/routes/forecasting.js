@@ -1,20 +1,10 @@
 import express from 'express';
 import axios from 'axios';
+import Disaster from '../models/Disaster.js';
+import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
-<<<<<<< HEAD
-router.post('/predict', async (req, res) => {
-  try {
-    const {
-      disaster_type,
-      severity_level,
-      households_affected,
-      household_size,
-      income_level,
-      damage_level
-    } = req.body;
-=======
 const getYearRange = () => {
   const now = new Date();
   const start = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
@@ -28,23 +18,14 @@ router.get("/", protect, async (req, res) => {
     const { start, end } = getYearRange();
     const disasters = await Disaster.find({ createdAt: { $gte: start, $lt: end } });
     const dataSpanYears = getDataSpanYears(disasters);
->>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
 
-    const response = await axios.post('http://127.0.0.1:5001/predict', {
-      disaster_type,
-      severity_level,
-      households_affected,
-      household_size,
-      income_level,
-      damage_level
-    });
+    const occurrenceForecast = calculateOccurrenceForecast(disasters);
+    const seasonalForecast = calculateSeasonalForecast(disasters);
+    const districtRanking = calculateDistrictRanking(disasters);
+    const impactForecast = calculateImpactForecast(disasters);
+    const budgetForecast = calculateBudgetForecast(disasters);
 
     res.json({
-<<<<<<< HEAD
-      success: true,
-      predicted_cost: response.data.predicted_cost,
-      currency: response.data.currency
-=======
       occurrenceForecast,
       seasonalForecast,
       districtRanking,
@@ -53,7 +34,6 @@ router.get("/", protect, async (req, res) => {
       totalDisasters: disasters.length,
       dataSpanYears,
       lastUpdated: new Date(),
->>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
     });
 
   } catch (error) {
@@ -64,8 +44,6 @@ router.get("/", protect, async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
-=======
 const getDataSpanYears = (disasters) => {
   if (!disasters.length) return 1;
   const dates = disasters
@@ -355,5 +333,6 @@ function calculateBudgetForecast(disasters) {
   };
 }
 
->>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
 export default router;
+
+

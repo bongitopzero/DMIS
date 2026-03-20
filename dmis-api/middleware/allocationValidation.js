@@ -55,13 +55,19 @@ export const validateAllocationRequest = async (req, res, next) => {
     }
 
     // Check if assessment is in proper status for allocation
-    if (assessment.status !== 'Pending' && assessment.status !== 'Allocated') {
+    // Allow Pending Review, Approved, and Allocated statuses
+    // Block Rejected and Disbursed
+    console.log(`[Allocation Validation] Assessment ${assessmentId} status: "${assessment.status}"`);
+    const disallowedStatuses = ['Rejected', 'Disbursed'];
+    if (disallowedStatuses.includes(assessment.status)) {
+      console.error(`[Allocation Validation] REJECTED - Status is disallowed: ${assessment.status}`);
       return res.status(400).json({
         message: `Cannot allocate household with status: ${assessment.status}`,
         currentStatus: assessment.status,
-        allowedStatuses: ['Pending', 'Allocated'],
+        reason: assessment.status === 'Rejected' ? 'Assessment was rejected' : 'Household has already been disbursed',
       });
     }
+    console.log(`[Allocation Validation] Assessment status check PASSED for "${assessment.status}"`);
 
     // Attach validated data to request
     req.validatedData = {

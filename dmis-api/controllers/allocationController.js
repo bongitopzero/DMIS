@@ -109,6 +109,8 @@ const createHouseholdAssessment = async (req, res) => {
 
     await assessment.save();
 
+    console.log(`[Allocation] Created assessment ${assessment._id} with status: "${assessment.status}"`);
+
     // Log audit trail
     await createAuditLog({
       actionType: 'CREATE',
@@ -294,6 +296,63 @@ const createAllocationRequest = async (req, res) => {
     await HouseholdAssessment.findByIdAndUpdate(assessmentId, {
       status: 'Allocated',
     });
+
+    // Decrease budget allocation for disaster
+    try {
+      const BudgetAllocation = (await import('../models/BudgetAllocation.js')).default;
+      const Expense = (await import('../models/Expense.js')).default;
+      
+      // Find budget allocation for this disaster
+      const budgetAlloc = await BudgetAllocation.findOne({
+        disasterId,
+        approvalStatus: 'Approved',
+        isVoided: false
+      });
+
+      if (budgetAlloc) {
+        // Record the expense/allocation
+        const expense = new Expense({
+          budgetAllocationId: budgetAlloc._id,
+          disasterId,
+          description: `Aid allocation for household - ${assessment.householdId}`,
+          amount: totalEstimatedCost,
+          category: 'Aid Allocation',
+          date: new Date(),
+          allocatedTo: assessmentId,
+          createdBy: req.user?.id,
+        });
+        await expense.save();
+
+        // Update budget allocation remaining amount
+        budgetAlloc.remainingAmount = (budgetAlloc.remainingAmount || budgetAlloc.allocatedAmount) - totalEstimatedCost;
+        await budgetAlloc.save();
+      }
+    } catch (err) {
+      console.warn('Budget update warning:', err.message);
+      // Don't fail allocation if budget update fails
+    }
+
+    // Create financial audit trail
+    try {
+      const FinanceAuditLog = (await import('../models/FinanceAuditLog.js')).default;
+      if (FinanceAuditLog) {
+        await FinanceAuditLog.create({
+          actionType: 'ALLOCATION_CREATED',
+          disasterId,
+          relatedEntityId: allocationRequest._id,
+          relatedEntityType: 'AidAllocationRequest',
+          amount: totalEstimatedCost,
+          description: `Aid allocation created for ${assessment.householdId}`,
+          performedBy: req.user?.id,
+          performerRole: req.user?.role || 'Finance Officer',
+          status: 'Active',
+          timestamp: new Date(),
+        });
+      }
+    } catch (err) {
+      console.warn('Financial audit trail warning:', err.message);
+      // Don't fail allocation if audit trail fails
+    }
 
     // Log audit trail with detailed allocation breakdown
     await createAuditLog({

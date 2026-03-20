@@ -7,10 +7,7 @@
 .forecast-form-card {
   background: white;
   border-radius: 12px;
-<<<<<<< HEAD
   padding: 2rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-=======
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
@@ -870,7 +867,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
->>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
   margin-bottom: 1.5rem;
 }
 
@@ -981,13 +977,10 @@
   line-height: 1.5;
 }
 
-@media (max-wi1dth: 640px) {
+@media (max-width: 640px) {
   .form-grid {
     grid-template-columns: 1fr;
   }
-<<<<<<< HEAD
-}
-=======
 
   .seasonal-chart {
     height: 200px;
@@ -1482,4 +1475,3 @@
     width: 100%;
   }
 }
->>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e

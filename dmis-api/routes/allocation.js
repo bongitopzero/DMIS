@@ -77,7 +77,7 @@ router.post('/calculate-score', protect, (req, res) => {
 /**
  * POST /api/allocation/create-request
  * Create aid allocation request
- * Role: Finance Officer, Administrator
+ * Role: Finance Officer, Coordinator, Administrator
  */
 router.post(
   '/create-request',
@@ -89,7 +89,7 @@ router.post(
     const user = req.headers.user
       ? JSON.parse(req.headers.user)
       : req.user || {};
-    if (!['Finance Officer', 'Administrator'].includes(user.role)) {
+    if (!['Finance Officer', 'Coordinator', 'Administrator'].includes(user.role)) {
       return res.status(403).json({
         message: 'Insufficient permissions to create allocation requests',
       });

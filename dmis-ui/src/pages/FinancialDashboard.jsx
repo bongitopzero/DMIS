@@ -175,63 +175,14 @@ export default function FinancialDashboard() {
     });
   };
 
-  const getSpendingByDisasterData = () => {
-    // Aggregate approved spend by disaster and join with disaster metadata for labels
-    const totalsByDisaster = {};
-    expenses
-      .filter((e) => e.status === "Approved")
-      .forEach((e) => {
-        const key = e.disasterId?.toString();
-        if (!key) return;
-        totalsByDisaster[key] = (totalsByDisaster[key] || 0) + (e.amount || 0);
-      });
-
-    return Object.entries(totalsByDisaster)
-      .map(([disasterId, amount]) => {
-        const meta =
-          disasters.find((d) => (d._id || d.id)?.toString() === disasterId) || {};
-
-        const labelFromMeta =
-          meta.disasterCode ||
-          meta.incidentTitle ||
-          meta.title ||
-          (meta.type && meta.district
-            ? `${meta.type} - ${meta.district}`
-            : meta.type || meta.district || "Unlabelled");
-
-        return {
-          disaster: labelFromMeta,
-          amount,
-        };
-      })
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, 8);
-  };
-
   const COLORS = ["#006B94", "#EC6B56", "#F5A623", "#2ECC71", "#9013FE", "#FF6B6B"];
   const chartData = getCategoryChartData();
   const spendingData = getSpendingDistributionData();
   const topVendors = getTopVendorsData();
   const budgetHealth = getBudgetHealthData();
-  const spendingByDisaster = getSpendingByDisasterData();
 
   return (
     <div className="financial-dashboard">
-<<<<<<< HEAD
-=======
-      {/* Header */}
-      <div className="dashboard-header">
-        <div>
-          <h1>Finance Dashboard</h1>
-          <p className="subtitle">
-            {selectedDisaster
-              ? "Focused view for a single disaster — budget allocation, expenditure, and accountability"
-              : "System-wide financial overview — aggregate budget allocation, expenditure, and accountability across all approved disasters"}
-          </p>
-        </div>
-      </div>
-
->>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
       {/* View Selector */}
       <div className="view-selector">
         <label>View:</label>
@@ -324,28 +275,6 @@ export default function FinancialDashboard() {
                 </ResponsiveContainer>
               ) : (
                 <p className="no-data">No budget data available</p>
-              )}
-            </div>
-
-            {/* Spend by Disaster */}
-            <div className="chart-card">
-              <h3>Spending by Disaster (Top 8)</h3>
-              {spendingByDisaster.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={spendingByDisaster}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="disaster" hide />
-                    <YAxis />
-                    <Tooltip
-                      formatter={(value) => `M${(value / 1000).toFixed(0)}K`}
-                      labelFormatter={(label) => label}
-                    />
-                    <Legend />
-                    <Bar dataKey="amount" name="Total Spent" fill="#9013FE" />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <p className="no-data">No spending data available</p>
               )}
             </div>
 
