@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React from "react";
 import { Landmark } from "lucide-react";
 import "./FundManagement.css";

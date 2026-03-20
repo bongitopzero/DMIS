@@ -217,18 +217,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-=======
-          <Route
-            path="/forecasting"
-            element={
-              <ProtectedRoute allowedRoles={["Coordinator", "Finance Officer"]}>
-                <Layout>
-                  <Forecasting />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
->>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
 
           <Route
             path="/admin-dashboard"
