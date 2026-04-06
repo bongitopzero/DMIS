@@ -406,5 +406,21 @@ router.get("/risk", authMiddleware, async (req, res) => {
     return res.status(500).json({ message: "Failed to fetch risk", error: error.message });
   }
 });
-
+router.get("/requests", authMiddleware, async (req, res) => {
+  try {
+    const { status } = req.query;
+    const query = status ? { status } : {};
+ 
+    const requests = await FundRequest.find(query)
+      .sort({ createdAt: -1 })
+      .populate("incidentId", "type district severity status numberOfHouseholdsAffected");
+ 
+    return res.json(requests);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to fetch fund requests",
+      error: error.message,
+    });
+  }
+});
 export default router;

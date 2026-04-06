@@ -11,9 +11,8 @@
   flex: 1;
 }
 
-<<<<<<< HEAD
+
 /* Removed old page-header styling - now using PageHeader component */
-=======
 /* Page Header */
 .page-header {
   margin-bottom: 2rem;
@@ -31,7 +30,7 @@
   color: #6b7280;
   font-weight: 500;
 }
->>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
+
 
 /* Disaster Selector Section */
 .disaster-selector-section {

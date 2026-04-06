@@ -20,35 +20,34 @@ import MapPage from "./pages/MapPage";
 import Analysis from "./pages/Analysis.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import SystemSettings from "./pages/SystemSettings.jsx";
-import Forecasting from "./pages/Forecasting.jsx";
 import Settings from "./pages/Settings";
 
 import Sidebar from "./components/sidebar";
 import Navbar from "./components/navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { ThemeProvider, useTheme } from "./contexts/ThemeContext"; // Added useTheme
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 import "./App.css";
 
 function Layout({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
-  const { theme } = useTheme(); // Optional: Get theme for any layout-specific styling
 
   return (
-    <div 
+    <div
       className="flex min-h-screen"
-      style={{ 
-        backgroundColor: 'var(--bg-secondary)', // Use CSS variable instead of hardcoded slate
-        color: 'var(--text-primary)',
-        transition: 'background-color 0.3s ease, color 0.3s ease'
+      style={{
+        backgroundColor: "var(--bg-secondary)",
+        color: "var(--text-primary)",
+        transition: "background-color 0.3s ease, color 0.3s ease",
       }}
     >
-      <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((s) => !s)} />
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed((s) => !s)}
+      />
       <div className="flex-1 flex flex-col">
         <Navbar />
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
   );
@@ -57,7 +56,9 @@ function Layout({ children }) {
 function App() {
   return (
     <ThemeProvider>
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <Router
+        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      >
         <Routes>
           <Route path="/" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
@@ -121,7 +122,7 @@ function App() {
           <Route
             path="/approved-disasters"
             element={
-              <ProtectedRoute allowedRoles={["Coordinator","Administrator"]}>
+              <ProtectedRoute allowedRoles={["Coordinator", "Administrator"]}>
                 <Layout>
                   <ApprovedDisasters />
                 </Layout>
@@ -198,25 +199,19 @@ function App() {
           <Route
             path="/analysis"
             element={
-              <ProtectedRoute allowedRoles={["Coordinator", "Finance Officer", "Data Clerk"]}>
+              <ProtectedRoute
+                allowedRoles={[
+                  "Coordinator",
+                  "Finance Officer",
+                  "Data Clerk",
+                ]}
+              >
                 <Layout>
                   <Analysis />
                 </Layout>
               </ProtectedRoute>
             }
           />
-
-<<<<<<< HEAD
-        <Route
-          path="/forecasting"
-          element={
-            <ProtectedRoute allowedRoles={["Coordinator", "Finance Officer"]}>
-              <Layout>
-                <Forecasting />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
 
           <Route
             path="/admin-dashboard"
@@ -243,7 +238,14 @@ function App() {
           <Route
             path="/settings"
             element={
-              <ProtectedRoute allowedRoles={["Coordinator", "Finance Officer", "Data Clerk", "Administrator"]}>
+              <ProtectedRoute
+                allowedRoles={[
+                  "Coordinator",
+                  "Finance Officer",
+                  "Data Clerk",
+                  "Administrator",
+                ]}
+              >
                 <Layout>
                   <Settings />
                 </Layout>
@@ -254,7 +256,7 @@ function App() {
           <Route
             path="/unauthorized"
             element={
-              <div className="p-10" style={{ color: 'var(--danger)' }}>
+              <div className="p-10" style={{ color: "var(--danger)" }}>
                 <h2 className="text-xl font-semibold">Access Denied</h2>
                 <p>You do not have permission to view this page.</p>
               </div>

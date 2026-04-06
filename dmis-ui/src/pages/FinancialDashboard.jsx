@@ -217,21 +217,7 @@ export default function FinancialDashboard() {
 
   return (
     <div className="financial-dashboard">
-<<<<<<< HEAD
-=======
-      {/* Header */}
-      <div className="dashboard-header">
-        <div>
-          <h1>Finance Dashboard</h1>
-          <p className="subtitle">
-            {selectedDisaster
-              ? "Focused view for a single disaster — budget allocation, expenditure, and accountability"
-              : "System-wide financial overview — aggregate budget allocation, expenditure, and accountability across all approved disasters"}
-          </p>
-        </div>
-      </div>
 
->>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
       {/* View Selector */}
       <div className="view-selector">
         <label>View:</label>

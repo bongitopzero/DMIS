@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import React from "react";
-import { DollarSign } from "lucide-react";
 import "./BudgetAllocation.css";
-=======
 import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
@@ -29,7 +25,6 @@ function formatCurrency(value) {
   // 'M' is not a valid ISO currency code, so format as a normal number and prefix with 'M'
   return `M${value.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 }
->>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
 
 export default function BudgetAllocation() {
   const navigate = useNavigate();
@@ -89,13 +84,7 @@ export default function BudgetAllocation() {
   );
 
   return (
-<<<<<<< HEAD
-    <div className="budget-allocation-page">
-      <div className="budget-allocation-content">
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500 text-lg">Budget Allocation module coming soon...</p>
-        </div>
-=======
+
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">Disaster Budget Allocation</h1>
@@ -262,7 +251,6 @@ export default function BudgetAllocation() {
             This will take you to the Aid Allocation module where you can assess households, create allocation requests, and manage approvals and disbursements.
           </p>
         </section>
->>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
       </div>
     </div>
   );

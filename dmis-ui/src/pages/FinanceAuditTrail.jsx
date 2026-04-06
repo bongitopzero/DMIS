@@ -70,101 +70,31 @@ export default function FinanceAuditTrail() {
 
   return (
     <div className="p-8">
-      <div className="max-w-6xl mx-auto">
-<<<<<<< HEAD
-        
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500 text-lg">Finance Audit Trail module coming soon...</p>
-=======
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Finance Audit Trail</h1>
-        <p className="text-gray-500 mb-6">Immutable record of all financial actions — no deletions allowed</p>
-
-        <div className="flex gap-3 mb-4 items-center">
-          <div className="flex-1">
-            <input className="w-full p-2 border rounded" placeholder="Search by user, details, or ID..." value={search} onChange={(e)=>setSearch(e.target.value)} />
-          </div>
-
-          <div>
-            <select className="p-2 border rounded" value={actionFilter} onChange={(e)=>setActionFilter(e.target.value)}>
-              {actions.map(a => (
-                <option key={a} value={a}>{a}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <select className="p-2 border rounded" value={entityFilter} onChange={(e)=>setEntityFilter(e.target.value)}>
-              {entities.map(e => <option key={e} value={e}>{e}</option>)}
-            </select>
-          </div>
-
-          <div>
-            <select className="p-2 border rounded" value={selectedDisaster} onChange={(e)=>setSelectedDisaster(e.target.value)}>
-              {disasters.length === 0 && <option value="">Select disaster</option>}
-              {disasters.map(d => (
-                <option key={d._id || d.id} value={d._id || d.id}>{d.title || d.name || d.disasterCode || `${d.type} — ${d._id}`}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="overflow-x-auto">
-            <table className="w-full table-auto">
-              <thead>
-                <tr className="text-left text-sm text-gray-500">
-                  <th className="p-3">Timestamp</th>
-                  <th className="p-3">Action</th>
-                  <th className="p-3">Entity</th>
-                  <th className="p-3">Old → New</th>
-                  <th className="p-3">Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading && <tr><td colSpan={5} className="p-6 text-center">Loading…</td></tr>}
-                {!loading && filtered.length === 0 && <tr><td colSpan={5} className="p-6 text-center">No records found</td></tr>}
-                {!loading && filtered.map((log) => (
-                  <tr key={log._id || log.id} className="border-t text-sm text-gray-700">
-                    <td className="p-3 align-top">{formatDate(log.createdAt || log.timestamp || log.updatedAt)}</td>
-                    <td className="p-3 align-top">
-                      <span className="inline-block px-2 py-1 rounded text-xs bg-green-100 text-green-800">{log.action || log.actionType}</span>
-                    </td>
-                    <td className="p-3 align-top">
-                      <div className="font-medium">{log.entityType}</div>
-                      <div className="text-xs text-gray-500">{log.entityId || ''}</div>
-                    </td>
-                    <td className="p-3 align-top">
-                      {log.oldValues ? (
-                        <div className="text-xs">
-                          {Object.entries(log.oldValues).slice(0,3).map(([k,v])=> <div key={k}><strong>{k}:</strong> {String(v).slice(0,80)}</div>)}
-                        </div>
-                      ) : <span className="text-xs text-gray-400">—</span>}
-                      <div className="mt-2 text-xs text-green-600">
-                        {log.newValues ? Object.entries(log.newValues).slice(0,3).map(([k,v])=> <div key={k}><strong>{k}:</strong> {String(v).slice(0,80)}</div>) : null}
-                      </div>
-                    </td>
-                    <td className="p-3 align-top text-sm text-gray-700">
-                      <div>{(log.details && typeof log.details === 'object') ? JSON.stringify(log.details) : (log.details || '')}</div>
-                      <div className="text-xs text-gray-400 mt-1">By: {log.actorName || log.actorId || 'System'} — {log.actorRole || ''}</div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="mt-6 bg-emerald-50 border border-emerald-100 p-4 rounded text-sm text-emerald-800">
-            <strong>IMMUTABILITY POLICY</strong>
-            <ul className="list-disc ml-5 mt-2 text-emerald-700">
-              <li>All records in this log are permanent and cannot be deleted or modified.</li>
-              <li>Every budget creation, approval, expense, and status change is automatically captured.</li>
-              <li>Old and new values are recorded for all state transitions.</li>
-              <li>This log serves as the system's authoritative financial audit trail.</li>
-            </ul>
-          </div>
->>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
-        </div>
+      <h1 className="text-2xl font-bold mb-4">Financial Audit Trail</h1>
+      <div className="mb-4">
+        <label className="block mb-1 font-medium">Select Disaster:</label>
+        <select
+          className="border rounded p-2 w-full max-w-sm"    
+          value={selectedDisaster}
+          onChange={(e) => setSelectedDisaster(e.target.value)}
+        >  
+          {disasters.map(d => (
+            <option key={d._id || d.id} value={d._id || d.id}>
+              {d.type?.replace(/_/g, " ") || "Unknown Type"} - {d.district || "Unknown District"}
+            </option>
+          ))}
+        </select>
+      </div>  
+      <div className="flex flex-wrap gap-4 mb-4">
+        <input
+          type="text"   
+          placeholder="Search logs..."
+          className="border rounded p-2 flex-1 min-w-[200px]"
+          value={search}  
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
     </div>
+
   );
 }

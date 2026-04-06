@@ -1,368 +1,283 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import MapView from "./MapView";
 import RecentDisasters from "./RecentDisasters";
 import API from "../api/axios";
 import { ToastManager } from "./Toast";
-import {
-  AlertCircle,
-  Users,
-  DollarSign,
-  TrendingUp,
-} from "lucide-react";
+import { AlertCircle, Users, DollarSign, TrendingUp, RefreshCw } from "lucide-react";
 
 export default function Dashboard() {
   const [disasters, setDisasters] = useState([]);
   const [selectedDisaster, setSelectedDisaster] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [fetchingDisasters, setFetchingDisasters] = useState(false);
   const [error, setError] = useState("");
   const [disastersByType, setDisastersByType] = useState({});
   const [financialByMonth, setFinancialByMonth] = useState({});
   const [overview, setOverview] = useState(null);
+  const [approvingId, setApprovingId] = useState(null); // tracks which disaster is being approved
+  const [lastRefreshed, setLastRefreshed] = useState(null);
 
-  useEffect(() => {
-    fetchDisasters();
-    fetchDashboardStats();
-    fetchCoordinatorOverview();
-    const interval = setInterval(() => {
-      fetchDisasters();
-      fetchDashboardStats();
-      fetchCoordinatorOverview();
-    }, 30000);
-    return () => clearInterval(interval);
+  // ─── Data fetchers (stable references via useCallback) ────────────────────
+  const fetchDisasters = useCallback(async () => {
+    setFetchingDisasters(true);
+    setError("");
+    try {
+      const res = await API.get("/disasters");
+      const districtCoords = {
+        "berea":         [-29.3, 28.3], "butha-buthe": [-29.1, 28.7],
+        "leribe":        [-29.3, 28.0], "mafeteng":    [-29.7, 27.7],
+        "maseru":        [-29.6, 27.5], "mohale's hoek": [-30.1, 28.1],
+        "mokhotlong":    [-30.4, 29.3], "qacha's nek": [-30.7, 29.1],
+        "quthing":       [-30.7, 28.9], "thaba tseka": [-29.5, 29.2],
+      };
+      const transformed = res.data.map((d) => {
+        const coords = districtCoords[d.district?.toLowerCase()] || [-29.6, 27.5];
+        return { ...d, latitude: d.latitude || coords[0], longitude: d.longitude || coords[1] };
+      });
+      setDisasters(transformed);
+      setLastRefreshed(new Date());
+      setSelectedDisaster((prev) => {
+        if (!prev && transformed.length > 0) return transformed[0];
+        if (prev) return transformed.find((d) => d._id === prev._id) || transformed[0] || null;
+        return null;
+      });
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to load disasters");
+      console.error("fetchDisasters:", err);
+    } finally {
+      setFetchingDisasters(false);
+    }
   }, []);
 
-  const fetchCoordinatorOverview = async () => {
+  const fetchDashboardStats = useCallback(async () => {
+    try {
+      const [typeRes, finRes] = await Promise.all([
+        API.get("/disasters/dashboard/by-type"),
+        API.get("/disasters/dashboard/financial-summary"),
+      ]);
+      setDisastersByType(typeRes.data.data || {});
+      setFinancialByMonth(finRes.data.data || {});
+    } catch (err) {
+      console.error("Dashboard stats:", err);
+    }
+  }, []);
+
+  const fetchCoordinatorOverview = useCallback(async () => {
     try {
       const res = await API.get("/coordinator/overview");
       setOverview(res.data || null);
     } catch (err) {
-      // quietly ignore if endpoint not available or not authorized
-      console.debug("Coordinator overview not available:", err?.message || err);
+      console.debug("Coordinator overview not available:", err?.message);
     }
+  }, []);
+
+  // ─── Mount + 30s poll ─────────────────────────────────────────────────────
+  useEffect(() => {
+    fetchDisasters();
+    fetchDashboardStats();
+    fetchCoordinatorOverview();
+    const id = setInterval(() => {
+      fetchDisasters();
+      fetchDashboardStats();
+      fetchCoordinatorOverview();
+    }, 30000);
+    return () => clearInterval(id);
+  }, [fetchDisasters, fetchDashboardStats, fetchCoordinatorOverview]);
+
+  const handleRefresh = () => {
+    fetchDisasters();
+    fetchDashboardStats();
+    fetchCoordinatorOverview();
   };
 
-  const fetchDashboardStats = async () => {
-    try {
-      const [typeRes, finRes] = await Promise.all([
-        API.get("/disasters/dashboard/by-type"),
-        API.get("/disasters/dashboard/financial-summary")
-      ]);
-
-      setDisastersByType(typeRes.data.data || {});
-      setFinancialByMonth(finRes.data.data || {});
-    } catch (err) {
-      console.error("Error fetching dashboard stats:", err);
-    }
-  };
-
-  const fetchDisasters = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await API.get("/disasters");
-
-      const districtCoordinates = {
-        "berea": [-29.3, 28.3],
-        "butha-buthe": [-29.1, 28.7],
-        "leribe": [-29.3, 28.0],
-        "mafeteng": [-29.7, 27.7],
-        "maseru": [-29.6, 27.5],
-        "mohale's hoek": [-30.1, 28.1],
-        "mokhotlong": [-30.4, 29.3],
-        "qacha's nek": [-30.7, 29.1],
-        "quthing": [-30.7, 28.9],
-        "thaba tseka": [-29.5, 29.2],
-      };
-
-      const transformed = res.data.map((d) => {
-        const key = d.district?.toLowerCase();
-        const coords = districtCoordinates[key] || [-29.6, 27.5];
-        return {
-          ...d,
-          latitude: d.latitude || coords[0],
-          longitude: d.longitude || coords[1],
-        };
-      });
-
-      setDisasters(transformed);
-      if (transformed.length > 0 && !selectedDisaster) {
-        setSelectedDisaster(transformed[0]);
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to load disasters");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /* ================= Summary Stats ================= */
-  const activeIncidents = disasters.length;
-  
-  // Calculate statistics from actual data
-  const calculateStats = () => {
-    const stats = {
-      byType: {},
-      byDistrict: {},
-      bySeverity: { low: 0, medium: 0, high: 0, critical: 0 },
-      byStatus: { reported: 0, submitted: 0, verified: 0, responding: 0, closed: 0 }
-    };
-
-    disasters.forEach(d => {
-      // Count by type
-      stats.byType[d.type] = (stats.byType[d.type] || 0) + 1;
-      
-      // Count by district
-      stats.byDistrict[d.district] = (stats.byDistrict[d.district] || 0) + 1;
-      
-      // Count by severity
-      if (d.severity) {
-        const severity = d.severity.toLowerCase();
-        if (severity.includes('critical') || severity === 'high' && d.status !== 'closed') {
-          stats.bySeverity.critical = (stats.bySeverity.critical || 0) + 1;
-        } else if (severity.includes('high')) {
-          stats.bySeverity.high = (stats.bySeverity.high || 0) + 1;
-        } else if (severity.includes('medium')) {
-          stats.bySeverity.medium = (stats.bySeverity.medium || 0) + 1;
-        } else if (severity.includes('low')) {
-          stats.bySeverity.low = (stats.bySeverity.low || 0) + 1;
-        }
-      }
-      
-      // Count by status
-      if (d.status) {
-        stats.byStatus[d.status] = (stats.byStatus[d.status] || 0) + 1;
-      }
-    });
-
-    return stats;
-  };
-
-  const stats = calculateStats();
-  
-  // Get top risk districts (most disasters)
-  const topDistricts = Object.entries(stats.byDistrict)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([district, count]) => {
-      // Calculate risk level based on severity of disasters in that district
-      const districtDisasters = disasters.filter(d => d.district === district);
-      const hasCritical = districtDisasters.some(d => 
-        d.severity?.toLowerCase().includes('critical') || 
-        (d.severity?.toLowerCase().includes('high') && d.status !== 'closed')
-      );
-      const hasHigh = districtDisasters.some(d => d.severity?.toLowerCase().includes('high'));
-      
-      let riskLevel = 'Low';
-      let riskColor = 'low';
-      
-      if (hasCritical) {
-        riskLevel = 'Critical';
-        riskColor = 'critical';
-      } else if (hasHigh) {
-        riskLevel = 'High';
-        riskColor = 'moderate';
-      } else if (count > 3) {
-        riskLevel = 'Moderate';
-        riskColor = 'moderate';
-      }
-      
-      return {
-        district,
-        active: count,
-        severity: riskLevel,
-        riskColor
-      };
-    });
-
-  // Calculate actual allocated funds from data
-  const calculateAllocatedFunds = () => {
-    let total = 0;
-    disasters.forEach(d => {
-      if (d.allocatedBudget) {
-        total += parseFloat(d.allocatedBudget) || 0;
-      }
-    });
-    return total / 1000000; // Convert to millions
-  };
-
-  // Calculate actual requested funds
-  const calculateRequestedFunds = () => {
-    let total = 0;
-    disasters.forEach(d => {
-      if (d.requestedBudget) {
-        total += parseFloat(d.requestedBudget) || 0;
-      } else if (d.estimatedCost) {
-        total += parseFloat(d.estimatedCost) || 0;
-      }
-    });
-    return total / 1000000; // Convert to millions
-  };
-
-  const totalAllocated = calculateAllocatedFunds();
-  const totalRequested = calculateRequestedFunds();
-  const totalSpent = totalAllocated * 0.65; // Estimate 65% of allocated is spent
-
-  // Count critical disasters
-  const criticalDisasters = disasters.filter(d => 
-    d.severity?.toLowerCase().includes('critical') || 
-    (d.severity?.toLowerCase().includes('high') && d.status !== 'closed')
-  ).length;
-
+  // ─── Approve disaster ─────────────────────────────────────────────────────
   const handleApproveDisaster = async (disasterId) => {
+    setApprovingId(disasterId);
     try {
-      const response = await API.put(`/disasters/${disasterId}`, {
-        status: "verified"
-      });
-      console.log("✅ Disaster approved:", response.data);
-      await fetchDisasters();
+      await API.put(`/disasters/${disasterId}`, { status: "verified" });
       ToastManager.success("✅ Disaster approved successfully!");
+      await fetchDisasters(); // immediately refresh so card disappears
     } catch (err) {
-      setError("Failed to approve disaster");
-      console.error(err);
-      const errorMsg = err.response?.data?.message || "Failed to approve disaster";
-      ToastManager.error(`Error: ${errorMsg}`);
+      console.error("Approve:", err);
+      ToastManager.error(err.response?.data?.message || "Failed to approve disaster");
+    } finally {
+      setApprovingId(null);
     }
   };
 
+  // ─── Derived stats ────────────────────────────────────────────────────────
+  const stats = disasters.reduce(
+    (acc, d) => {
+      acc.byType[d.type] = (acc.byType[d.type] || 0) + 1;
+      if (d.district) acc.byDistrict[d.district] = (acc.byDistrict[d.district] || 0) + 1;
+      const sev = d.severity?.toLowerCase() || "";
+      if (sev.includes("critical") || (sev === "high" && d.status !== "closed")) acc.bySeverity.critical++;
+      else if (sev.includes("high"))   acc.bySeverity.high++;
+      else if (sev.includes("medium")) acc.bySeverity.medium++;
+      else if (sev.includes("low"))    acc.bySeverity.low++;
+      if (d.status) acc.byStatus[d.status] = (acc.byStatus[d.status] || 0) + 1;
+      return acc;
+    },
+    { byType: {}, byDistrict: {}, bySeverity: { low:0,medium:0,high:0,critical:0 }, byStatus: { reported:0,submitted:0,verified:0,responding:0,closed:0 } }
+  );
+
+  const pendingDisasters = disasters.filter((d) => d.status === "submitted");
+
+  const topDistricts = Object.entries(stats.byDistrict)
+    .sort((a, b) => b[1] - a[1]).slice(0, 5)
+    .map(([district, count]) => {
+      const dd = disasters.filter((d) => d.district === district);
+      const hasCritical = dd.some((d) => d.severity?.toLowerCase().includes("critical") || (d.severity?.toLowerCase().includes("high") && d.status !== "closed"));
+      const hasHigh     = dd.some((d) => d.severity?.toLowerCase().includes("high"));
+      const riskLevel   = hasCritical ? "Critical" : hasHigh ? "High" : count > 3 ? "Moderate" : "Low";
+      const riskColor   = hasCritical ? "critical" : (hasHigh || count > 3) ? "moderate" : "low";
+      return { district, active: count, severity: riskLevel, riskColor };
+    });
+
+  const totalAllocated = disasters.reduce((s,d) => s + (parseFloat(d.allocatedBudget)||0), 0) / 1_000_000;
+  const totalRequested = disasters.reduce((s,d) => s + (parseFloat(d.requestedBudget)||parseFloat(d.estimatedCost)||0), 0) / 1_000_000;
+  const criticalCount  = disasters.filter((d) => d.severity?.toLowerCase().includes("critical") || (d.severity?.toLowerCase().includes("high") && d.status !== "closed")).length;
+
+  // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-50 p-6">
+
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-text" style={{letterSpacing: '-0.3px'}}>Dashboard</h1>
-        <p className="text-sm text-muted">National Disaster Overview</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-text" style={{ letterSpacing: "-0.3px" }}>Dashboard</h1>
+          <p className="text-sm text-muted">
+            National Disaster Overview
+            {lastRefreshed && <span className="ml-2 text-xs text-slate-400">· Refreshed {lastRefreshed.toLocaleTimeString()}</span>}
+          </p>
+        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={fetchingDisasters}
+          style={{ display:"flex", alignItems:"center", gap:"0.4rem", padding:"0.4rem 0.9rem", backgroundColor:"white", border:"1px solid #e2e8f0", borderRadius:"0.5rem", cursor: fetchingDisasters?"not-allowed":"pointer", fontSize:"0.85rem", color:"#475569", opacity: fetchingDisasters?0.6:1 }}
+        >
+          <RefreshCw size={15} style={{ animation: fetchingDisasters ? "spin 1s linear infinite" : "none" }} />
+          Refresh
+        </button>
       </div>
 
-      {/* Summary Cards - 4 columns */}
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <SummaryCard
-          title="Current Year Incidents"
-          value={overview?.currentYear?.incidentsCount ?? activeIncidents}
-          subtitle={`${stats.byStatus.verified || 0} verified · ${stats.byStatus.submitted || 0} pending`}
-          icon={<AlertCircle className="w-5 h-5 text-critical" />}
-          bgColor="bg-red-50"
-        />
-        <SummaryCard
-          title="Districts Affected"
-          value={Object.keys(stats.byDistrict).length}
-          subtitle={`${stats.bySeverity.high || 0} high · ${stats.bySeverity.critical || 0} critical`}
-          icon={<Users className="w-5 h-5 text-blue-500" />}
-          bgColor="bg-blue-50"
-        />
-        <SummaryCard
-          title="Allocated Funds"
-          value={totalAllocated > 0 ? `M ${totalAllocated.toFixed(1)}` : "M 0"}
+        <SummaryCard title="Current Year Incidents" value={overview?.currentYear?.incidentsCount ?? disasters.length}
+          subtitle={`${stats.byStatus.verified||0} verified · ${stats.byStatus.submitted||0} pending`}
+          icon={<AlertCircle className="w-5 h-5 text-critical" />} bgColor="bg-red-50" />
+        <SummaryCard title="Districts Affected" value={Object.keys(stats.byDistrict).length}
+          subtitle={`${stats.bySeverity.high||0} high · ${stats.bySeverity.critical||0} critical`}
+          icon={<Users className="w-5 h-5 text-blue-500" />} bgColor="bg-blue-50" />
+        <SummaryCard title="Allocated Funds" value={totalAllocated > 0 ? `M ${totalAllocated.toFixed(1)}` : "M 0"}
           subtitle={totalRequested > 0 ? `Requested: M ${totalRequested.toFixed(1)}` : "No requests"}
-          icon={<DollarSign className="w-5 h-5 text-green-500" />}
-          bgColor="bg-green-50"
-        />
-        <SummaryCard
-          title="Critical Disasters"
-          value={criticalDisasters}
-          subtitle={`${stats.byStatus.responding || 0} active responses`}
-          icon={<TrendingUp className="w-5 h-5 text-emerald-500" />}
-          bgColor="bg-emerald-50"
-        />
+          icon={<DollarSign className="w-5 h-5 text-green-500" />} bgColor="bg-green-50" />
+        <SummaryCard title="Critical Disasters" value={criticalCount}
+          subtitle={`${stats.byStatus.responding||0} active responses`}
+          icon={<TrendingUp className="w-5 h-5 text-emerald-500" />} bgColor="bg-emerald-50" />
       </div>
 
-      {/* Pending Approval Section */}
+      {/* ── Pending Approval ── */}
       <div className="mb-6 bg-white rounded-xl shadow-sm p-6 border border-slate-200">
-        <h2 className="text-lg font-semibold text-text mb-4">Pending Coordinator Approval</h2>
-        {disasters.filter(d => d.status === "submitted").length === 0 ? (
-          <p className="text-sm text-muted">No disasters pending approval</p>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-text flex items-center gap-2">
+            Pending Coordinator Approval
+            {pendingDisasters.length > 0 && (
+              <span style={{ backgroundColor:"#ef4444", color:"white", fontSize:"0.72rem", fontWeight:"700", borderRadius:"9999px", padding:"0.1rem 0.55rem" }}>
+                {pendingDisasters.length}
+              </span>
+            )}
+          </h2>
+          <button onClick={handleRefresh} disabled={fetchingDisasters}
+            style={{ fontSize:"0.8rem", color:"#2563eb", background:"none", border:"none", cursor:"pointer", opacity: fetchingDisasters?0.5:1 }}>
+            {fetchingDisasters ? "Loading…" : "↺ Refresh list"}
+          </button>
+        </div>
+
+        {error && (
+          <div style={{ padding:"0.75rem", backgroundColor:"#fee2e2", borderRadius:"0.375rem", color:"#991b1b", fontSize:"0.875rem", marginBottom:"1rem" }}>
+            {error}
+          </div>
+        )}
+
+        {pendingDisasters.length === 0 ? (
+          <div style={{ padding:"2rem", textAlign:"center", color:"#9ca3af", backgroundColor:"#f9fafb", borderRadius:"0.5rem", border:"1px dashed #e5e7eb" }}>
+            <p style={{ margin:0, fontWeight:"500" }}>
+              {fetchingDisasters ? "Loading disasters…" : "No disasters pending approval"}
+            </p>
+            <p style={{ margin:"0.5rem 0 0", fontSize:"0.8rem" }}>
+              Disasters submitted by Data Clerks will appear here for approval
+            </p>
+          </div>
         ) : (
-          <div className="space-y-3">
-            {disasters.filter(d => d.status === "submitted").map((disaster) => (
-              <div key={disaster._id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
-                <div className="flex-1">
-                  <p className="font-semibold text-text">{disaster.type?.toUpperCase()} in {disaster.district}</p>
-                  <p className="text-sm text-muted">
-                    {disaster.numberOfHouseholdsAffected || 0} household(s) | 
-                    Severity: <span style={{ 
-                      textTransform: 'capitalize', 
-                      fontWeight: '600',
-                      color: disaster.severity?.toLowerCase().includes('critical') ? '#B94A48' : 
-                             disaster.severity?.toLowerCase().includes('high') ? '#C9A227' : 
-                             disaster.severity?.toLowerCase().includes('medium') ? '#4E8A64' : '#3b82f6'
-                    }}>
-                      {disaster.severity}
-                    </span>
-                  </p>
+          <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+            {pendingDisasters.map((disaster) => {
+              const isApproving = approvingId === disaster._id;
+              const sevColor =
+                disaster.severity?.toLowerCase().includes("critical") ? "#B94A48"
+                : disaster.severity?.toLowerCase().includes("high")   ? "#C9A227"
+                : disaster.severity?.toLowerCase().includes("medium") ? "#4E8A64"
+                : "#3b82f6";
+              return (
+                <div key={disaster._id} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"1rem 1.25rem", backgroundColor:"#fffbeb", border:"1px solid #fde68a", borderLeft:"4px solid #f59e0b", borderRadius:"0.5rem", gap:"1rem" }}>
+                  <div style={{ flex:1 }}>
+                    <p style={{ fontWeight:"600", color:"#1f2937", margin:"0 0 0.25rem", fontSize:"0.95rem" }}>
+                      {disaster.type?.replace(/_/g," ").toUpperCase()} — {disaster.district}
+                    </p>
+                    <p style={{ fontSize:"0.8rem", color:"#6b7280", margin:0 }}>
+                      {disaster.numberOfHouseholdsAffected || 0} household(s) &nbsp;·&nbsp;
+                      Severity: <span style={{ color:sevColor, fontWeight:"600", textTransform:"capitalize" }}>{disaster.severity}</span>
+                      &nbsp;·&nbsp; Submitted {new Date(disaster.updatedAt || disaster.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleApproveDisaster(disaster._id)}
+                    disabled={approvingId !== null}
+                    style={{
+                      padding:"0.5rem 1.25rem",
+                      backgroundColor: isApproving ? "#94a3b8" : "#1e3a5f",
+                      color:"white", border:"none", borderRadius:"0.375rem",
+                      cursor: approvingId !== null ? "not-allowed" : "pointer",
+                      fontSize:"0.875rem", fontWeight:"600", whiteSpace:"nowrap", minWidth:"110px",
+                    }}
+                  >
+                    {isApproving ? "Approving…" : "✓ Approve"}
+                  </button>
                 </div>
-                <button
-                  onClick={() => handleApproveDisaster(disaster._id)}
-                  disabled={loading}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    backgroundColor: '#1e3a5f',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '0.35rem',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem',
-                    fontWeight: '600'
-                  }}
-                >
-                  {loading ? "Approving..." : "Approve"}
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* Main Content Area - Map on left, Incidents on right */}
+      {/* Map + Recent Disasters */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        {/* Map Section - 2/3 width */}
         <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-4 border border-slate-200">
-          <h2 className="text-lg font-semibold text-text mb-3">
-            Disaster Locations
-          </h2>
-          {error && (
-            <div className="text-sm text-critical mb-3 p-2 bg-red-50 rounded">
-              {error}
-            </div>
-          )}
+          <h2 className="text-lg font-semibold text-text mb-3">Disaster Locations</h2>
           <div className="h-96 rounded-lg overflow-hidden bg-slate-100">
             <MapView disasters={disasters} selectedDisaster={selectedDisaster} />
           </div>
         </div>
-
-        
-        {/* Recent Disasters - 1/3 width */}
-<div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
-  <h2 className="text-lg font-semibold text-text mb-4">Recent Disasters</h2>
-  <RecentDisasters
-    disasters={disasters}
-    selectedDisaster={selectedDisaster}
-    onSelectDisaster={setSelectedDisaster}
-  />
-</div>
+        <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
+          <h2 className="text-lg font-semibold text-text mb-4">Recent Disasters</h2>
+          <RecentDisasters disasters={disasters} selectedDisaster={selectedDisaster} onSelectDisaster={setSelectedDisaster} />
+        </div>
       </div>
 
-      {/* Charts & Table Section */}
+      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Chart: Disasters by Type */}
         <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
-          <h3 className="text-lg font-semibold text-text mb-4">
-            Disasters by Type (6 Months)
-          </h3>
+          <h3 className="text-lg font-semibold text-text mb-4">Disasters by Type (6 Months)</h3>
           <DisastersByTypeChart disastersByType={disastersByType} />
         </div>
-
-        {/* Chart: Financial Overview */}
         <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200">
-          <h3 className="text-lg font-semibold text-text mb-4">
-            Financial Overview (6 Months)
-          </h3>
+          <h3 className="text-lg font-semibold text-text mb-4">Financial Overview (6 Months)</h3>
           <FinancialOverviewChart financialByMonth={financialByMonth} />
         </div>
       </div>
 
-      {/* District Risk Assessment Table */}
+      {/* District Risk Table */}
       <div className="bg-white rounded-xl shadow-sm p-4 border border-slate-200 mt-6">
-        <h3 className="text-lg font-semibold text-text mb-4">
-          District Risk Assessment
-        </h3>
+        <h3 className="text-lg font-semibold text-text mb-4">District Risk Assessment</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -373,34 +288,19 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {topDistricts.length > 0 ? (
-                topDistricts.map((row, idx) => (
-                  <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
-                    <td className="py-3 px-3 text-text font-medium">{row.district}</td>
-                    <td className="py-3 px-3 text-text">{row.active} incidents</td>
-                    <td className="py-3 px-3">
-                      <span
-                        className={`px-2 py-1 text-xs font-semibold rounded-full text-white`}
-                        style={{
-                          backgroundColor:
-                            row.riskColor === "critical"
-                              ? "#B94A48"
-                              : row.riskColor === "moderate"
-                              ? "#C9A227"
-                              : "#4E8A64",
-                        }}
-                      >
-                        {row.severity}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="py-4 text-center text-muted">
-                    No district data available
+              {topDistricts.length > 0 ? topDistricts.map((row, idx) => (
+                <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
+                  <td className="py-3 px-3 text-text font-medium">{row.district}</td>
+                  <td className="py-3 px-3 text-text">{row.active} incidents</td>
+                  <td className="py-3 px-3">
+                    <span className="px-2 py-1 text-xs font-semibold rounded-full text-white"
+                      style={{ backgroundColor: row.riskColor==="critical"?"#B94A48":row.riskColor==="moderate"?"#C9A227":"#4E8A64" }}>
+                      {row.severity}
+                    </span>
                   </td>
                 </tr>
+              )) : (
+                <tr><td colSpan="3" className="py-4 text-center text-muted">No district data available</td></tr>
               )}
             </tbody>
           </table>
@@ -410,7 +310,6 @@ export default function Dashboard() {
   );
 }
 
-/* ================= Summary Card Component ================= */
 function SummaryCard({ title, value, subtitle, icon, bgColor }) {
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition">
@@ -426,136 +325,58 @@ function SummaryCard({ title, value, subtitle, icon, bgColor }) {
   );
 }
 
-/* ================= Disasters by Type Chart Component ================= */
 function DisastersByTypeChart({ disastersByType }) {
   const types = Object.entries(disastersByType).sort((a, b) => b[1] - a[1]);
-  
-  if (types.length === 0) {
-    return (
-      <div className="h-64 flex items-center justify-center text-muted">
-        <p>No disaster data available for the past 6 months</p>
-      </div>
-    );
-  }
-
-  // Find max value for scaling
-  const maxValue = Math.max(...types.map(t => t[1]), 1);
-  const maxHeight = 220; // max height in pixels
-
-  // Color palette for different disaster types
-  const colorMap = {
-    "drought": "#60a5fa", // blue
-    "flooding": "#3b82f6", // darker blue
-    "landslide": "#8b5cf6", // purple
-    "storm": "#f59e0b", // amber
-    "earthquake": "#ef4444", // red
-    "disease": "#06b6d4", // cyan
-    "wildfire": "#d84315", // deep orange
-  };
-
+  if (types.length === 0) return <div className="h-64 flex items-center justify-center text-muted"><p>No disaster data available for the past 6 months</p></div>;
+  const maxValue = Math.max(...types.map((t) => t[1]), 1);
+  const colorMap = { drought:"#60a5fa", flooding:"#3b82f6", landslide:"#8b5cf6", storm:"#f59e0b", earthquake:"#ef4444", disease:"#06b6d4", wildfire:"#d84315", heavy_rainfall:"#0ea5e9", strong_winds:"#a78bfa" };
   return (
     <div>
       <div className="h-64 flex items-end justify-around gap-2 px-4">
         {types.map(([type, count]) => {
-          const height = (count / maxValue) * maxHeight;
-          const color = colorMap[type.toLowerCase()] || "#3b82f6";
-          
+          const height = (count / maxValue) * 220;
+          const color  = colorMap[type.toLowerCase()] || "#3b82f6";
           return (
             <div key={type} className="text-center">
-              <div
-                className="w-8 rounded transition-all hover:opacity-75"
-                style={{
-                  height: `${Math.max(height, 20)}px`,
-                  backgroundColor: color,
-                }}
-                title={`${type}: ${count} disasters`}
-              ></div>
-              <p className="text-xs text-muted mt-2 truncate max-w-16">{type}</p>
+              <div className="w-8 rounded transition-all hover:opacity-75" style={{ height:`${Math.max(height,20)}px`, backgroundColor:color }} title={`${type}: ${count}`} />
+              <p className="text-xs text-muted mt-2 truncate max-w-16">{type.replace(/_/g," ")}</p>
               <p className="text-xs font-semibold text-text">{count}</p>
             </div>
           );
         })}
       </div>
       <div className="flex gap-3 justify-center mt-4 text-xs flex-wrap">
-        {types.slice(0, 3).map(([type]) => {
-          const color = colorMap[type.toLowerCase()] || "#3b82f6";
-          return (
-            <span key={type} className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded" style={{ backgroundColor: color }}></div>
-              {type}
-            </span>
-          );
-        })}
+        {types.slice(0,4).map(([type]) => (
+          <span key={type} className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded" style={{ backgroundColor: colorMap[type.toLowerCase()]||"#3b82f6" }} />
+            {type.replace(/_/g," ")}
+          </span>
+        ))}
       </div>
     </div>
   );
 }
 
-/* ================= Financial Overview Chart Component ================= */
 function FinancialOverviewChart({ financialByMonth }) {
-  const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  
-  // Parse month data and sort chronologically
+  const monthOrder = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const months = Object.entries(financialByMonth)
-    .map(([monthStr, amount]) => {
-      const parts = monthStr.split('-');
-      const monthName = parts[0];
-      const monthIndex = monthOrder.indexOf(monthName);
-      return { monthStr, monthName, amount, monthIndex };
-    })
+    .map(([monthStr, amount]) => ({ monthStr, monthName: monthStr.split("-")[0], amount, monthIndex: monthOrder.indexOf(monthStr.split("-")[0]) }))
     .sort((a, b) => a.monthIndex - b.monthIndex);
-
-  if (months.length === 0) {
-    return (
-      <div className="h-64 flex items-center justify-center text-muted">
-        <p>No financial data available for the past 6 months</p>
-      </div>
-    );
-  }
-
-  // Find max value for scaling
-  const maxValue = Math.max(...months.map(m => m.amount), 1);
-  const maxHeight = 220; // max height in pixels
-  
-  // Format currency values
-  const formatCurrency = (value) => {
-    if (value >= 1000000) {
-      return `M ${(value / 1000000).toFixed(1)}M`;
-    } else if (value >= 1000) {
-      return `M ${(value / 1000).toFixed(1)}K`;
-    }
-    return `M ${value.toFixed(0)}`;
-  };
-
+  if (months.length === 0) return <div className="h-64 flex items-center justify-center text-muted"><p>No financial data available</p></div>;
+  const maxValue = Math.max(...months.map((m) => m.amount), 1);
   return (
     <div>
       <div className="h-64 flex items-end justify-around gap-2 px-4">
-        {months.map(({ monthStr, monthName, amount }) => {
-          const height = (amount / maxValue) * maxHeight;
-          
-          return (
-            <div key={monthStr} className="text-center">
-              <div
-                className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded transition-all hover:opacity-75"
-                style={{
-                  height: `${Math.max(height, 20)}px`
-                }}
-                title={`${monthName}: ${formatCurrency(amount)}`}
-              ></div>
-              <p className="text-xs text-muted mt-2">{monthName}</p>
-              <p className="text-xs font-semibold text-text">
-                {amount >= 1000000 
-                  ? `${(amount / 1000000).toFixed(1)}M` 
-                  : `${(amount / 1000).toFixed(0)}K`}
-              </p>
-            </div>
-          );
-        })}
+        {months.map(({ monthStr, monthName, amount }) => (
+          <div key={monthStr} className="text-center">
+            <div className="w-8 bg-gradient-to-t from-blue-400 to-blue-300 rounded transition-all hover:opacity-75" style={{ height:`${Math.max((amount/maxValue)*220, 20)}px` }} title={`${monthName}: ${amount}`} />
+            <p className="text-xs text-muted mt-2">{monthName}</p>
+            <p className="text-xs font-semibold text-text">{amount>=1_000_000?`${(amount/1_000_000).toFixed(1)}M`:`${(amount/1_000).toFixed(0)}K`}</p>
+          </div>
+        ))}
       </div>
       <div className="flex gap-4 justify-center mt-4 text-xs">
-        <span className="flex items-center gap-1">
-          <div className="w-3 h-3 bg-blue-400 rounded"></div> Total Expenses
-        </span>
+        <span className="flex items-center gap-1"><div className="w-3 h-3 bg-blue-400 rounded" /> Total Expenses</span>
       </div>
     </div>
   );
