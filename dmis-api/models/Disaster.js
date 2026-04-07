@@ -238,7 +238,7 @@ const DisasterSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["reported", "verified", "closed"],
+      enum: ["reported", "submitted", "verified", "closed"],
       default: "reported"
     },
     date: {
@@ -265,6 +265,12 @@ const DisasterSchema = new mongoose.Schema(
     source: {
       type: String,
       default: "Manual Entry"
+    },
+    disasterCode: {
+      type: String,
+      unique: true,
+      sparse: true,
+      default: null
     }
   },
   { timestamps: true }

@@ -53,10 +53,9 @@ export default function MySubmissions() {
 
   return (
     <div className="p-0 bg-gray-50 min-h-screen">
-      <div className="max-w-full">
+      <div className="max-w-full px-4 py-4">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Submissions</h1>
           <p className="text-gray-600">{filteredDisasters.length} records</p>
         </div>
 
@@ -116,7 +115,7 @@ export default function MySubmissions() {
                 {filteredDisasters.map((disaster, idx) => {
                   const statusBadge = getStatusBadgeStyle(disaster.status);
                   const severityBadge = getSeverityBadgeStyle(disaster.severity);
-                  const disasterId = `D-${new Date(disaster.createdAt).getFullYear()}-${String(idx + 1).padStart(3, '0')}`;
+                  const disasterId = disaster.disasterCode || `D-UNKNOWN`;
                   
                   return (
                     <tr key={disaster._id} className="hover:bg-gray-50">

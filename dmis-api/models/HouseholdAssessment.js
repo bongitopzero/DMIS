@@ -3,9 +3,11 @@ import mongoose from 'mongoose';
 /**
  * HouseholdAssessment Schema
  * Records detailed household data for disaster aid allocation
+ * Fields match exactly what the frontend sends
  */
 const householdAssessmentSchema = new mongoose.Schema(
   {
+    // Required fields from frontend
     disasterId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Disaster',
@@ -17,82 +19,142 @@ const householdAssessmentSchema = new mongoose.Schema(
       required: [true, 'Household ID is required'],
       index: true,
     },
+    
+    // Head of Household Information
     headOfHousehold: {
-      name: { type: String, required: true },
-      age: { type: Number, required: true, min: 18 },
-      gender: { type: String, enum: ['Male', 'Female', 'Other'], required: true },
+      name: { 
+        type: String, 
+        required: [true, 'Head of household name is required'] 
+      },
+      age: { 
+        type: Number, 
+        required: [true, 'Age is required'],
+        min: [1, 'Age must be at least 1']
+      },
+      gender: { 
+        type: String, 
+        enum: ['Male', 'Female', 'Other'], 
+        required: [true, 'Gender is required']
+      },
     },
+    
+    // Household Details
     householdSize: {
       type: Number,
       required: [true, 'Household size is required'],
-      min: 1,
+      min: [1, 'Household size must be at least 1'],
     },
     childrenUnder5: {
       type: Number,
-      required: true,
-      default: 0,
-      min: 0,
+      default: null,
+      min: [0, 'Children under 5 cannot be negative'],
     },
+    
+    // Income Information
     monthlyIncome: {
       type: Number,
       required: [true, 'Monthly income is required'],
-      min: 0,
+      min: [0, 'Monthly income cannot be negative'],
     },
     incomeCategory: {
       type: String,
-      enum: ['Low', 'Middle', 'High'],
-      required: true,
+      enum: {
+        values: ['Low', 'Middle', 'High'],
+        message: 'Income category must be Low, Middle, or High'
+      },
+      required: [true, 'Income category is required'],
     },
+    
+    // Disaster Information
     disasterType: {
       type: String,
-      enum: ['Heavy Rainfall', 'Strong Winds', 'Drought'],
+      enum: {
+        values: ['Heavy Rainfall', 'Strong Winds', 'Drought'],
+        message: 'Disaster type must be Heavy Rainfall, Strong Winds, or Drought'
+      },
       required: [true, 'Disaster type is required'],
     },
     damageDescription: {
       type: String,
-      required: [true, 'Damage description is required'],
-      maxlength: 1000,
+      default: null,
+      maxlength: [1000, 'Damage description cannot exceed 1000 characters'],
     },
     damageSeverityLevel: {
       type: Number,
-      enum: [1, 2, 3, 4],
-      required: [true, 'Damage severity level (1-4) is required'],
+      default: null,
+      min: [1, 'Damage severity level must be at least 1'],
+      max: [4, 'Damage severity level cannot exceed 4']
     },
+    
+    // Detailed Damage Assessment (Optional)
     damageDetails: {
-      roofDamage: { type: String, default: 'None' }, // For wind
-      cropLossPercentage: { type: Number, default: 0, min: 0, max: 100 }, // For rainfall/drought
-      livestockLoss: { type: Number, default: 0, min: 0 }, // Number of livestock
-      roomsAffected: { type: Number, default: 0, min: 0 }, // For rainfall
-      waterAccessImpacted: { type: Boolean, default: false }, // For drought
+      roofDamage: { 
+        type: String, 
+        default: null 
+      },
+      cropLossPercentage: { 
+        type: Number, 
+        default: null,
+        min: [0, 'Crop loss cannot be negative'],
+        max: [100, 'Crop loss cannot exceed 100%']
+      },
+      livestockLoss: { 
+        type: Number, 
+        default: null,
+        min: [0, 'Livestock loss cannot be negative']
+      },
+      roomsAffected: { 
+        type: Number, 
+        default: null,
+        min: [0, 'Rooms affected cannot be negative']
+      },
+      waterAccessImpacted: { 
+        type: Boolean, 
+        default: null 
+      },
     },
+    
+    // Assessment Details
     recommendedAssistance: {
       type: String,
-      maxlength: 500,
+      default: null,
+      maxlength: [500, 'Recommended assistance cannot exceed 500 characters'],
     },
     assessmentDate: {
       type: Date,
-      required: true,
       default: Date.now,
     },
     assessedBy: {
       type: String,
       required: [true, 'Assessor name/ID is required'],
     },
+    
+    // Location Information
     location: {
-      coordinates: {
-        latitude: Number,
-        longitude: Number,
+      village: { 
+        type: String,
+        required: [true, 'Village is required']
       },
-      village: String,
-      district: String,
+      district: { 
+        type: String,
+        required: [true, 'District is required']
+      },
     },
+    
+    // Status and Metadata
     status: {
       type: String,
-      enum: ['Pending Review', 'Approved', 'Rejected', 'Allocated', 'Disbursed'],
+      enum: {
+        values: ['Pending Review', 'Approved', 'Rejected', 'Allocated', 'Disbursed'],
+        message: 'Invalid status'
+      },
       default: 'Pending Review',
       index: true,
     },
-    notes: String,
+    notes: {
+      type: String,
+      default: null,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

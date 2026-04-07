@@ -15,6 +15,7 @@ const MapPage = () => {
 
   const [selectedDistrict, setSelectedDistrict] = useState("All Districts");
   const [selectedType, setSelectedType] = useState("All");
+  const [selectedSeverity, setSelectedSeverity] = useState("All Severity");
   const [currentYearOnly, setCurrentYearOnly] = useState(true);
 
   const districts = [
@@ -73,6 +74,7 @@ const MapPage = () => {
         });
       }
 
+      console.log(`📊 MapPage: ${dRes.value.data?.length || 0} disasters + ${iRes.value.data?.length || 0} incidents = ${Array.from(map.values()).length} merged → ${list.length} after year filter`);
       setIncidentsData(list);
     } catch (err) {
       setError("Failed to load map data");
@@ -94,25 +96,18 @@ const MapPage = () => {
   };
 
   const getSeverityColor = (severity) => {
-    const normalized = (severity || "").toString().toLowerCase().trim();
-    switch (normalized) {
-      case "high":
-      case "critical":
-        return "#EF4444";
-      case "medium":
-        return "#F97316";
-      case "low":
-        return "#22C55E";
-      default:
-        return "#E5E7EB";
-    }
+    const sev = (severity || "").toLowerCase().trim();
+    if (sev === "critical" || sev === "high") return "#EF4444";      // red
+    if (sev === "moderate" || sev === "medium") return "#F97316";    // orange
+    if (sev === "low") return "#22C55E";       // green
+    return "#E5E7EB";
   };
 
   const normalizeType = (value) =>
     (value || "").toString().toLowerCase().replace(/[\s-]+/g, "_").trim();
   const normalizeSeverity = (value) =>
     (value || "").toString().toLowerCase().trim();
-  const severityRank = { low: 1, medium: 2, high: 3, critical: 4 };
+  const severityRank = { low: 1, medium: 2, moderate: 2, critical: 3 };
   const getHighestSeverity = (items) => {
     let highest = null;
     let highestScore = 0;
@@ -130,28 +125,12 @@ const MapPage = () => {
   /* ===================== DISTRICT STYLING ===================== */
 
   const styleDistrict = (feature) => {
-    const districtName = feature.properties.NAME_1;
-    const normalizedGeoDistrict = normalize(districtName);
-
-    // Find matching disasters for this district
-    const matchingDisasters = incidentsData.filter(
-      (i) => normalize(i.district) === normalizedGeoDistrict
-    );
-
-    // Check if there's a match with the current type filter
-    const typeFiltered = selectedType === "All"
-      ? matchingDisasters
-      : matchingDisasters.filter((i) => normalizeType(i.type) === selectedType);
-
-    // Get the highest severity if multiple disasters
-    const highestSeverity = getHighestSeverity(typeFiltered);
-
     return {
-      fillColor: highestSeverity ? getSeverityColor(highestSeverity) : "#E5E7EB",
-      weight: 1.5,
-      opacity: 1,
-      color: "#1F2937",
-      fillOpacity: highestSeverity ? 0.7 : 0.4
+      fill: false,
+      fillOpacity: 0,
+      weight: 0.5,
+      opacity: 0.3,
+      color: "#ccc"
     };
   };
 
@@ -165,8 +144,14 @@ const MapPage = () => {
 
     // Count by severity
     const severityCounts = {
-      high: incidents.filter(i => normalizeSeverity(i.severity) === "high" || normalizeSeverity(i.severity) === "critical").length,
-      medium: incidents.filter(i => normalizeSeverity(i.severity) === "medium").length,
+      high: incidents.filter(i => {
+        const norm = normalizeSeverity(i.severity);
+        return norm === "critical" || norm === "high";
+      }).length,
+      moderate: incidents.filter(i => {
+        const norm = normalizeSeverity(i.severity);
+        return norm === "medium" || norm === "moderate";
+      }).length,
       low: incidents.filter(i => normalizeSeverity(i.severity) === "low").length
     };
 
@@ -175,8 +160,8 @@ const MapPage = () => {
         <strong style="font-size: 14px; color: #1e293b;">${districtName}</strong><br/>
         <div style="margin-top: 8px; font-size: 13px;">
           <strong>Total Incidents:</strong> ${incidents.length}<br/>
-          ${severityCounts.high > 0 ? `<span style="color: #EF4444;">● Critical/High: ${severityCounts.high}</span><br/>` : ''}
-          ${severityCounts.medium > 0 ? `<span style="color: #F97316;">● Medium: ${severityCounts.medium}</span><br/>` : ''}
+          ${severityCounts.high > 0 ? `<span style="color: #EF4444;">● High: ${severityCounts.high}</span><br/>` : ''}
+          ${severityCounts.moderate > 0 ? `<span style="color: #F97316;">● Moderate: ${severityCounts.moderate}</span><br/>` : ''}
           ${severityCounts.low > 0 ? `<span style="color: #22C55E;">● Low: ${severityCounts.low}</span>` : ''}
         </div>
       </div>
@@ -193,35 +178,48 @@ const MapPage = () => {
     const districtMatch =
       selectedDistrict === "All Districts" || normalize(incident.district) === normalize(selectedDistrict);
     const typeMatch = selectedType === "All" || normalizeType(incident.type) === selectedType;
-    return districtMatch && typeMatch;
+    const severityMatch =
+      selectedSeverity === "All Severity" || normalizeSeverity(incident.severity) === selectedSeverity.toLowerCase();
+    return districtMatch && typeMatch && severityMatch;
   });
+  
+  React.useEffect(() => {
+    console.log(`🔍 MapPage Filters: District=${selectedDistrict}, Type=${selectedType}, Severity=${selectedSeverity}`);
+    console.log(`📍 Filtered: ${filteredIncidents.length} of ${incidentsData.length} incidents`);
+  }, [filteredIncidents.length, selectedDistrict, selectedType, selectedSeverity, incidentsData.length]);
 
-  // CORRECTED District coordinates mapping for Lesotho
-  const districtCoordinates = {
-    "berea": [-29.1667, 27.9167],      // Berea district
-    "buthabuthe": [-28.7667, 28.2333], // Butha-Buthe district
-    "leribe": [-28.8833, 28.0500],     // Leribe district
-    "mafeteng": [-29.8333, 27.2500],   // Mafeteng district
-    "maseru": [-29.3167, 27.4833],     // Maseru district (capital)
-    "mohaleshoek": [-30.1500, 27.4667], // Mohale's Hoek district
-    "mokhotlong": [-29.2833, 29.0667], // Mokhotlong district
-    "qachasnek": [-30.1167, 28.7000],  // Qacha's Nek district
-    "quthing": [-30.4000, 27.7000],    // Quthing district
-    "thabatseka": [-29.5167, 28.6000], // Thaba-Tseka district
-  };
-
-  // Prepare incidents with coordinates
+  // Unified district coordinates mapping for all 10 Lesotho districts
+  // Covers all districts with normalized keys for consistent lookups
+ const districtCoordinates = {
+  "maseru": [-29.6100, 27.5500],
+  "berea": [-29.4800, 28.3400],
+  "leribe": [-29.6500, 28.0600],
+  "buthabuthe": [-29.3100, 28.4600],
+  "mokhotlong": [-29.0800, 28.9100],
+  "thabatseka": [-29.6400, 28.6400],
+  "qachasnek": [-30.2700, 28.6400],
+  "quthing": [-30.5500, 27.7200],
+  "mohaleshoek": [-30.1950, 27.6650],
+  "mafeteng": [-29.8200, 27.2800],
+};
+  // Prepare incidents with coordinates - ensure every incident is plotted with coordinates
   const incidentsWithCoords = filteredIncidents.map((incident) => {
     const normalizedDistrict = normalize(incident.district);
-    const coords = districtCoordinates[normalizedDistrict] || [-29.6, 28.3];
+    const coords = districtCoordinates[normalizedDistrict];
+    
+    if (!coords) {
+      console.warn(`Missing coordinates: ${incident.type || 'Unknown'} in "${incident.district}" has no lat/lng and no district mapping found`);
+    }
+    
+    const finalCoords = coords || [-29.6, 28.3];
     
     // Add small random offset to prevent markers from stacking exactly on top of each other
     const randomOffset = 0.02; // About 2km offset
     
     return {
       ...incident,
-      latitude: incident.latitude || coords[0] + (Math.random() - 0.5) * randomOffset,
-      longitude: incident.longitude || coords[1] + (Math.random() - 0.5) * randomOffset,
+      latitude: incident.latitude || finalCoords[0] + (Math.random() - 0.5) * randomOffset,
+      longitude: incident.longitude || finalCoords[1] + (Math.random() - 0.5) * randomOffset,
     };
   });
 
@@ -231,135 +229,137 @@ const MapPage = () => {
       <div className="map-sidebar">
         <div className="sidebar-header">
           <MapPin size={28} />
-          <h2>GIS Map</h2>
         </div>
 
           <div className="sidebar-content">
           
-          {/* Refresh Button */}
-          <button 
-            className={`refresh-button ${loading ? "loading" : ""}`} 
-            onClick={fetchData} 
-            disabled={loading}
-          >
-            <RefreshCw size={18} />
-            {loading ? "Loading..." : "Refresh Data"}
-          </button>
-
-          {error && <div className="error-message" style={{
-            padding: "12px",
-            background: "#fee2e2",
-            border: "1px solid #fecaca",
-            borderRadius: "8px",
-            color: "#991b1b",
-            fontSize: "13px",
-            marginTop: "12px"
-          }}>{error}</div>}
-
-          {!loading && !error && incidentsData.length === 0 && (
-            <div className="info-message" style={{
-              padding: "12px",
-              background: "#dbeafe",
-              border: "1px solid #bfdbfe",
-              borderRadius: "8px",
-              color: "#1e40af",
-              fontSize: "13px",
-              marginTop: "12px"
-            }}>
-              No disasters found. Make sure you're logged in.
+          {/* SECTION 1 - Map Summary */}
+          <div className="sidebar-section">
+            <div className="section-header">
+              <h3 className="section-title">Map Summary</h3>
             </div>
-          )}
-
-          {/* District Filter */}
-          <div className="filter-section">
-            <h3>District</h3>
-            <select
-              className="district-select"
-              value={selectedDistrict}
-              onChange={(e) => setSelectedDistrict(e.target.value)}
-            >
-              {districts.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+            <div className="section-content">
+              <div className="summary-row">
+                <span className="summary-label">Visible Events</span>
+                <span className="summary-value">{filteredIncidents.length}</span>
+              </div>
+              <div className="summary-row">
+                <span className="summary-label">Active Events</span>
+                <span className="summary-value" style={{ color: "#EF4444", fontWeight: "600" }}>
+                  {filteredIncidents.filter(i => i.status === "reported" || i.status === "verified").length}
+                </span>
+              </div>
+              <div className="summary-row">
+                <span className="summary-label">Total Affected</span>
+                <span className="summary-value">
+                  {(filteredIncidents.reduce((sum, i) => sum + (Number(i.households) || Number(i.numberOfHouseholdsAffected) || 0), 0)).toLocaleString()}
+                </span>
+              </div>
+            </div>
           </div>
 
-          {/* Disaster Type Filter */}
-          <div className="filter-section">
-            <h3>Disaster Type</h3>
-            <div className="disaster-types-grid">
-              <button
-                className={`type-button ${selectedType === "All" ? "active" : ""}`}
-                onClick={() => setSelectedType("All")}
-              >
-                <Grid size={20} />
-                <span>All Disasters</span>
-              </button>
-              <button
-                className={`type-button ${selectedType === "drought" ? "active" : ""}`}
-                onClick={() => setSelectedType("drought")}
-              >
-                <Cloud size={20} />
+          {/* Divider */}
+          <div className="section-divider"></div>
+
+          {/* SECTION 2 - Filters */}
+          <div className="sidebar-section">
+            <div className="section-header">
+              <h3 className="section-title">Filters</h3>
+            </div>
+            <div className="section-content">
+              {/* District Dropdown */}
+              <div className="filter-group">
+                <label className="filter-label">District</label>
+                <select
+                  className="filter-select"
+                  value={selectedDistrict}
+                  onChange={(e) => setSelectedDistrict(e.target.value)}
+                >
+                  {districts.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Severity Dropdown */}
+              <div className="filter-group">
+                <label className="filter-label">Severity</label>
+                <select
+                  className="filter-select"
+                  value={selectedSeverity}
+                  onChange={(e) => setSelectedSeverity(e.target.value)}
+                >
+                  <option value="All Severity">All Severity</option>
+                  <option value="Low">Low</option>
+                  <option value="Moderate">Moderate</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="section-divider"></div>
+
+          {/* SECTION 3 - Disaster Types */}
+          <div className="sidebar-section">
+            <div className="section-header">
+              <h3 className="section-title">Disaster Types</h3>
+            </div>
+            <div className="section-content">
+              <div className="disaster-type-item">
+                <input
+                  type="checkbox"
+                  checked={selectedType === "All" || selectedType === "drought"}
+                  onChange={() => setSelectedType(selectedType === "drought" ? "All" : "drought")}
+                  className="type-checkbox"
+                />
                 <span>Drought</span>
-              </button>
-              <button
-                className={`type-button ${selectedType === "flooding" || selectedType === "heavy_rainfall" ? "active" : ""}`}
-                onClick={() => setSelectedType("flooding")}
-              >
-                <Droplets size={20} />
-                <span>Flooding</span>
-              </button>
-              <button
-                className={`type-button ${selectedType === "strong_winds" || selectedType === "storm" ? "active" : ""}`}
-                onClick={() => setSelectedType("strong_winds")}
-              >
-                <Wind size={20} />
+              </div>
+              <div className="disaster-type-item">
+                <input
+                  type="checkbox"
+                  checked={selectedType === "All" || selectedType === "flooding"}
+                  onChange={() => setSelectedType(selectedType === "flooding" ? "All" : "flooding")}
+                  className="type-checkbox"
+                />
+                <span>Heavy Rainfall</span>
+              </div>
+              <div className="disaster-type-item">
+                <input
+                  type="checkbox"
+                  checked={selectedType === "All" || selectedType === "strong_winds"}
+                  onChange={() => setSelectedType(selectedType === "strong_winds" ? "All" : "strong_winds")}
+                  className="type-checkbox"
+                />
                 <span>Strong Winds</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Current Year Toggle */}
-          <div className="filter-section">
-            <label className="year-toggle">
-              <input
-                type="checkbox"
-                checked={currentYearOnly}
-                onChange={(e) => setCurrentYearOnly(e.target.checked)}
-              />
-              <span>Current Year Only</span>
-            </label>
-          </div>
-
-          {/* Statistics */}
-          <div className="map-stats">
-            <div className="stats-grid">
-              <div className="stat-item">
-                <p className="stat-number">{filteredIncidents.length}</p>
-                <p className="stat-label">Showing</p>
-              </div>
-              <div className="stat-item">
-                <p className="stat-number">{incidentsData.length}</p>
-                <p className="stat-label">Total</p>
               </div>
             </div>
           </div>
 
-          <div className="severity-legend">
-            <div className="legend-title">Severity Levels</div>
-            <div className="legend-item">
-              <span className="legend-dot high"></span>
-              <span className="legend-label">Critical/High</span>
+          {/* Divider */}
+          <div className="section-divider"></div>
+
+          {/* SECTION 4 - Severity Legend */}
+          <div className="sidebar-section">
+            <div className="section-header">
+              <h3 className="section-title">Severity Legend</h3>
             </div>
-            <div className="legend-item">
-              <span className="legend-dot medium"></span>
-              <span className="legend-label">Medium</span>
-            </div>
-            <div className="legend-item">
-              <span className="legend-dot low"></span>
-              <span className="legend-label">Low</span>
+            <div className="section-content">
+              <div className="legend-row">
+                <span className="legend-dot" style={{ backgroundColor: "#22C55E" }}></span>
+                <span className="legend-label">Low</span>
+              </div>
+              <div className="legend-row">
+                <span className="legend-dot" style={{ backgroundColor: "#F97316" }}></span>
+                <span className="legend-label">Moderate</span>
+              </div>
+              <div className="legend-row">
+                <span className="legend-dot" style={{ backgroundColor: "#EF4444" }}></span>
+                <span className="legend-label">Critical</span>
+              </div>
             </div>
           </div>
         </div>
@@ -368,8 +368,11 @@ const MapPage = () => {
       {/* Map Container */}
       <div className="map-container">
         <MapContainer
-          center={[-29.6, 28.3]}
-          zoom={7.5}
+          center={[-29.6, 28.2]}
+          zoom={8}
+          minZoom={7}
+          maxBounds={[[-30.9, 26.7], [-28.3, 29.5]]}
+          maxBoundsViscosity={1.0}
           style={{ height: "100%", width: "100%" }}
         >
           <TileLayer

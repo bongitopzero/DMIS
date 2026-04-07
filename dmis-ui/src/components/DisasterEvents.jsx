@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Search, Plus, Eye, Edit2, AlertTriangle, Cloud, Wind } from "lucide-react";
+import { Search, Plus, Eye, AlertTriangle, Cloud, Wind, Trash2 } from "lucide-react";
 import API from "../api/axios";
 import "./DisasterEvents.css";
 
@@ -20,6 +20,9 @@ export default function DisasterEvents() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedDisasterDetail, setSelectedDisasterDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [deleteTargetInfo, setDeleteTargetInfo] = useState(null);
   
   // Get current user role
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -39,6 +42,7 @@ export default function DisasterEvents() {
     status: "reported",
   });
   const [customNeed, setCustomNeed] = useState("");
+  const [isFormReadOnly, setIsFormReadOnly] = useState(false);
 
   const disasterTypes = [
     { value: "drought", label: "Drought" },
@@ -79,7 +83,7 @@ export default function DisasterEvents() {
   const severityLevels = [
     { value: "low", label: "Low Severity" },
     { value: "medium", label: "Moderate Severity" },
-    { value: "high", label: "High Severity" },
+    { value: "critical", label: "Critical Severity" },
   ];
   const statuses = [
     { value: "reported", label: "Reported" },
@@ -184,6 +188,7 @@ export default function DisasterEvents() {
   const openAddModal = () => {
     setEditingId(null);
     setCustomNeed("");
+    setIsFormReadOnly(false);
     setFormData({
       type: "drought",
       district: "",
@@ -199,6 +204,12 @@ export default function DisasterEvents() {
   };
 
   const openEditModal = (disaster) => {
+    // Prevent Data Clerks from editing submitted disasters
+    if (isClerk && (disaster.status === "submitted" || disaster.status === "verified")) {
+      setError("This disaster has already been submitted and cannot be edited.");
+      return;
+    }
+
     setEditingId(disaster._id);
     // Convert needs string to array
     const needsArray = disaster.needs
@@ -231,6 +242,7 @@ export default function DisasterEvents() {
       severity: disaster.severity,
       status: disaster.status || "reported",
     });
+    setIsFormReadOnly(false);
     setShowModal(true);
   };
 
@@ -260,28 +272,38 @@ export default function DisasterEvents() {
         needs: Array.isArray(finalNeeds) ? finalNeeds.join(", ") : finalNeeds,
       };
 
-      // Data Clerks cannot change status - always keep as "reported" for new incidents
+      // Data Clerks: new disasters get "submitted" status after first submission
+      console.log("isClerk:", isClerk, "editingId:", editingId, "userRole:", userRole);
       if (isClerk && !editingId) {
-        payload.status = "reported";
+        payload.status = "submitted";
+        console.log("✅ Setting status to SUBMITTED for new clerk entry");
       }
       // Data Clerks editing should not change status
       if (isClerk && editingId) {
         delete payload.status; // Don't send status in update
+        console.log("✅ Deleting status for clerk edit (keeping existing status)");
       }
 
-      console.log("Submitting disaster data:", payload);
+      console.log("📤 FINAL Payload being sent:", payload);
 
       if (editingId) {
         await API.put(`/disasters/${editingId}`, payload);
         setSuccess("Disaster updated successfully!");
       } else {
         const response = await API.post("/disasters", payload);
-        console.log("Disaster created:", response.data);
-        setSuccess("Disaster registered successfully!");
+        console.log("📥 API Response:", response.data);
+        console.log("📥 Returned Status:", response.data?.status);
+        // Show different message for Data Clerks to indicate submission
+        if (isClerk) {
+          setSuccess("✓ Disaster submitted successfully! Status: Submitted");
+        } else {
+          setSuccess("Disaster registered successfully!");
+        }
       }
 
       setShowModal(false);
       setCustomNeed("");
+      setIsFormReadOnly(false);
       fetchDisasters();
     } catch (err) {
       console.error("Error submitting disaster:", err.response?.data || err);
@@ -289,15 +311,22 @@ export default function DisasterEvents() {
     }
   };
 
-  const handleDeleteDisaster = async (id) => {
-    if (window.confirm("Are you sure you want to delete this disaster?")) {
-      try {
-        await API.delete(`/disasters/${id}`);
-        setSuccess("Disaster deleted successfully!");
-        fetchDisasters();
-      } catch (err) {
-        setError(err.response?.data?.message || "Failed to delete disaster");
-      }
+  const handleDeleteDisaster = (id, disaster) => {
+    setDeleteTargetId(id);
+    setDeleteTargetInfo(disaster);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await API.delete(`/disasters/${deleteTargetId}`);
+      setSuccess("Disaster deleted successfully!");
+      fetchDisasters();
+      setShowDeleteConfirm(false);
+      setDeleteTargetId(null);
+      setDeleteTargetInfo(null);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete disaster");
     }
   };
 
@@ -538,7 +567,7 @@ export default function DisasterEvents() {
               {filteredDisasters.map((disaster, idx) => {
                 const statusBadge = getStatusBadge(disaster.status);
                 const severityBadge = getSeverityBadge(disaster.severity);
-                const disasterId = `D-${new Date(disaster.createdAt).getFullYear()}-${String(idx + 1).padStart(3, '0')}`;
+                const disasterId = disaster.disasterCode || `D-UNKNOWN`;
                 
                 return (
                   <tr key={disaster._id} style={{ borderBottom: '1px solid #e5e7eb' }}>
@@ -578,22 +607,75 @@ export default function DisasterEvents() {
                       </span>
                     </td>
                     <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
                         <button 
                           onClick={() => viewDisasterDetails(disaster)}
-                          title="View Details"
+                          title="View Disaster"
                           style={{
-                            padding: '0.375rem 0.75rem',
-                            backgroundColor: '#1e3a5f',
-                            color: 'white',
+                            padding: '0.25rem',
+                            backgroundColor: 'transparent',
+                            color: '#000',
                             border: 'none',
-                            borderRadius: '0.375rem',
                             cursor: 'pointer',
-                            fontSize: '0.875rem',
-                            fontWeight: '500'
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            lineHeight: '1'
                           }}
                         >
-                          View
+                          <Eye size={18} />
+                        </button>
+                        {isClerk && !(disaster.status === "submitted" || disaster.status === "verified") && (
+                          <button 
+                            onClick={() => openEditModal(disaster)}
+                            title="Edit Disaster"
+                            style={{
+                              padding: '0.25rem',
+                              backgroundColor: 'transparent',
+                              color: '#000',
+                              border: 'none',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              lineHeight: '1'
+                            }}
+                          >
+                            ✎
+                          </button>
+                        )}
+                        {isClerk && (disaster.status === "submitted" || disaster.status === "verified") && (
+                          <span 
+                            style={{
+                              fontSize: '0.75rem',
+                              color: '#059669',
+                              fontWeight: 'bold',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.25rem'
+                            }}
+                          >
+                            ✓ Submitted
+                          </span>
+                        )}
+                        <button 
+                          onClick={() => handleDeleteDisaster(disaster._id, disaster)}
+                          title="Delete Disaster"
+                          style={{
+                            padding: '0.25rem',
+                            backgroundColor: 'transparent',
+                            color: '#000',
+                            border: 'none',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            lineHeight: '1',
+                            opacity: isClerk && (disaster.status === "submitted" || disaster.status === "verified") ? '0.5' : '1'
+                          }}
+                          disabled={isClerk && (disaster.status === "submitted" || disaster.status === "verified")}
+                        >
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     </td>
@@ -846,9 +928,26 @@ export default function DisasterEvents() {
               <button className="btn-cancel" onClick={() => setShowModal(false)}>
                 Cancel
               </button>
-              <button className="btn-save" onClick={handleSaveDisaster}>
+              <button 
+                className="btn-save" 
+                onClick={handleSaveDisaster}
+                disabled={isFormReadOnly || (editingId && (formData.status === "submitted" || formData.status === "verified"))}
+              >
                 {editingId ? "Update Disaster" : "Register Disaster"}
               </button>
+              {editingId && (formData.status === "submitted" || formData.status === "verified") && (
+                <div style={{
+                  color: "#059669",
+                  fontSize: "0.875rem",
+                  marginLeft: "1rem",
+                  fontStyle: "italic",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem"
+                }}>
+                  ✓ This disaster has been submitted
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -917,6 +1016,88 @@ export default function DisasterEvents() {
               </button>
               <button className="btn-save" onClick={confirmVerification}>
                 Confirm Verification
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && deleteTargetInfo && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000
+        }} onClick={() => setShowDeleteConfirm(false)}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '0.5rem',
+            padding: '2rem',
+            maxWidth: '400px',
+            width: '90%',
+            boxShadow: '0 20px 25px rgba(0, 0, 0, 0.15)'
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#dc2626', margin: '0 0 0.5rem 0' }}>Delete Disaster</h2>
+              <p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>This action cannot be undone.</p>
+            </div>
+            <div style={{
+              backgroundColor: '#fef2f2',
+              border: '1px solid #fecaca',
+              borderRadius: '0.375rem',
+              padding: '1rem',
+              marginBottom: '1.5rem'
+            }}>
+              <div style={{ marginBottom: '0.75rem' }}>
+                <span style={{ fontWeight: '600', color: '#111827' }}>Disaster:</span>
+                <span style={{ color: '#4b5563', marginLeft: '0.5rem' }}>{deleteTargetInfo.type?.replace(/_/g, ' ')} in {deleteTargetInfo.district}</span>
+              </div>
+              <div>
+                <span style={{ fontWeight: '600', color: '#111827' }}>Households affected:</span>
+                <span style={{ color: '#4b5563', marginLeft: '0.5rem' }}>{deleteTargetInfo.households || deleteTargetInfo.numberOfHouseholdsAffected || 0}</span>
+              </div>
+            </div>
+            <p style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '1.5rem' }}>Are you sure you want to permanently delete this disaster and all associated data?</p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                style={{
+                  padding: '0.5rem 1.5rem',
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                  fontSize: '0.9rem'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                style={{
+                  padding: '0.5rem 1.5rem',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                  fontSize: '0.9rem',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#991b1b'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#dc2626'}
+              >
+                Delete Disaster
               </button>
             </div>
           </div>
@@ -1069,7 +1250,7 @@ export default function DisasterEvents() {
             )}
 
             {/* Action Buttons */}
-            {isCoordinator && (selectedDisasterDetail.status === "reported" || selectedDisasterDetail.status === "submitted") && (
+            {isCoordinator && (selectedDisasterDetail?.status?.toLowerCase() === "reported" || selectedDisasterDetail?.status?.toLowerCase() === "submitted") && (
               <div style={{
                 display: 'flex',
                 gap: '1rem',

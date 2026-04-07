@@ -31,7 +31,6 @@ const SystemSettings = () => {
   return (
     <div className="system-settings page-container">
       <div className="dashboard-header">
-        <h1>System Settings</h1>
         <p>Configure global system settings and access control</p>
       </div>
 

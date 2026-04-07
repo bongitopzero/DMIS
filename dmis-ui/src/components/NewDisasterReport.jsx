@@ -1,17 +1,94 @@
 import React, { useState, useEffect } from "react";
-import { FileText, Users, BarChart3, ChevronDown, ChevronUp, Plus, X, Eye, Save } from "lucide-react";
+import { FileText, Users, BarChart3, ChevronDown, ChevronUp, Plus, X, Eye, Save, Edit, Trash2 } from "lucide-react";
 import API from "../api/axios";
-import { ToastManager } from "./Toast";
+import { ToastManager, ToastContainer } from "./Toast";
 import "./NewDisasterReport.css";
+
+function DeleteConfirmationModal({ show, disasterInfo, onConfirm, onCancel, isLoading }) {
+  if (!show || !disasterInfo) return null;
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 2000
+    }} onClick={onCancel}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '0.5rem',
+        padding: '2rem',
+        maxWidth: '400px',
+        width: '90%',
+        boxShadow: '0 20px 25px rgba(0, 0, 0, 0.15)'
+      }} onClick={(e) => e.stopPropagation()}>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#dc2626', margin: '0 0 0.5rem 0' }}>Delete Disaster Record</h2>
+        </div>
+        <p style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '1.5rem' }}>Are you sure you want to delete this disaster record? This will delete the disaster record and all associated household assessments.</p>
+        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+          <button
+            onClick={onCancel}
+            disabled={isLoading}
+            style={{
+              padding: '0.5rem 1.5rem',
+              backgroundColor: '#f3f4f6',
+              color: '#374151',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              fontWeight: '500',
+              fontSize: '0.9rem',
+              opacity: isLoading ? 0.6 : 1
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isLoading}
+            style={{
+              padding: '0.5rem 1.5rem',
+              backgroundColor: '#dc2626',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              fontWeight: '500',
+              fontSize: '0.9rem',
+              transition: 'background-color 0.2s',
+              opacity: isLoading ? 0.6 : 1
+            }}
+            onMouseEnter={(e) => !isLoading && (e.target.style.backgroundColor = '#991b1b')}
+            onMouseLeave={(e) => !isLoading && (e.target.style.backgroundColor = '#dc2626')}
+          >
+            {isLoading ? 'Deleting...' : 'Delete Disaster'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function NewDisasterReport() {
   const [activeTab, setActiveTab] = useState("header");
   const [households, setHouseholds] = useState([]);
   const [expandedHousehold, setExpandedHousehold] = useState(null);
+  const [editingHouseholdIndex, setEditingHouseholdIndex] = useState(null);
   const [autoSaved, setAutoSaved] = useState(false);
   const [savedDisasters, setSavedDisasters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [expandedDisaster, setExpandedDisaster] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [deleteTargetInfo, setDeleteTargetInfo] = useState(null);
 
   const [headerData, setHeaderData] = useState({
     disasterType: "",
@@ -30,6 +107,7 @@ export default function NewDisasterReport() {
     householdSize: "",
     sourceOfIncome: "Low (≤ M3,000/mo)",
     damageDescription: "",
+    damageSeverityLevel: 2,
   });
 
   const disasterTypes = [
@@ -51,7 +129,7 @@ export default function NewDisasterReport() {
     "Mokhotlong",
   ];
 
-  const severityLevels = ["Low", "Moderate", "High", "Critical"];
+  const severityLevels = ["Low", "Moderate", "Critical"];
 
   const incomeCategories = [
     "Low (≤ M3,000/mo)",
@@ -59,9 +137,33 @@ export default function NewDisasterReport() {
     "High (≥ M10,001/mo)",
   ];
 
+  // Map income categories to representative numeric values for calculations
+  const getIncomeFromCategory = (category) => {
+    if (category.includes("Low")) return 2500; // Mid-range for Low
+    if (category.includes("Middle")) return 6500; // Mid-range for Middle
+    if (category.includes("High")) return 15000; // Mid-range for High
+    return 3000; // Default to Low
+  };
+
+  // Map income category to display format
+  const getIncomeCategoryDisplay = (category) => {
+    if (!category) return "Low (≤ M3,000/mo)";
+    if (category.includes("Low")) return "Low (≤ M3,000/mo)";
+    if (category.includes("Middle")) return "Middle (M3,001–M10,000/mo)";
+    if (category.includes("High")) return "High (≥ M10,001/mo)";
+    return category; // Return as-is if already formatted
+  };
+
   // Fetch saved disasters on component mount
   useEffect(() => {
     fetchSavedDisasters();
+    
+    // Subscribe to ToastManager
+    const unsubscribe = ToastManager.subscribe((newToasts) => {
+      setToasts(newToasts);
+    });
+
+    return unsubscribe;
   }, []);
 
   const fetchSavedDisasters = async () => {
@@ -120,10 +222,57 @@ export default function NewDisasterReport() {
       !headerData.severityLevel ||
       !headerData.numberOfHouseholdsAffected
     ) {
-      ToastManager.error("Please fill in all required fields");
+      ToastManager.error("Please complete all header fields first");
       return;
     }
     setActiveTab("households");
+  };
+
+  const handleEditHousehold = (index) => {
+    setEditingHouseholdIndex(index);
+    const household = households[index];
+    setHouseholdForm(household);
+  };
+
+  const handleUpdateHousehold = () => {
+    if (!householdForm.headName || !householdForm.village || !householdForm.gender || !householdForm.age || !householdForm.householdSize || !householdForm.sourceOfIncome) {
+      ToastManager.error("Please complete all required fields in the household form");
+      return;
+    }
+    
+    const updatedHouseholds = [...households];
+    updatedHouseholds[editingHouseholdIndex] = householdForm;
+    setHouseholds(updatedHouseholds);
+    setEditingHouseholdIndex(null);
+    setExpandedHousehold(null);
+    
+    // Reset form
+    setHouseholdForm({
+      householdId: `HH-${String(households.length + 1).padStart(3, "0")}`,
+      headName: "",
+      village: "",
+      gender: "Male",
+      age: "",
+      householdSize: "",
+      sourceOfIncome: "Low (≤ M3,000/mo)",
+      damageDescription: "",
+      damageSeverityLevel: 2,
+    });
+  };
+
+  const handleCancelEditHousehold = () => {
+    setEditingHouseholdIndex(null);
+    setHouseholdForm({
+      householdId: `HH-${String(households.length + 1).padStart(3, "0")}`,
+      headName: "",
+      village: "",
+      gender: "Male",
+      age: "",
+      householdSize: "",
+      sourceOfIncome: "Low (≤ M3,000/mo)",
+      damageDescription: "",
+      damageSeverityLevel: 2,
+    });
   };
 
   const handleAddHousehold = () => {
@@ -144,6 +293,7 @@ export default function NewDisasterReport() {
       householdSize: "",
       sourceOfIncome: "Low (≤ M3,000/mo)",
       damageDescription: "",
+      damageSeverityLevel: 2,
     });
     ToastManager.success("Household added successfully");
   };
@@ -154,8 +304,8 @@ export default function NewDisasterReport() {
   };
 
   const handleSaveAndNext = () => {
-    if (!householdForm.headName || !householdForm.age || !householdForm.householdSize) {
-      ToastManager.error("Please fill in all required fields");
+    if (!householdForm.headName || !householdForm.village || !householdForm.gender || !householdForm.age || !householdForm.householdSize || !householdForm.sourceOfIncome) {
+      ToastManager.error("Please complete all required fields in the household form");
       return;
     }
     handleAddHousehold();
@@ -165,6 +315,12 @@ export default function NewDisasterReport() {
     if (households.length === 0) {
       ToastManager.error(
         `Please add at least 1 household before saving`
+      );
+      return;
+    }
+    if (households.length !== parseInt(headerData.numberOfHouseholdsAffected)) {
+      ToastManager.error(
+        `Please add all ${headerData.numberOfHouseholdsAffected} households before saving (${households.length}/${headerData.numberOfHouseholdsAffected})`
       );
       return;
     }
@@ -207,9 +363,8 @@ export default function NewDisasterReport() {
         affectedPopulation: `${households.length} households`,
         damages: "See household records",
         needs: "See household assessments",
-        severity: headerData.severityLevel.toLowerCase(),
         numberOfHouseholdsAffected: parseInt(headerData.numberOfHouseholdsAffected) || households.length,
-        date: headerData.dateOfOccurrence,
+        occurrenceDate: headerData.dateOfOccurrence,
       };
 
       console.log("💾 Creating disaster with payload:", disasterPayload);
@@ -233,40 +388,51 @@ export default function NewDisasterReport() {
         
         const householdPayload = {
           disasterId,
-          householdId: household.householdId || `HH-${String(i + 1).padStart(3, "0")}`,
+          householdId: (household.householdId || `HH-${String(i + 1).padStart(3, "0")}`).trim(),
           headOfHousehold: {
-            name: household.headName,
-            age: parseInt(household.age),
-            gender: household.gender,
+            name: (household.headName || "").trim(),
+            age: parseInt(household.age) || 0,
+            gender: household.gender || "Male",
           },
-          householdSize: parseInt(household.householdSize),
-          childrenUnder5: 0,
-          monthlyIncome: parseInt(
-            household.sourceOfIncome?.match(/\d+/)?.[0] || 3000
-          ),
+          householdSize: parseInt(household.householdSize) || 1,
+          monthlyIncome: getIncomeFromCategory(household.sourceOfIncome || "Low"),
           incomeCategory:
-            household.sourceOfIncome.includes("Low")
+            household.sourceOfIncome?.includes("Low")
               ? "Low"
-              : household.sourceOfIncome.includes("Middle")
+              : household.sourceOfIncome?.includes("Middle")
                 ? "Middle"
                 : "High",
           disasterType: mappedDisasterType,
-          damageDescription: household.damageDescription,
-          damageSeverityLevel: 2,
+          damageDescription: (household.damageDescription || "").trim() || null,
+          damageSeverityLevel: parseInt(household.damageSeverityLevel) || null,
           assessedBy: "Data Clerk",
-          damageDetails: {
-            roofDamage: "Unknown",
-            cropLossPercentage: 0,
-            livestockLoss: 0,
-            roomsAffected: 0,
-            waterAccessImpacted: false,
-          },
-          recommendedAssistance: "To be determined",
           location: {
-            village: household.village,
-            district: headerData.district,
+            village: (household.village || "").trim(),
+            district: (headerData.district || "").trim(),
           },
         };
+
+        // Validate required fields before sending
+        if (!householdPayload.headOfHousehold.name) {
+          ToastManager.error(`Household ${i + 1}: Head of household name is required`);
+          setLoading(false);
+          return;
+        }
+        if (!householdPayload.location.village) {
+          ToastManager.error(`Household ${i + 1}: Village/location is required`);
+          setLoading(false);
+          return;
+        }
+        if (householdPayload.headOfHousehold.age < 1) {
+          ToastManager.error(`Household ${i + 1}: Age must be at least 1`);
+          setLoading(false);
+          return;
+        }
+        if (householdPayload.householdSize < 1) {
+          ToastManager.error(`Household ${i + 1}: Household size must be at least 1`);
+          setLoading(false);
+          return;
+        }
 
         try {
           await API.post("/allocation/assessments", householdPayload);
@@ -274,7 +440,22 @@ export default function NewDisasterReport() {
           console.log(`✅ Household ${i + 1} saved successfully`);
         } catch (err) {
           console.error(`Error saving household ${i + 1}:`, err);
+          console.error(`Error details:`, {
+            status: err.response?.status,
+            message: err.response?.data?.message,
+            error: err.response?.data?.error,
+            details: err.response?.data?.details,
+            validationErrors: err.response?.data?.validationErrors,
+          });
           console.log("Failed payload:", householdPayload);
+          
+          // Show specific validation error or generic message
+          const validationDetails = err.response?.data?.details || err.response?.data?.error;
+          const errorMsg = validationDetails 
+            ? `Household ${i + 1} validation error: ${validationDetails}`
+            : `Failed to save household ${i + 1}: ${err.response?.data?.message || err.message}`;
+          
+          ToastManager.error(errorMsg);
         }
       }
 
@@ -310,6 +491,7 @@ export default function NewDisasterReport() {
         householdSize: "",
         sourceOfIncome: "Low (≤ M3,000/mo)",
         damageDescription: "",
+        damageSeverityLevel: 2,
       });
       setActiveTab("summary");
 
@@ -338,10 +520,14 @@ export default function NewDisasterReport() {
       
       console.log("✅ Response:", response.data);
       
-      ToastManager.success("✅ Disaster report submitted successfully! Coordinator will review and approve.");
+      // Immediately update local state to reflect the change without page refresh
+      setSavedDisasters(prevDisasters => 
+        prevDisasters.map(d => 
+          d._id === disasterId ? { ...d, status: "submitted" } : d
+        )
+      );
       
-      // Refresh the saved disasters list
-      await fetchSavedDisasters();
+      ToastManager.success("✅ Disaster report submitted successfully! Coordinator will review and approve.");
     } catch (err) {
       console.error("❌ Error submitting disaster:", err);
       const errorMsg = err.response?.data?.message || err.message || "Failed to submit disaster report";
@@ -351,20 +537,106 @@ export default function NewDisasterReport() {
     }
   };
 
+  const handleDeleteDisaster = (disasterId, disaster) => {
+    setDeleteTargetId(disasterId);
+    setDeleteTargetInfo(disaster);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    setLoading(true);
+    try {
+      // Delete all household assessments for this disaster
+      try {
+        const assessmentsRes = await API.get(`/allocation/assessments/${deleteTargetId}`);
+        const assessments = assessmentsRes.data.assessments || [];
+        for (const assessment of assessments) {
+          await API.delete(`/allocation/assessments/${assessment._id}`);
+        }
+      } catch (err) {
+        console.warn("Could not delete assessments:", err.message);
+      }
+
+      // Delete the disaster
+      await API.delete(`/disasters/${deleteTargetId}`);
+      ToastManager.success("Disaster record deleted successfully");
+      
+      // Refresh the list
+      await fetchSavedDisasters();
+      setShowDeleteConfirm(false);
+      setDeleteTargetId(null);
+      setDeleteTargetInfo(null);
+    } catch (err) {
+      console.error("❌ Error deleting disaster:", err);
+      ToastManager.error("Failed to delete disaster record");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditDisaster = (disaster) => {
+    // Map disaster type back to form format
+    const typeMap = {
+      "drought": "Drought",
+      "heavy_rainfall": "Heavy Rainfall",
+      "strong_winds": "Strong Winds"
+    };
+    
+    // Load disaster data into header form
+    setHeaderData({
+      disasterType: typeMap[disaster.type] || disaster.type,
+      district: disaster.district,
+      dateOfOccurrence: disaster.occurrenceDate ? new Date(disaster.occurrenceDate).toISOString().split('T')[0] : "",
+      severityLevel: (disaster.severity || "low").charAt(0).toUpperCase() + (disaster.severity || "low").slice(1),
+      numberOfHouseholdsAffected: disaster.numberOfHouseholdsAffected,
+    });
+
+    // Load households from disaster assessments
+    if (Array.isArray(disaster.households) && disaster.households.length > 0) {
+      const incomeMap = {
+        "Low": "Low (≤ M3,000/mo)",
+        "Middle": "Middle (M3,001–M10,000/mo)",
+        "High": "High (≥ M10,001/mo)"
+      };
+      
+      const loadedHouseholds = disaster.households.map((hh, idx) => ({
+        householdId: hh.householdId || `HH-${String(idx + 1).padStart(3, "0")}`,
+        headName: hh.headOfHousehold?.name || hh.headName || "",
+        village: hh.location?.village || hh.village || "",
+        gender: hh.headOfHousehold?.gender || "Male",
+        age: hh.headOfHousehold?.age || "",
+        householdSize: hh.householdSize || "",
+        sourceOfIncome: incomeMap[hh.incomeCategory] || "Low (≤ M3,000/mo)",
+        damageDescription: hh.damageDescription || "",
+        damageSeverityLevel: hh.damageSeverityLevel || 2,
+      }));
+      setHouseholds(loadedHouseholds);
+      
+      // Reset household form for adding more
+      setHouseholdForm({
+        householdId: `HH-${String(loadedHouseholds.length + 1).padStart(3, "0")}`,
+        headName: "",
+        village: "",
+        gender: "Male",
+        age: "",
+        householdSize: "",
+        sourceOfIncome: "Low (≤ M3,000/mo)",
+        damageDescription: "",
+        damageSeverityLevel: 2,
+      });
+    }
+
+    // Reset autoSaved to allow re-saving
+    setAutoSaved(false);
+    setExpandedDisaster(null);
+    
+    // Switch to header tab for editing
+    setActiveTab("header");
+    ToastManager.info("Edit mode - make your changes and save again");
+  };
+
   const maxHouseholds = parseInt(headerData.numberOfHouseholdsAffected) || 16;
   const householdsProgress = (households.length / maxHouseholds) * 100;
-
-  // When the recorded households reach the expected maximum, auto-save and navigate to summary
-  useEffect(() => {
-    if (maxHouseholds > 0 && households.length === maxHouseholds && !autoSaved) {
-      // small delay to let UI settle
-      const t = setTimeout(() => {
-        handleSaveDisaster();
-        setAutoSaved(true);
-      }, 250);
-      return () => clearTimeout(t);
-    }
-  }, [households.length, maxHouseholds, autoSaved]);
 
   // Reset autosave flag when header changed (new disaster)
   useEffect(() => {
@@ -372,12 +644,17 @@ export default function NewDisasterReport() {
   }, [headerData.numberOfHouseholdsAffected, headerData.disasterType, headerData.district, headerData.dateOfOccurrence]);
 
   return (
-    <div className="new-disaster-report">
-      {/* Header */}
-      <div className="report-header">
-        <h1>New Disaster Report</h1>
-        <p>Record disaster header and individual household assessments</p>
-      </div>
+    <div className="new-disaster-report p-6" style={{ margin: "0" }}>
+      <ToastContainer toasts={toasts} onRemove={(id) => ToastManager.remove(id)} />
+      <DeleteConfirmationModal 
+        show={showDeleteConfirm} 
+        disasterInfo={deleteTargetInfo} 
+        onConfirm={confirmDelete} 
+        onCancel={() => setShowDeleteConfirm(false)}
+        isLoading={loading}
+      />
+      
+      <p className="text-sm text-gray-500 mb-4">Record disaster header and individual household assessments</p>
 
       {/* Tabs */}
       <div className="report-tabs">
@@ -551,9 +828,14 @@ export default function NewDisasterReport() {
                             <label className="required">Head of Household Name</label>
                             <input
                               type="text"
-                              value={household.headName}
-                              disabled
+                              value={editingHouseholdIndex === index ? householdForm.headName : household.headName}
+                              onChange={(e) => {
+                                if (editingHouseholdIndex === index) {
+                                  setHouseholdForm({ ...householdForm, headName: e.target.value });
+                                }
+                              }}
                               placeholder="Full name"
+                              style={editingHouseholdIndex === index ? { backgroundColor: '#fff', cursor: 'text' } : { backgroundColor: '#f3f4f6', cursor: 'not-allowed', color: '#9ca3af' }}
                             />
                           </div>
 
@@ -561,45 +843,162 @@ export default function NewDisasterReport() {
                             <label className="required">Village / Location</label>
                             <input
                               type="text"
-                              value={household.village}
-                              disabled
+                              value={editingHouseholdIndex === index ? householdForm.village : household.village}
+                              onChange={(e) => {
+                                if (editingHouseholdIndex === index) {
+                                  setHouseholdForm({ ...householdForm, village: e.target.value });
+                                }
+                              }}
                               placeholder="e.g. Ha Motala"
+                              style={editingHouseholdIndex === index ? { backgroundColor: '#fff', cursor: 'text' } : { backgroundColor: '#f3f4f6', cursor: 'not-allowed', color: '#9ca3af' }}
                             />
                           </div>
 
                           <div className="form-group">
                             <label className="required">Gender</label>
-                            <p className="value-display">{household.gender}</p>
+                            {editingHouseholdIndex === index ? (
+                              <select
+                                value={householdForm.gender}
+                                onChange={(e) => setHouseholdForm({ ...householdForm, gender: e.target.value })}
+                              >
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                              </select>
+                            ) : (
+                              <p className="value-display">{household.gender}</p>
+                            )}
                           </div>
 
                           <div className="form-group">
                             <label className="required">Age</label>
-                            <p className="value-display">{household.age}</p>
+                            <input
+                              type="text"
+                              value={editingHouseholdIndex === index ? householdForm.age : household.age}
+                              onChange={(e) => {
+                                if (editingHouseholdIndex === index) {
+                                  const numVal = e.target.value.replace(/[^0-9]/g, '');
+                                  setHouseholdForm({ ...householdForm, age: numVal });
+                                }
+                              }}
+                              placeholder="Enter age"
+                              style={editingHouseholdIndex === index ? { backgroundColor: '#fff', cursor: 'text' } : { backgroundColor: '#f3f4f6', cursor: 'not-allowed', color: '#9ca3af' }}
+                            />
                           </div>
 
                           <div className="form-group">
                             <label className="required">Household Size</label>
-                            <p className="value-display">{household.householdSize}</p>
+                            <input
+                              type="text"
+                              value={editingHouseholdIndex === index ? householdForm.householdSize : household.householdSize}
+                              onChange={(e) => {
+                                if (editingHouseholdIndex === index) {
+                                  const numVal = e.target.value.replace(/[^0-9]/g, '');
+                                  setHouseholdForm({ ...householdForm, householdSize: numVal });
+                                }
+                              }}
+                              placeholder="Number of members"
+                              style={editingHouseholdIndex === index ? { backgroundColor: '#fff', cursor: 'text' } : { backgroundColor: '#f3f4f6', cursor: 'not-allowed', color: '#9ca3af' }}
+                            />
                           </div>
 
                           <div className="form-group">
-                            <label>Source of Income *</label>
-                            <p className="value-display">{household.sourceOfIncome}</p>
+                            <label className="required">Source of Income</label>
+                            {editingHouseholdIndex === index ? (
+                              <select
+                                value={householdForm.sourceOfIncome}
+                                onChange={(e) => setHouseholdForm({ ...householdForm, sourceOfIncome: e.target.value })}
+                              >
+                                {incomeCategories.map((cat) => (
+                                  <option key={cat} value={cat}>
+                                    {cat}
+                                  </option>
+                                ))}
+                              </select>
+                            ) : (
+                              <p className="value-display">{household.sourceOfIncome}</p>
+                            )}
                           </div>
 
                           <div className="form-group full-width">
                             <label>Damage Description</label>
-                            <p className="value-display">{household.damageDescription}</p>
+                            <textarea
+                              value={editingHouseholdIndex === index ? householdForm.damageDescription : household.damageDescription}
+                              onChange={(e) => {
+                                if (editingHouseholdIndex === index) {
+                                  setHouseholdForm({ ...householdForm, damageDescription: e.target.value });
+                                }
+                              }}
+                              placeholder="Brief description of damage"
+                              rows="3"
+                              style={editingHouseholdIndex === index ? { backgroundColor: '#fff', cursor: 'text' } : { backgroundColor: '#f3f4f6', cursor: 'not-allowed', color: '#9ca3af' }}
+                            />
                           </div>
                         </div>
 
-                        <button
-                          className="btn-delete"
-                          onClick={() => handleDeleteHousehold(index)}
-                        >
-                          <X size={18} />
-                          Remove
-                        </button>
+                        {editingHouseholdIndex === index ? (
+                          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                            <button
+                              className="btn-save-next"
+                              onClick={handleUpdateHousehold}
+                              style={{ flex: 1 }}
+                            >
+                              Save Changes
+                            </button>
+                            <button
+                              onClick={handleCancelEditHousehold}
+                              style={{
+                                flex: 1,
+                                padding: '0.6rem 1rem',
+                                backgroundColor: '#e5e7eb',
+                                color: '#374151',
+                                border: 'none',
+                                borderRadius: '0.4rem',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', justifyContent: 'flex-end' }}>
+                            <button
+                              onClick={() => handleEditHousehold(index)}
+                              title="Edit Household"
+                              style={{
+                                padding: '0.25rem',
+                                backgroundColor: 'transparent',
+                                color: '#000',
+                                border: 'none',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                lineHeight: '1'
+                              }}
+                            >
+                              <Edit size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteHousehold(index)}
+                              title="Delete Household"
+                              style={{
+                                padding: '0.25rem',
+                                backgroundColor: 'transparent',
+                                color: '#000',
+                                border: 'none',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                lineHeight: '1'
+                              }}
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -608,6 +1007,7 @@ export default function NewDisasterReport() {
             </div>
 
             {/* Add New Household Form */}
+            {households.length < maxHouseholds && (
             <div className="new-household-form">
               <h4>Add New Household</h4>
               <div className="form-grid">
@@ -720,23 +1120,30 @@ export default function NewDisasterReport() {
                 </button>
               )}
 
-              {households.length > 0 && (
-                <div className="completion-section">
-                  <div className="completion-message">
-                    <h4>✅ Ready to save</h4>
-                    <p>Click below to save this disaster and its household assessments</p>
-                  </div>
-                  <button 
-                    className="btn-save-disaster" 
-                    onClick={handleSaveDisaster}
-                    disabled={loading}
-                  >
-                    <Save size={18} />
-                    {loading ? "Saving..." : "Save Disaster & Households"}
-                  </button>
+              {households.length > 0 && households.length < parseInt(headerData.numberOfHouseholdsAffected) && (
+                <div className="progress-info">
+                  <p>Please add {parseInt(headerData.numberOfHouseholdsAffected) - households.length} more household(s) to proceed to saving ({households.length}/{headerData.numberOfHouseholdsAffected})</p>
                 </div>
               )}
             </div>
+            )}
+
+            {households.length === parseInt(headerData.numberOfHouseholdsAffected) && households.length > 0 && (
+              <div className="completion-section">
+                <div className="completion-message">
+                  <h4>✅ Ready to save</h4>
+                  <p>All {households.length} households entered. Click below to save this disaster and its household assessments</p>
+                </div>
+                <button 
+                  className="btn-save-disaster" 
+                  onClick={handleSaveDisaster}
+                  disabled={loading}
+                >
+                  <Save size={18} />
+                  {loading ? "Saving..." : "Save Disaster & Households"}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -774,15 +1181,51 @@ export default function NewDisasterReport() {
                         </div>
                       </div>
 
-                      {/* View Details Button */}
-                      <button
-                        className="btn-view"
-                        onClick={() => setExpandedDisaster(expandedDisaster === disaster._id ? null : disaster._id)}
-                        style={{ marginTop: '1.5rem' }}
-                      >
-                        <Eye size={18} />
-                        {expandedDisaster === disaster._id ? "Hide" : "View"} Details
-                      </button>
+                      {/* View Details and Submit Buttons Container */}
+                      <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', width: 'fit-content' }}>
+                        {/* View Details Button */}
+                        <button
+                          className="btn-view"
+                          onClick={() => setExpandedDisaster(expandedDisaster === disaster._id ? null : disaster._id)}
+                          style={{ width: '14rem' }}
+                        >
+                          <Eye size={18} />
+                          {expandedDisaster === disaster._id ? "Hide" : "View"} Details
+                        </button>
+
+                        {/* Submit for Approval Button */}
+                        {disaster.status === "reported" && (
+                          <button
+                            className="btn-save-disaster"
+                            onClick={() => handleSubmitDisaster(disaster._id)}
+                            disabled={loading}
+                            style={{ width: '14rem' }}
+                          >
+                            {loading ? "Submitting..." : "Submit Disaster Report"}
+                          </button>
+                        )}
+                        {disaster.status !== "reported" && (
+                          <div style={{ padding: '0.75rem', backgroundColor: '#f3f4f6', borderRadius: '0.5rem', fontSize: '0.9rem', color: '#6b7280' }}>
+                            {disaster.status === "submitted" ? (
+                              <div>
+                                <p style={{ margin: '0 0 0.5rem 0' }}>
+                                  ✅ <strong style={{ color: '#059669' }}>Submitted</strong> - Waiting for coordinator approval
+                                </p>
+                              </div>
+                            ) : disaster.status === "verified" ? (
+                              <div>
+                                <p style={{ margin: '0 0 0.5rem 0' }}>
+                                  ✓ <strong style={{ color: '#059669' }}>Verified & Approved</strong> - Ready for allocation
+                                </p>
+                              </div>
+                            ) : (
+                              <div>
+                                Status: <strong style={{ textTransform: 'capitalize', color: '#1f2937' }}>{disaster.status}</strong>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
 
                       {/* Expandable Details Section */}
                       {expandedDisaster === disaster._id && (
@@ -865,7 +1308,7 @@ export default function NewDisasterReport() {
                                       </div>
                                       <div style={{ gridColumn: '1 / -1' }}>
                                         <label style={{ fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '0.25rem' }}>Income Category</label>
-                                        <span style={{ color: '#1f2937' }}>{hh.incomeCategory || 'N/A'}</span>
+                                        <span style={{ color: '#1f2937' }}>{getIncomeCategoryDisplay(hh.incomeCategory) || 'N/A'}</span>
                                       </div>
                                       <div style={{ gridColumn: '1 / -1' }}>
                                         <label style={{ fontWeight: '600', color: '#6b7280', display: 'block', marginBottom: '0.25rem' }}>Damage Description</label>
@@ -886,36 +1329,47 @@ export default function NewDisasterReport() {
                         </div>
                       )}
 
-                      {/* Submit for Approval Button */}
+                      {/* Edit and Delete Buttons - Only for unreported disasters */}
                       {disaster.status === "reported" && (
-                        <button
-                          className="btn-save-disaster"
-                          onClick={() => handleSubmitDisaster(disaster._id)}
-                          disabled={loading}
-                          style={{ marginTop: '1.5rem' }}
-                        >
-                          {loading ? "Submitting..." : "Submit Disaster Report"}
-                        </button>
-                      )}
-                      {disaster.status !== "reported" && (
-                        <div style={{ marginTop: '1.5rem', padding: '0.75rem', backgroundColor: '#f3f4f6', borderRadius: '0.5rem', fontSize: '0.9rem', color: '#6b7280' }}>
-                          {disaster.status === "submitted" ? (
-                            <div>
-                              <p style={{ margin: '0 0 0.5rem 0' }}>
-                                ✅ <strong style={{ color: '#059669' }}>Submitted</strong> - Waiting for coordinator approval
-                              </p>
-                            </div>
-                          ) : disaster.status === "verified" ? (
-                            <div>
-                              <p style={{ margin: '0 0 0.5rem 0' }}>
-                                ✓ <strong style={{ color: '#059669' }}>Verified & Approved</strong> - Ready for allocation
-                              </p>
-                            </div>
-                          ) : (
-                            <div>
-                              Status: <strong style={{ textTransform: 'capitalize', color: '#1f2937' }}>{disaster.status}</strong>
-                            </div>
-                          )}
+                        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
+                          <button
+                            onClick={() => handleEditDisaster(disaster)}
+                            disabled={loading}
+                            title="Edit Disaster"
+                            style={{
+                              padding: '0.25rem',
+                              backgroundColor: 'transparent',
+                              color: '#000',
+                              border: 'none',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              lineHeight: '1',
+                              opacity: loading ? 0.5 : 1
+                            }}
+                          >
+                            <Edit size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteDisaster(disaster._id, disaster)}
+                            disabled={loading}
+                            title="Delete Disaster"
+                            style={{
+                              padding: '0.25rem',
+                              backgroundColor: 'transparent',
+                              color: '#000',
+                              border: 'none',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              lineHeight: '1',
+                              opacity: loading ? 0.5 : 1
+                            }}
+                          >
+                            <Trash2 size={18} />
+                          </button>
                         </div>
                       )}
                     </div>

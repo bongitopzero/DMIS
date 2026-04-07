@@ -4,6 +4,22 @@ import { Link } from 'react-router-dom';
 import { Users, Settings, UserPlus, Edit, Trash2, Shield, Eye, EyeOff } from 'lucide-react';
 import './AdminDashboard.css';
 
+function DeleteUserConfirmationModal({ show, userInfo, onConfirm, onCancel, isLoading }) {
+  if (!show || !userInfo) return null;
+  return (
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }} onClick={onCancel}>
+      <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', maxWidth: '400px', width: '90%', boxShadow: '0 20px 25px rgba(0, 0, 0, 0.15)' }} onClick={(e) => e.stopPropagation()}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#dc2626', margin: '0 0 1.5rem 0' }}>Delete User - {userInfo.name}</h2>
+        <p style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '1.5rem' }}>Are you sure you want to permanently delete this user? This action cannot be undone.</p>
+        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+          <button onClick={onCancel} disabled={isLoading} style={{ padding: '0.5rem 1.5rem', backgroundColor: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db', borderRadius: '0.375rem', cursor: 'pointer', fontWeight: '500', fontSize: '0.9rem' }}>Cancel</button>
+          <button onClick={onConfirm} disabled={isLoading} style={{ padding: '0.5rem 1.5rem', backgroundColor: '#dc2626', color: 'white', border: 'none', borderRadius: '0.375rem', cursor: 'pointer', fontWeight: '500', fontSize: '0.9rem' }} onMouseEnter={(e) => !isLoading && (e.target.style.backgroundColor = '#991b1b')} onMouseLeave={(e) => !isLoading && (e.target.style.backgroundColor = '#dc2626')}>{isLoading ? 'Deleting...' : 'Delete'}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('users');
   const [users, setUsers] = useState([]);
@@ -13,6 +29,9 @@ const AdminDashboard = () => {
   const [showAddUser, setShowAddUser] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [deleteTargetInfo, setDeleteTargetInfo] = useState(null);
   const [systemSettings, setSystemSettings] = useState({
     sessionTimeout: 30,
     maxLoginAttempts: 5,
@@ -85,17 +104,27 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDeleteUser = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-      try {
-        await axios.delete(`/auth/users/${userId}`);
-        setSuccess('User deleted successfully!');
-        fetchUsers();
-        setTimeout(() => setSuccess(''), 3000);
-      } catch (err) {
-        setError('Failed to delete user: ' + (err.response?.data?.error || err.message));
-        setTimeout(() => setError(''), 5000);
-      }
+  const handleDeleteUser = (userId, user) => {
+    setDeleteTargetId(userId);
+    setDeleteTargetInfo(user);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteUser = async () => {
+    setLoading(true);
+    try {
+      await axios.delete(`/auth/users/${deleteTargetId}`);
+      setSuccess('User deleted successfully!');
+      fetchUsers();
+      setShowDeleteConfirm(false);
+      setDeleteTargetId(null);
+      setDeleteTargetInfo(null);
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError('Failed to delete user: ' + (err.response?.data?.error || err.message));
+      setTimeout(() => setError(''), 5000);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -157,7 +186,7 @@ const AdminDashboard = () => {
                     </button>
                     <button 
                       className="btn-icon btn-delete" 
-                      onClick={() => handleDeleteUser(user._id)}
+                      onClick={() => handleDeleteUser(user._id, user)}
                       title="Delete User"
                     >
                       <Trash2 size={16} />
@@ -430,6 +459,13 @@ const AdminDashboard = () => {
         {activeTab === 'users' && renderUserManagement()}
         {activeTab === 'settings' && renderSystemSettings()}
       </div>
+      <DeleteUserConfirmationModal 
+        show={showDeleteConfirm}
+        userInfo={deleteTargetInfo}
+        onConfirm={confirmDeleteUser}
+        onCancel={() => setShowDeleteConfirm(false)}
+        isLoading={loading}
+      />
     </div>
   );
 };

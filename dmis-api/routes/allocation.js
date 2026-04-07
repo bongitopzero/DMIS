@@ -53,6 +53,52 @@ router.get('/assessments/:disasterId', protect, (req, res) => {
 });
 
 /**
+ * DELETE /api/allocation/assessments/:assessmentId
+ * Delete household assessment
+ * Role: Data Clerk, Coordinator, Administrator
+ */
+router.delete('/assessments/:assessmentId', protect, async (req, res) => {
+  try {
+    const user = req.headers.user
+      ? JSON.parse(req.headers.user)
+      : req.user || {};
+    if (!['Data Clerk', 'Coordinator', 'Administrator'].includes(user.role)) {
+      return res.status(403).json({
+        message: 'Insufficient permissions to delete assessments',
+      });
+    }
+
+    await allocationController.deleteHouseholdAssessment(req, res);
+  } catch (error) {
+    console.error('Route error:', error);
+    res.status(500).json({ message: 'Route error', error: error.message });
+  }
+});
+
+/**
+ * PUT /api/allocation/assessments/:assessmentId
+ * Update household assessment
+ * Role: Data Clerk, Coordinator, Administrator
+ */
+router.put('/assessments/:assessmentId', protect, async (req, res) => {
+  try {
+    const user = req.headers.user
+      ? JSON.parse(req.headers.user)
+      : req.user || {};
+    if (!['Data Clerk', 'Coordinator', 'Administrator'].includes(user.role)) {
+      return res.status(403).json({
+        message: 'Insufficient permissions to update assessments',
+      });
+    }
+
+    await allocationController.updateHouseholdAssessment(req, res);
+  } catch (error) {
+    console.error('Route error:', error);
+    res.status(500).json({ message: 'Route error', error: error.message });
+  }
+});
+
+/**
  * SCORING & ALLOCATION REQUEST ROUTES
  */
 

@@ -47,19 +47,19 @@ function Layout({ children }) {
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed((s) => !s)}
       />
+      
       <div
-        className="flex-1 flex flex-col"
-        style={{
-          marginLeft: sidebarCollapsed ? "70px" : "240px",
-          transition: "margin-left 0.3s ease",
-          minWidth: 0,
-        }}
-      >
+  className="flex-1 flex flex-col"
+  style={{
+    minWidth: 0,
+  }}
+>
+      
         <Navbar />
         <main
           className="flex-1 overflow-y-auto"
           style={{
-            padding: "2rem",
+            padding: "1rem",
             backgroundColor: "var(--bg-secondary)",
           }}
         >
@@ -214,4 +214,71 @@ function App() {
           <Route
             path="/analysis"
             element={
-              <ProtectedRoute
+              <ProtectedRoute allowedRoles={["Coordinator", "Finance Officer", "Data Clerk"]}>
+                <Layout>
+                  <Analysis />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/forecasting"
+            element={
+              <ProtectedRoute allowedRoles={["Coordinator", "Finance Officer"]}>
+                <Layout>
+                  <Forecasting />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["Administrator"]}>
+                <Layout>
+                  <AdminDashboard />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin-dashboard/settings"
+            element={
+              <ProtectedRoute allowedRoles={["Administrator"]}>
+                <Layout>
+                  <SystemSettings />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute allowedRoles={["Coordinator", "Finance Officer", "Data Clerk", "Administrator"]}>
+                <Layout>
+                  <Settings />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/unauthorized"
+            element={
+              <div className="p-10" style={{ color: "var(--danger)" }}>
+                <h2 className="text-xl font-semibold">Access Denied</h2>
+                <p>You do not have permission to view this page.</p>
+              </div>
+            }
+          />
+        </Routes>
+      </Router>
+    </ThemeProvider>
+  );
+}
+
+export default App;

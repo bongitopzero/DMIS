@@ -37,21 +37,21 @@ export const Toast = ({ message, type = "info", duration = 4000, onClose }) => {
   };
 
   const bgColors = {
-    success: "bg-green-50 border-green-200",
+    success: "bg-white border-gray-200",
     error: "bg-red-50 border-red-200",
     warning: "bg-yellow-50 border-yellow-200",
     info: "bg-blue-50 border-blue-200",
   };
 
   const textColors = {
-    success: "text-green-800",
+    success: "text-blue-800",
     error: "text-red-800",
     warning: "text-yellow-800",
     info: "text-blue-800",
   };
 
   const iconColors = {
-    success: "text-green-500",
+    success: "text-blue-500",
     error: "text-red-500",
     warning: "text-yellow-500",
     info: "text-blue-500",

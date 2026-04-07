@@ -44,16 +44,38 @@ const createHouseholdAssessment = async (req, res) => {
       location,
     } = req.body;
 
+    console.log('📝 Creating household assessment with data:', {
+      disasterId,
+      householdId,
+      headOfHousehold,
+      householdSize,
+      monthlyIncome,
+      disasterType,
+    });
+
     // Validate required fields
     if (
       !disasterId ||
       !householdId ||
       !headOfHousehold ||
       !disasterType ||
-      !damageDescription
+      !location ||
+      !location.village ||
+      !location.district
     ) {
+      console.error('❌ Missing required fields');
       return res.status(400).json({
         message: 'Missing required fields',
+        missingFields: {
+          disasterId: !disasterId,
+          householdId: !householdId,
+          headOfHousehold: !headOfHousehold,
+          disasterType: !disasterType,
+          damageDescription: !damageDescription,
+          location: !location,
+          'location.village': !location?.village,
+          'location.district': !location?.district,
+        },
       });
     }
 
@@ -128,10 +150,23 @@ const createHouseholdAssessment = async (req, res) => {
       assessment,
     });
   } catch (error) {
-    console.error('Error creating assessment:', error);
+    console.error('❌ Error creating assessment:', error.message);
+    console.error('❌ Full error:', error);
+    console.error('❌ Request body:', req.body);
+    
+    // Extract validation error details
+    let validationErrors = {};
+    if (error.errors) {
+      Object.keys(error.errors).forEach(field => {
+        validationErrors[field] = error.errors[field].message;
+      });
+    }
+
     res.status(500).json({
       message: 'Error creating assessment',
       error: error.message,
+      validationErrors: validationErrors,
+      details: error.errors ? Object.keys(error.errors).map(k => `${k}: ${error.errors[k].message}`).join('; ') : 'No validation details available'
     });
   }
 };
@@ -830,6 +865,121 @@ const getAllocationRequestsByDisaster = async (req, res) => {
 };
 
 /**
+ * @DELETE /api/allocation/assessments/:assessmentId
+ * Delete household assessment
+ */
+const deleteHouseholdAssessment = async (req, res) => {
+  try {
+    const { assessmentId } = req.params;
+
+    const assessment = await HouseholdAssessment.findByIdAndDelete(assessmentId);
+
+    if (!assessment) {
+      return res.status(404).json({
+        message: 'Household assessment not found',
+      });
+    }
+
+    // Log audit trail
+    await createAuditLog({
+      actionType: 'DELETE',
+      entityType: 'HouseholdAssessment',
+      entityId: assessmentId,
+      disasterId: assessment.disasterId,
+      performedBy: req.user?.id,
+      performerRole: req.user?.role || 'Data Clerk',
+      oldValues: {
+        householdId: assessment.householdId,
+        headOfHousehold: assessment.headOfHousehold,
+        disasterType: assessment.disasterType,
+      },
+      reason: 'Household assessment deleted',
+    });
+
+    console.log('✅ Household assessment deleted successfully:', assessmentId);
+    res.json({
+      message: 'Household assessment deleted successfully',
+      deletedAssessment: assessment,
+    });
+  } catch (error) {
+    console.error('❌ Error deleting household assessment:', error);
+    res.status(500).json({
+      message: 'Error deleting household assessment',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * @PUT /api/allocation/assessments/:assessmentId
+ * Update household assessment
+ */
+const updateHouseholdAssessment = async (req, res) => {
+  try {
+    const { assessmentId } = req.params;
+    const updateData = req.body;
+
+    // Store old values for audit log
+    const oldAssessment = await HouseholdAssessment.findById(assessmentId);
+    if (!oldAssessment) {
+      return res.status(404).json({
+        message: 'Household assessment not found',
+      });
+    }
+
+    // Recalculate income category if income is updated
+    if (updateData.monthlyIncome !== undefined) {
+      let incomeCategory = 'High';
+      if (updateData.monthlyIncome <= 3000) incomeCategory = 'Low';
+      else if (updateData.monthlyIncome <= 10000) incomeCategory = 'Middle';
+      updateData.incomeCategory = incomeCategory;
+    }
+
+    // Update assessment
+    const assessment = await HouseholdAssessment.findByIdAndUpdate(
+      assessmentId,
+      updateData,
+      { new: true, runValidators: false }
+    );
+
+    // Log audit trail
+    await createAuditLog({
+      actionType: 'UPDATE',
+      entityType: 'HouseholdAssessment',
+      entityId: assessmentId,
+      disasterId: assessment.disasterId,
+      performedBy: req.user?.id,
+      performerRole: req.user?.role || 'Data Clerk',
+      oldValues: {
+        monthlyIncome: oldAssessment.monthlyIncome,
+        incomeCategory: oldAssessment.incomeCategory,
+        householdSize: oldAssessment.householdSize,
+        damageDescription: oldAssessment.damageDescription,
+      },
+      newValues: {
+        monthlyIncome: assessment.monthlyIncome,
+        incomeCategory: assessment.incomeCategory,
+        householdSize: assessment.householdSize,
+        damageDescription: assessment.damageDescription,
+      },
+      reason: 'Household assessment updated',
+    });
+
+    console.log('✅ Household assessment updated successfully:', assessmentId);
+    res.json({
+      message: 'Household assessment updated successfully',
+      assessment,
+    });
+  } catch (error) {
+    console.error('❌ Error updating household assessment:', error);
+    res.status(500).json({
+      message: 'Error updating household assessment',
+      error: error.message,
+    });
+  }
+};
+
+/**
  * Helper: Create audit log
  */
 async function createAuditLog(logData) {
@@ -843,6 +993,8 @@ async function createAuditLog(logData) {
 export default {
   createHouseholdAssessment,
   getAssessmentsByDisaster,
+  deleteHouseholdAssessment,
+  updateHouseholdAssessment,
   calculateAllocationScore,
   createAllocationRequest,
   approveAllocationRequest,

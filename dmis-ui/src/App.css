@@ -31,3 +31,101 @@
   font-weight: 700;
   margin-left: 2px;
 }
+
+/* ========================= */
+/* Typography Utility Classes */
+/* ========================= */
+
+/* Page Headings (h1) */
+.heading-page,
+.heading-xl {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-bold);
+  line-height: 1.3;
+}
+
+/* Section Headings (h2) */
+.heading-section,
+.heading-lg {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+  line-height: 1.35;
+}
+
+/* Card Titles / Sub-headings (h3) */
+.heading-card,
+.heading-md {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semibold);
+  line-height: 1.4;
+}
+
+/* Body Text */
+.text-body,
+.text-base {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-normal);
+  line-height: 1.6;
+}
+
+/* Button Text */
+.text-button,
+.btn-text {
+  font-size: var(--fs-button);
+  font-weight: var(--fw-medium);
+}
+
+/* Labels */
+.text-label {
+  font-size: var(--fs-label);
+  font-weight: var(--fw-normal);
+}
+
+/* Form Input Text */
+.text-input {
+  font-size: var(--fs-input);
+  font-weight: var(--fw-normal);
+}
+
+/* Helper / Muted Text */
+.text-helper,
+.text-muted-large {
+  font-size: var(--fs-helper);
+  font-weight: var(--fw-normal);
+  color: var(--text-secondary);
+}
+
+/* Badge / Tag Text */
+.text-badge,
+.text-tag {
+  font-size: var(--fs-badge);
+  font-weight: var(--fw-medium);
+}
+
+/* Navigation / Sidebar Links */
+.text-nav,
+.text-sidebar-link {
+  font-size: var(--fs-nav);
+  font-weight: var(--fw-medium);
+}
+
+/* Font Weight Utilities */
+.font-light {
+  font-weight: var(--fw-light);
+}
+
+.font-normal {
+  font-weight: var(--fw-normal);
+}
+
+.font-medium {
+  font-weight: var(--fw-medium);
+}
+
+.font-semibold {
+  font-weight: var(--fw-semibold);
+}
+
+.font-bold {
+  font-weight: var(--fw-bold);
+}

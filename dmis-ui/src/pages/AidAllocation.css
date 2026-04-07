@@ -410,7 +410,7 @@
 
 .btn-generate-plan {
   padding: 0.625rem 1.25rem;
-  background-color: #3b82f6;
+  background-color: #1e3a5f;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -422,9 +422,9 @@
 }
 
 .btn-generate-plan:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: #0f2438;
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 6px rgba(30, 58, 95, 0.3);
 }
 
 .btn-generate-plan:disabled {

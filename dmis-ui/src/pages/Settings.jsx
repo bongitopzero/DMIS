@@ -96,7 +96,6 @@ export default function Settings() {
   return (
     <div className="settings-page">
       <div className="settings-header">
-        <h1>User Settings</h1>
         <p>Manage profile details and system preferences.</p>
       </div>
 
