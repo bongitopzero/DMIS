@@ -1,18 +1,15 @@
 .gis-map-page-new {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: 100%;
   width: 100%;
   background: var(--bg-primary, #f8f9fa);
   overflow: hidden;
 }
 
-/* ===================== TOP SECTION - Header with Summary Cards ===================== */
+/* ===================== TOP SECTION - HIDDEN (Header moved to sidebar) ===================== */
 .gis-map-header {
-  padding: 24px 32px;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: none;
 }
 
 .gis-map-title-section {
@@ -32,11 +29,9 @@
   color: #6b7280;
 }
 
-/* Summary Cards Grid */
+/* Summary Cards Grid - HIDDEN (now in sidebar) */
 .gis-summary-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
+  display: none;
 }
 
 .gis-summary-card {
@@ -75,23 +70,21 @@
   color: #9ca3af;
 }
 
-/* ===================== MAIN CONTENT - Sidebar + Map ===================== */
+/* ===================== MAIN CONTENT - ADJUSTED FOR HORIZONTAL LAYOUT ===================== */
 .gis-map-content {
-  display: flex;
-  flex: 1;
-  gap: 0;
-  overflow: hidden;
+  display: none;
 }
 
 /* Sidebar Styling */
 .map-sidebar {
-  width: 320px;
+  width: 300px;
   background: var(--card-bg, #ffffff);
   box-shadow: 1px 0 8px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   border-right: 1px solid #e5e7eb;
+  flex-shrink: 0;
 }
 
 .sidebar-header {
@@ -102,6 +95,7 @@
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
+  border: none;
 }
 
 .sidebar-header svg {
@@ -134,10 +128,13 @@
 }
 
 .section-title {
-  margin: 0;
-  font-size: 14px;
+  margin: 0 0 8px 0;
+  font-size: 13px;
   font-weight: 700;
   color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .section-content {
@@ -199,16 +196,6 @@
   background-repeat: no-repeat;
   background-position: right 8px center;
   padding-right: 28px;
-}
-
-.filter-select:hover {
-  border-color: #9ca3af;
-}
-
-.filter-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* Disaster Types */
@@ -415,7 +402,6 @@
   border-radius: 0;
   overflow: hidden;
   height: 100%;
-  width: 100%;
   display: flex;
   position: relative;
   background: #f0f0f0;

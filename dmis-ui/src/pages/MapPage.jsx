@@ -64,19 +64,6 @@ const MapContent = ({incidentsWithCoords, incidentsData, styleDistrict, onEachDi
                 <hr style={{ margin: "6px 0", border: "none", borderTop: "1px solid #e2e8f0" }} />
                 <p style={{ margin: "4px 0", fontSize: "12px" }}>
                   <strong>District:</strong> {incident.district}
-                  {incident.region && <span> - {incident.region}</span>}
-                </p>
-                <p style={{ margin: "4px 0", fontSize: "12px" }}>
-                  <strong>Location:</strong> {incident.location || incident.district}
-                </p>
-                <p style={{ margin: "4px 0", fontSize: "12px" }}>
-                  <strong>Severity:</strong>
-                  <span style={{color: getSeverityColor(incident.severity), fontWeight: "bold", textTransform: "uppercase"}}>
-                    {incident.severity}
-                  </span>
-                </p>
-                <p style={{ margin: "4px 0", fontSize: "12px" }}>
-                  <strong>Affected:</strong> {incident.households || incident.numberOfHouseholdsAffected || "N/A"} households
                 </p>
                 <p style={{ margin: "4px 0", fontSize: "12px" }}>
                   <strong>Status:</strong> {incident.status || "reported"}
@@ -87,9 +74,8 @@ const MapContent = ({incidentsWithCoords, incidentsData, styleDistrict, onEachDi
           </CircleMarker>
         ))}
       </MarkerClusterGroup>
-      {/* Debug info */}
       <div style={{position: "fixed", top: "70px", right: "10px", background: "rgba(255,255,255,0.95)", padding: "12px", borderRadius: "8px", zIndex: 500, fontSize: "12px", fontFamily: "monospace"}}>
-        📌 {incidentsWithCoords.length} markers | Total: {incidentsData.length}
+        📌 {incidentsWithCoords.length} markers | {incidentsData.length} total
       </div>
     </>
   );
@@ -108,7 +94,7 @@ const MapPage = () => {
 
   // Log when data changes
   useEffect(() => {
-    console.log("MapPage mounted/updated - Incidents:", incidentsData.length, "Loading:", loading);
+    console.log("MapPage - Incidents:", incidentsData.length, "Loading:", loading);
   }, [incidentsData, loading]);
 
   // CALCULATE FILTERED INCIDENTS
@@ -127,8 +113,7 @@ const MapPage = () => {
     const visibleEvents = filteredIncidents.length;
     const activeEvents = filteredIncidents.filter(i => i.status === "reported" || i.status === "verified").length;
     const totalAffected = filteredIncidents.reduce((sum, i) => sum + (Number(i.households) || Number(i.numberOfHouseholdsAffected) || 0), 0);
-    const totalResolved = filteredIncidents.filter(i => i.status === "closed").length;
-    return { visibleEvents, activeEvents, totalAffected, totalResolved };
+    return { visibleEvents, activeEvents, totalAffected };
   }, [filteredIncidents]);
 
   // PREPARE INCIDENTS WITH COORDINATES
@@ -145,129 +130,124 @@ const MapPage = () => {
 
   const onEachDistrict = (feature, layer) => {
     const districtName = feature.properties.NAME_1;
-    const normalizedGeoDistrict = normalize(districtName);
-    const incidents = incidentsData.filter(i => normalize(i.district) === normalizedGeoDistrict);
-    const severityCounts = {
-      high: incidents.filter(i => {const sev = normalizeSeverity(i.severity); return sev === "critical" || sev === "high";}).length,
-      moderate: incidents.filter(i => {const sev = normalizeSeverity(i.severity); return sev === "medium" || sev === "moderate";}).length,
-      low: incidents.filter(i => normalizeSeverity(i.severity) === "low").length,
-    };
-    layer.bindPopup(`<div style="font-family: sans-serif;"><strong>${districtName}</strong><br/>Total: ${incidents.length}</div>`);
+    layer.bindPopup(`<div style="font-family: sans-serif;"><strong>${districtName}</strong></div>`);
     layer.on("click", () => setSelectedDistrict(districtName));
   };
 
   // RENDER
   return (
     <div className="gis-map-page-new">
-      {/* Header with summary cards */}
-      <div className="gis-map-header">
-        <div className="gis-map-title-section">
-          <h1 className="gis-map-title">GIS Disaster Map</h1>
-          <p className="gis-map-subtitle">Real-time disaster monitoring (synced with Dashboard)</p>
+      {/* SIDEBAR - LEFT */}
+      <div className="map-sidebar">
+        {/* Map Summary */}
+        <div className="sidebar-header" style={{ background: "white", padding: "16px", borderBottom: "1px solid #e5e7eb" }}>
+          <h3 style={{ margin: "0 0 12px 0", fontSize: "14px", fontWeight: "600", color: "#1f2937", display: "flex", alignItems: "center", gap: "6px" }}>
+            <MapPin size={16} /> Map Summary
+          </h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ color: "#6b7280" }}>Visible Events</span>
+              <span style={{ fontWeight: "600", color: "#1f2937" }}>{summaries.visibleEvents}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ color: "#6b7280" }}>Active Events</span>
+              <span style={{ fontWeight: "600", color: "#EF4444" }}>{summaries.activeEvents}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ color: "#6b7280" }}>Total Affected</span>
+              <span style={{ fontWeight: "600", color: "#1f2937" }}>{summaries.totalAffected.toLocaleString()}</span>
+            </div>
+          </div>
         </div>
-        <div className="gis-summary-cards">
-          <div className="gis-summary-card">
-            <div className="gis-card-label">Visible Events</div>
-            <div className="gis-card-value">{summaries.visibleEvents}</div>
-            <div className="gis-card-detail">on map</div>
+
+        {/* FILTERS & LEGEND */}
+        <div className="sidebar-content">
+          {/* Filters Section */}
+          <div style={{ padding: "12px 14px", borderBottom: "1px solid #e5e7eb" }}>
+            <h3 style={{ margin: "0 0 8px 0", fontSize: "13px", fontWeight: "700", color: "#1f2937", display: "flex", alignItems: "center", gap: "4px" }}>
+              Filters
+            </h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: "600", color: "#4b5563", display: "block", marginBottom: "4px" }}>District</label>
+                <select className="filter-select" value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)}>
+                  {districts.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: "12px", fontWeight: "600", color: "#4b5563", display: "block", marginBottom: "4px" }}>Severity</label>
+                <select className="filter-select" value={selectedSeverity} onChange={(e) => setSelectedSeverity(e.target.value)}>
+                  <option value="All Severity">All Severity</option>
+                  <option value="Low">Low</option>
+                  <option value="Moderate">Moderate</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+            </div>
           </div>
-          <div className="gis-summary-card">
-            <div className="gis-card-label">Active Events</div>
-            <div className="gis-card-value" style={{ color: "#EF4444" }}>{summaries.activeEvents}</div>
-            <div className="gis-card-detail">requiring response</div>
+
+          {/* Disaster Types */}
+          <div style={{ padding: "12px 14px", borderBottom: "1px solid #e5e7eb" }}>
+            <h3 style={{ margin: "0 0 8px 0", fontSize: "13px", fontWeight: "700", color: "#1f2937", display: "flex", alignItems: "center", gap: "4px" }}>
+              Disaster Types
+            </h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px", color: "#374151" }}>
+                <input type="checkbox" checked={selectedType === "All" || selectedType === "drought"} onChange={() => setSelectedType(selectedType === "drought" ? "All" : "drought")} style={{ cursor: "pointer" }} />
+                Drought
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px", color: "#374151" }}>
+                <input type="checkbox" checked={selectedType === "All" || selectedType === "flooding"} onChange={() => setSelectedType(selectedType === "flooding" ? "All" : "flooding")} style={{ cursor: "pointer" }} />
+                Heavy Rainfall
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px", color: "#374151" }}>
+                <input type="checkbox" checked={selectedType === "All" || selectedType === "strong_winds"} onChange={() => setSelectedType(selectedType === "strong_winds" ? "All" : "strong_winds")} style={{ cursor: "pointer" }} />
+                Strong Winds
+              </label>
+            </div>
           </div>
-          <div className="gis-summary-card">
-            <div className="gis-card-label">Total Affected</div>
-            <div className="gis-card-value">{summaries.totalAffected.toLocaleString()}</div>
-            <div className="gis-card-detail">households</div>
-          </div>
-          <div className="gis-summary-card">
-            <div className="gis-card-label">Resolved</div>
-            <div className="gis-card-value" style={{ color: "#22C55E" }}>{summaries.totalResolved}</div>
-            <div className="gis-card-detail">incidents</div>
+
+          {/* Severity Legend */}
+          <div style={{ padding: "12px 14px" }}>
+            <h3 style={{ margin: "0 0 8px 0", fontSize: "13px", fontWeight: "700", color: "#1f2937" }}>Severity Legend</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "13px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#22C55E" }}></span>
+                <span>Low</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#F97316" }}></span>
+                <span>Moderate</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#EF4444" }}></span>
+                <span>High</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#DC2626" }}></span>
+                <span>Critical</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Sidebar + Map */}
-      <div className="gis-map-content" style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-        {/* Sidebar */}
-        <div className="map-sidebar">
-          <div className="sidebar-header">
-            <MapPin size={24} />
-            <h2>Filters & Legend</h2>
-          </div>
-          <div className="sidebar-content">
-            {/* Disaster Types */}
-            <div className="sidebar-section">
-              <h3 className="section-title">Disaster Types</h3>
-              <div className="section-content">
-                <div className="disaster-type-item">
-                  <input type="checkbox" checked={selectedType === "All" || selectedType === "drought"} onChange={() => setSelectedType(selectedType === "drought" ? "All" : "drought")} id="type-drought" className="type-checkbox" />
-                  <label htmlFor="type-drought">Drought</label>
-                </div>
-                <div className="disaster-type-item">
-                  <input type="checkbox" checked={selectedType === "All" || selectedType === "flooding"} onChange={() => setSelectedType(selectedType === "flooding" ? "All" : "flooding")} id="type-rainfall" className="type-checkbox" />
-                  <label htmlFor="type-rainfall">Heavy Rainfall</label>
-                </div>
-                <div className="disaster-type-item">
-                  <input type="checkbox" checked={selectedType === "All" || selectedType === "strong_winds"} onChange={() => setSelectedType(selectedType === "strong_winds" ? "All" : "strong_winds")} id="type-winds" className="type-checkbox" />
-                  <label htmlFor="type-winds">Strong Winds</label>
-                </div>
-              </div>
-            </div>
-            <div className="section-divider"></div>
-
-            {/* District */}
-            <div className="sidebar-section">
-              <h3 className="section-title">District</h3>
-              <select className="filter-select" value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)}>
-                {districts.map((d) => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-            </div>
-            <div className="section-divider"></div>
-
-            {/* Severity */}
-            <div className="sidebar-section">
-              <h3 className="section-title">Severity</h3>
-              <select className="filter-select" value={selectedSeverity} onChange={(e) => setSelectedSeverity(e.target.value)}>
-                <option value="All Severity">All Severity</option>
-                <option value="Low">Low</option>
-                <option value="Moderate">Moderate</option>
-                <option value="High">High</option>
-              </select>
-            </div>
-            <div className="section-divider"></div>
-
-            {/* Legend */}
-            <div className="sidebar-section">
-              <h3 className="section-title">Severity Legend</h3>
-              <div className="section-content">
-                <div className="legend-row"><span className="legend-dot" style={{ backgroundColor: "#22C55E" }}></span><span className="legend-label">Low Risk</span></div>
-                <div className="legend-row"><span className="legend-dot" style={{ backgroundColor: "#F97316" }}></span><span className="legend-label">Moderate Risk</span></div>
-                <div className="legend-row"><span className="legend-dot" style={{ backgroundColor: "#EF4444" }}></span><span className="legend-label">Critical Risk</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Map Container */}
-        <div className="map-container-full" style={{ flex: 1, height: '100%', width: '100%', position: 'relative', overflow: 'hidden' }}>
-          {loading && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 100 }}>Loading...</div>}
-          {error && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: 'red', zIndex: 100 }}>{error}</div>}
-          <MapContainer
-            key={`map-${mapKey}`}
-            center={[-29.6, 28.2]}
-            zoom={8}
-            minZoom={7}
-            className="map-leaflet-container"
-            style={{ position: 'absolute', height: '100%', width: '100%', top: 0, left: 0, zIndex: 1 }}
-          >
-            <MapContent incidentsWithCoords={incidentsWithCoords} incidentsData={incidentsData} styleDistrict={styleDistrict} onEachDistrict={onEachDistrict} />
-          </MapContainer>
-        </div>
+      {/* MAP - RIGHT */}
+      <div className="map-container-full" style={{ flex: 1, height: '100%', position: 'relative', overflow: 'hidden' }}>
+        {loading && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 100, background: 'white', padding: '16px', borderRadius: '8px' }}>Loading...</div>}
+        {error && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: 'red', zIndex: 100 }}>{error}</div>}
+        <MapContainer
+          key={`map-${mapKey}`}
+          center={[-29.6, 28.2]}
+          zoom={8}
+          minZoom={7}
+          className="map-leaflet-container"
+          style={{ position: 'absolute', height: '100%', width: '100%', top: 0, left: 0, zIndex: 1 }}
+        >
+          <MapContent incidentsWithCoords={incidentsWithCoords} incidentsData={incidentsData} styleDistrict={styleDistrict} onEachDistrict={onEachDistrict} />
+        </MapContainer>
       </div>
     </div>
   );
