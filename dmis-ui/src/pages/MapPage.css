@@ -329,7 +329,7 @@
 }
 
 
-/* Map Container */
+/* Map Container - CRITICAL FIXED HEIGHT */
 .map-container {
   flex: 1;
   border-radius: 0;
@@ -339,13 +339,47 @@
   height: 100%;
   display: flex;
   position: relative;
+  background: #f0f0f0;
 }
 
-.map-container .leaflet-container {
+/* Leaflet Container - ENSURE FULL SIZE */
+.map-container .leaflet-container,
+.map-leaflet-container {
   height: 100% !important;
   width: 100% !important;
   min-height: 600px;
   z-index: 1;
+  background: #fff;
+}
+
+/* Leaflet Marker Cluster Styles */
+.leaflet-cluster {
+  background: rgba(31, 41, 55, 0.8);
+  border-radius: 20px;
+  color: white;
+  font-weight: 600;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.leaflet-cluster:hover {
+  background: rgba(15, 23, 42, 0.95);
+  transform: scale(1.1);
+}
+
+.leaflet-cluster-small {
+  background: rgba(100, 116, 139, 0.8);
+}
+
+.leaflet-cluster-medium {
+  background: rgba(71, 85, 105, 0.8);
+}
+
+.leaflet-cluster-large {
+  background: rgba(30, 41, 59, 0.8);
 }
 
 /* Severity Legend */
