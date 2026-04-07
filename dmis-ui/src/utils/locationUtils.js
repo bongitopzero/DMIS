@@ -16,24 +16,24 @@ export const normalize = (value) => {
 };
 
 /**
- * District center coordinates for Lesotho
- * All 10 districts mapped with geographically accurate center coordinates
+ * Accurate district center coordinates for Lesotho
+ * These coordinates MUST match the official administrative district centers
  * Keys are normalized district names (lowercase, no spaces/apostrophes/hyphens)
  * 
- * IMPORTANT: These coordinates properly space out districts geographically
- * so they don't incorrectly cluster together on the map.
+ * CRITICAL: Clustering algorithm will handle marker overlap
+ * All coordinates are EXACT district centers - NO OFFSETS
  */
 export const districtCoordinates = {
-  maseru: [-29.6167, 27.5833],        // Capital, northwest (admin center)
-  berea: [-29.3333, 28.3000],         // Northeast 
-  leribe: [-28.8167, 28.1500],        // North-central
-  buthabuthe: [-28.7000, 28.4000],    // North
-  mokhotlong: [-29.4000, 29.5500],    // Far east (isolated plateau)
-  thabatseka: [-29.4667, 28.7833],    // East-central
-  qachasnek: [-30.1667, 28.9000],     // Southeast
-  quthing: [-30.4167, 27.6667],       // South (isolated)
-  mohaleshoek: [-30.1333, 27.6000],   // South
-  mafeteng: [-29.8167, 27.2500],      // Southwest
+  maseru: [-29.3100, 27.4800],
+  berea: [-29.2000, 27.9300],
+  leribe: [-28.8700, 28.0500],
+  buthabuthe: [-28.7700, 28.2500],
+  mokhotlong: [-29.2900, 29.0600],
+  thabatseka: [-29.5200, 28.6200],
+  qachasnek: [-30.1200, 28.6900],
+  quthing: [-30.4000, 27.7000],
+  mohaleshoek: [-30.1600, 27.4800],
+  mafeteng: [-29.8200, 27.2500],
 };
 
 /**

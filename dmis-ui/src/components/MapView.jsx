@@ -156,7 +156,7 @@ export default function MapView({ disasters, selectedDisaster }) {
         center={[-29.6, 28.2]}
         zoom={8}
         minZoom={7}
-        maxBounds={[[-30.9, 26.7], [-28.3, 29.5]]}
+        maxBounds={[[-31.0, 26.5], [-28.3, 30.0]]}
         maxBoundsViscosity={1.0}
         style={{ height: "100%", width: "100%" }}
         className="map-leaflet-container"

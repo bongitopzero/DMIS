@@ -243,6 +243,7 @@ const MapPage = () => {
           center={[-29.6, 28.2]}
           zoom={8}
           minZoom={7}
+          maxBounds={[[-31.0, 26.5], [-28.3, 30.0]]}
           className="map-leaflet-container"
           style={{ position: 'absolute', height: '100%', width: '100%', top: 0, left: 0, zIndex: 1 }}
         >
