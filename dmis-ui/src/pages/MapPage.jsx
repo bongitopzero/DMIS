@@ -4,14 +4,14 @@ import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import { MapPin } from "lucide-react";
 
-// CRITICAL: Leaflet CSS - Load ONCE at top level
+// CSS imports
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-
 import "../leafletFix";
 import "./MapPage.css";
 
+// Data and utils
 import lesothoDistricts from "../data/gadm41_LSO_1.json";
 import {
   normalize,
@@ -23,11 +23,7 @@ import {
 import { useMapResize } from "../hooks/useMapResize";
 import { useMapContext } from "../context/MapContext";
 
-/**
- * ============================================
- * LEAFLET MARKER ICON FIX
- * ============================================
- */
+// Leaflet icon fix
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
@@ -36,37 +32,19 @@ L.Icon.Default.mergeOptions({
 });
 
 /**
- * ============================================
- * INNER MAP CONTENT COMPONENT
- * ============================================
- * Separated to use useMapResize hook
+ * Inner map component with Leaflet content
  */
-const MapContent = ({
-  incidentsWithCoords,
-  incidentsData,
-  styleDistrict,
-  onEachDistrict,
-}) => {
-  // Use custom hook to fix map sizing
+const MapContent = ({incidentsWithCoords, incidentsData, styleDistrict, onEachDistrict}) => {
   useMapResize();
 
   return (
     <>
-      {/* Base tile layer */}
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution="&copy; OpenStreetMap contributors"
       />
-
-      {/* District boundaries (GeoJSON) */}
       <GeoJSON data={lesothoDistricts} style={styleDistrict} onEachFeature={onEachDistrict} />
-
-      {/* CLUSTERING: Wrap markers in MarkerClusterGroup */}
-      <MarkerClusterGroup
-        chunkedLoading
-        maxClusterRadius={80}
-        disableClusteringAtZoom={12}
-      >
+      <MarkerClusterGroup chunkedLoading maxClusterRadius={80} disableClusteringAtZoom={12}>
         {incidentsWithCoords.map((incident, idx) => (
           <CircleMarker
             key={incident._id || idx}
@@ -92,235 +70,110 @@ const MapContent = ({
                   <strong>Location:</strong> {incident.location || incident.district}
                 </p>
                 <p style={{ margin: "4px 0", fontSize: "12px" }}>
-                  <strong>Severity:</strong>{" "}
-                  <span
-                    style={{
-                      color: getSeverityColor(incident.severity),
-                      fontWeight: "bold",
-                      textTransform: "uppercase",
-                    }}
-                  >
+                  <strong>Severity:</strong>
+                  <span style={{color: getSeverityColor(incident.severity), fontWeight: "bold", textTransform: "uppercase"}}>
                     {incident.severity}
                   </span>
                 </p>
                 <p style={{ margin: "4px 0", fontSize: "12px" }}>
-                  <strong>Affected:</strong> {incident.households || incident.numberOfHouseholdsAffected || "N/A"}{" "}
-                  households
+                  <strong>Affected:</strong> {incident.households || incident.numberOfHouseholdsAffected || "N/A"} households
                 </p>
                 <p style={{ margin: "4px 0", fontSize: "12px" }}>
                   <strong>Status:</strong> {incident.status || "reported"}
                 </p>
-                {incident.damages && (
-                  <p style={{ margin: "4px 0", fontSize: "11px", color: "#64748b" }}>
-                    {incident.damages.substring(0, 80)}...
-                  </p>
-                )}
               </div>
             </Popup>
-            <Tooltip direction="top" offset={[0, -10]}>
-              {incident.type?.replace("_", " ")} - {incident.district}
-              {incident.region && ` (${incident.region})`}
-            </Tooltip>
+            <Tooltip>{incident.type?.replace("_", " ")} - {incident.district}</Tooltip>
           </CircleMarker>
         ))}
       </MarkerClusterGroup>
-
-      {/* DEBUG PANEL */}
-      <div
-        style={{
-          position: "fixed",
-          top: "70px",
-          right: "10px",
-          background: "rgba(255, 255, 255, 0.95)",
-          padding: "12px 16px",
-          borderRadius: "8px",
-          zIndex: 500,
-          fontSize: "12px",
-          fontWeight: "600",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-          fontFamily: "monospace",
-          pointerEvents: "none",
-        }}
-      >
-        <div style={{ color: incidentsWithCoords.length > 0 ? "#22C55E" : "#EF4444" }}>
-          📌 Markers: {incidentsWithCoords.length}
-        </div>
-        <div style={{ color: "#64748b", fontSize: "11px", marginTop: "4px" }}>
-          Total: {incidentsData.length}
-        </div>
-        <div style={{ color: "#64748b", fontSize: "11px", marginTop: "4px" }}>
-          Clusters: Auto
-        </div>
+      {/* Debug info */}
+      <div style={{position: "fixed", top: "70px", right: "10px", background: "rgba(255,255,255,0.95)", padding: "12px", borderRadius: "8px", zIndex: 500, fontSize: "12px", fontFamily: "monospace"}}>
+        📌 {incidentsWithCoords.length} markers | Total: {incidentsData.length}
       </div>
     </>
   );
 };
 
 /**
- * ============================================
- * GIS MAP PAGE COMPONENT
- * ============================================
- * Synchronized with Dashboard.jsx via MapContext
+ * Main GIS Map Page
  */
 const MapPage = () => {
-  // Get shared context data
-  const {
-    incidentsData,
-    loading,
-    error,
-    selectedDistrict,
-    setSelectedDistrict,
-    selectedType,
-    setSelectedType,
-    selectedSeverity,
-    setSelectedSeverity,
-  } = useMapContext();
-
+  // Get context data
+  const {incidentsData, loading, error, selectedDistrict, setSelectedDistrict, selectedType, setSelectedType, selectedSeverity, setSelectedSeverity} = useMapContext();
   const [mapKey, setMapKey] = useState(0);
 
-  // Debug: Log when component mounts and data loads
+  // District list
+  const districts = ["All Districts", "Berea", "Butha-Buthe", "Leribe", "Mafeteng", "Maseru", "Mohale's Hoek", "Mokhotlong", "Qacha's Nek", "Quthing", "Thaba-Tseka"];
+
+  // Log when data changes
   useEffect(() => {
-    console.log("🗺️ GIS MapPage MOUNTED");
-    console.log("📦 Context data loaded:", incidentsData.length, "incidents");
-    console.log("⏳ Loading:", loading);
-    if (error) console.error("❌ Error:", error);
-    console.log("📍 Filtered incidents with coords:", incidentsWithCoords.length);
-    if (incidentsWithCoords.length > 0) {
-      console.log("First incident:", incidentsWithCoords[0]);
-    }
-  }, [incidentsData, loading, error, incidentsWithCoords]);
+    console.log("MapPage mounted/updated - Incidents:", incidentsData.length, "Loading:", loading);
+  }, [incidentsData, loading]);
 
-  const districts = [
-    "All Districts",
-    "Berea",
-    "Butha-Buthe",
-    "Leribe",
-    "Mafeteng",
-    "Maseru",
-    "Mohale's Hoek",
-    "Mokhotlong",
-    "Qacha's Nek",
-    "Quthing",
-    "Thaba-Tseka",
-  ];
-
-  /* ===================== FILTERING ===================== */
+  // CALCULATE FILTERED INCIDENTS
   const filteredIncidents = useMemo(() => {
+    if (!incidentsData || !Array.isArray(incidentsData)) return [];
     return incidentsData.filter((incident) => {
-      const districtMatch =
-        selectedDistrict === "All Districts" ||
-        normalize(incident.district) === normalize(selectedDistrict);
-      const typeMatch =
-        selectedType === "All" || normalizeType(incident.type) === selectedType;
-      const severityMatch =
-        selectedSeverity === "All Severity" ||
-        normalizeSeverity(incident.severity) === selectedSeverity.toLowerCase();
-
+      const districtMatch = selectedDistrict === "All Districts" || normalize(incident.district) === normalize(selectedDistrict);
+      const typeMatch = selectedType === "All" || normalizeType(incident.type) === selectedType;
+      const severityMatch = selectedSeverity === "All Severity" || normalizeSeverity(incident.severity) === selectedSeverity.toLowerCase();
       return districtMatch && typeMatch && severityMatch;
     });
   }, [incidentsData, selectedDistrict, selectedType, selectedSeverity]);
 
-  /* ===================== SUMMARY STATS ===================== */
-  const calculateSummaries = () => {
+  // CALCULATE SUMMARIES
+  const summaries = useMemo(() => {
     const visibleEvents = filteredIncidents.length;
-    const activeEvents = filteredIncidents.filter(
-      (i) => i.status === "reported" || i.status === "verified"
-    ).length;
-    const totalAffected = filteredIncidents.reduce(
-      (sum, i) =>
-        sum +
-        (Number(i.households) || Number(i.numberOfHouseholdsAffected) || 0),
-      0
-    );
-    const totalResolved = filteredIncidents.filter(
-      (i) => i.status === "closed"
-    ).length;
-
+    const activeEvents = filteredIncidents.filter(i => i.status === "reported" || i.status === "verified").length;
+    const totalAffected = filteredIncidents.reduce((sum, i) => sum + (Number(i.households) || Number(i.numberOfHouseholdsAffected) || 0), 0);
+    const totalResolved = filteredIncidents.filter(i => i.status === "closed").length;
     return { visibleEvents, activeEvents, totalAffected, totalResolved };
-  };
-
-  const summaries = calculateSummaries();
-
-  /* ===================== PREPARE COORDINATES ===================== */
-  const incidentsWithCoords = useMemo(() => {
-    return filteredIncidents.map((incident) => {
-      const coords = getIncidentCoordinates(incident);
-      return {
-        ...incident,
-        latitude: coords[0],
-        longitude: coords[1],
-      };
-    });
   }, [filteredIncidents]);
 
-  /* ===================== DISTRICT STYLING ===================== */
-  const styleDistrict = (feature) => ({
-    fill: false,
-    fillOpacity: 0,
-    weight: 0.5,
-    opacity: 0.3,
-    color: "#ccc",
-  });
+  // PREPARE INCIDENTS WITH COORDINATES
+  const incidentsWithCoords = useMemo(() => {
+    return filteredIncidents.map((incident) => ({
+      ...incident,
+      latitude: getIncidentCoordinates(incident)[0],
+      longitude: getIncidentCoordinates(incident)[1],
+    }));
+  }, [filteredIncidents]);
+
+  // DISTRICT STYLING AND INTERACTIONS
+  const styleDistrict = (feature) => ({fill: false, fillOpacity: 0, weight: 0.5, opacity: 0.3, color: "#ccc"});
 
   const onEachDistrict = (feature, layer) => {
     const districtName = feature.properties.NAME_1;
     const normalizedGeoDistrict = normalize(districtName);
-
-    const incidents = incidentsData.filter(
-      (i) => normalize(i.district) === normalizedGeoDistrict
-    );
-
+    const incidents = incidentsData.filter(i => normalize(i.district) === normalizedGeoDistrict);
     const severityCounts = {
-      high: incidents.filter((i) => {
-        const sev = normalizeSeverity(i.severity);
-        return sev === "critical" || sev === "high";
-      }).length,
-      moderate: incidents.filter((i) => {
-        const sev = normalizeSeverity(i.severity);
-        return sev === "medium" || sev === "moderate";
-      }).length,
-      low: incidents.filter((i) => normalizeSeverity(i.severity) === "low").length,
+      high: incidents.filter(i => {const sev = normalizeSeverity(i.severity); return sev === "critical" || sev === "high";}).length,
+      moderate: incidents.filter(i => {const sev = normalizeSeverity(i.severity); return sev === "medium" || sev === "moderate";}).length,
+      low: incidents.filter(i => normalizeSeverity(i.severity) === "low").length,
     };
-
-    layer.bindPopup(`
-      <div style="font-family: sans-serif; min-width: 150px;">
-        <strong style="font-size: 14px; color: #1e293b;">${districtName}</strong><br/>
-        <div style="margin-top: 8px; font-size: 13px;">
-          <strong>Total Incidents:</strong> ${incidents.length}<br/>
-          ${severityCounts.high > 0 ? `<span style="color: #EF4444;">● High: ${severityCounts.high}</span><br/>` : ""}
-          ${severityCounts.moderate > 0 ? `<span style="color: #F97316;">● Moderate: ${severityCounts.moderate}</span><br/>` : ""}
-          ${severityCounts.low > 0 ? `<span style="color: #22C55E;">● Low: ${severityCounts.low}</span>` : ""}
-        </div>
-      </div>
-    `);
-
-    layer.on("click", () => {
-      setSelectedDistrict(districtName);
-    });
+    layer.bindPopup(`<div style="font-family: sans-serif;"><strong>${districtName}</strong><br/>Total: ${incidents.length}</div>`);
+    layer.on("click", () => setSelectedDistrict(districtName));
   };
 
-  /* ===================== RENDER ===================== */
+  // RENDER
   return (
     <div className="gis-map-page-new">
-      {/* TOP SECTION - Summary Cards */}
+      {/* Header with summary cards */}
       <div className="gis-map-header">
         <div className="gis-map-title-section">
           <h1 className="gis-map-title">GIS Disaster Map</h1>
-          <p className="gis-map-subtitle">Real-time disaster monitoring and analytics (synced with Dashboard)</p>
+          <p className="gis-map-subtitle">Real-time disaster monitoring (synced with Dashboard)</p>
         </div>
-
-        {/* Summary Cards Grid */}
         <div className="gis-summary-cards">
           <div className="gis-summary-card">
             <div className="gis-card-label">Visible Events</div>
             <div className="gis-card-value">{summaries.visibleEvents}</div>
-            <div className="gis-card-detail">on map with filters</div>
+            <div className="gis-card-detail">on map</div>
           </div>
           <div className="gis-summary-card">
             <div className="gis-card-label">Active Events</div>
-            <div className="gis-card-value" style={{ color: "#EF4444" }}>
-              {summaries.activeEvents}
-            </div>
+            <div className="gis-card-value" style={{ color: "#EF4444" }}>{summaries.activeEvents}</div>
             <div className="gis-card-detail">requiring response</div>
           </div>
           <div className="gis-summary-card">
@@ -330,15 +183,13 @@ const MapPage = () => {
           </div>
           <div className="gis-summary-card">
             <div className="gis-card-label">Resolved</div>
-            <div className="gis-card-value" style={{ color: "#22C55E" }}>
-              {summaries.totalResolved}
-            </div>
-            <div className="gis-card-detail">closed incidents</div>
+            <div className="gis-card-value" style={{ color: "#22C55E" }}>{summaries.totalResolved}</div>
+            <div className="gis-card-detail">incidents</div>
           </div>
         </div>
       </div>
 
-      {/* MAIN CONTENT - Sidebar + Map */}
+      {/* Sidebar + Map */}
       <div className="gis-map-content" style={{ flex: 1, display: "flex", overflow: "hidden" }}>
         {/* Sidebar */}
         <div className="map-sidebar">
@@ -346,186 +197,75 @@ const MapPage = () => {
             <MapPin size={24} />
             <h2>Filters & Legend</h2>
           </div>
-
           <div className="sidebar-content">
-            {/* SECTION 1 - Disaster Type Filters */}
+            {/* Disaster Types */}
             <div className="sidebar-section">
-              <div className="section-header">
-                <h3 className="section-title">Disaster Types</h3>
-              </div>
+              <h3 className="section-title">Disaster Types</h3>
               <div className="section-content">
                 <div className="disaster-type-item">
-                  <input
-                    type="checkbox"
-                    checked={selectedType === "All" || selectedType === "drought"}
-                    onChange={() =>
-                      setSelectedType(selectedType === "drought" ? "All" : "drought")
-                    }
-                    className="type-checkbox"
-                    id="type-drought"
-                  />
+                  <input type="checkbox" checked={selectedType === "All" || selectedType === "drought"} onChange={() => setSelectedType(selectedType === "drought" ? "All" : "drought")} id="type-drought" className="type-checkbox" />
                   <label htmlFor="type-drought">Drought</label>
                 </div>
                 <div className="disaster-type-item">
-                  <input
-                    type="checkbox"
-                    checked={selectedType === "All" || selectedType === "flooding"}
-                    onChange={() =>
-                      setSelectedType(selectedType === "flooding" ? "All" : "flooding")
-                    }
-                    className="type-checkbox"
-                    id="type-rainfall"
-                  />
+                  <input type="checkbox" checked={selectedType === "All" || selectedType === "flooding"} onChange={() => setSelectedType(selectedType === "flooding" ? "All" : "flooding")} id="type-rainfall" className="type-checkbox" />
                   <label htmlFor="type-rainfall">Heavy Rainfall</label>
                 </div>
                 <div className="disaster-type-item">
-                  <input
-                    type="checkbox"
-                    checked={selectedType === "All" || selectedType === "strong_winds"}
-                    onChange={() =>
-                      setSelectedType(
-                        selectedType === "strong_winds" ? "All" : "strong_winds"
-                      )
-                    }
-                    className="type-checkbox"
-                    id="type-winds"
-                  />
+                  <input type="checkbox" checked={selectedType === "All" || selectedType === "strong_winds"} onChange={() => setSelectedType(selectedType === "strong_winds" ? "All" : "strong_winds")} id="type-winds" className="type-checkbox" />
                   <label htmlFor="type-winds">Strong Winds</label>
                 </div>
               </div>
             </div>
-
-            {/* Divider */}
             <div className="section-divider"></div>
 
-            {/* SECTION 2 - District Filter */}
+            {/* District */}
             <div className="sidebar-section">
-              <div className="section-header">
-                <h3 className="section-title">District</h3>
-              </div>
-              <div className="section-content">
-                <div className="filter-group">
-                  <select
-                    className="filter-select"
-                    value={selectedDistrict}
-                    onChange={(e) => setSelectedDistrict(e.target.value)}
-                  >
-                    {districts.map((d) => (
-                      <option key={d} value={d}>
-                        {d}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+              <h3 className="section-title">District</h3>
+              <select className="filter-select" value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)}>
+                {districts.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
             </div>
-
-            {/* Divider */}
             <div className="section-divider"></div>
 
-            {/* SECTION 3 - Severity Filter */}
+            {/* Severity */}
             <div className="sidebar-section">
-              <div className="section-header">
-                <h3 className="section-title">Severity</h3>
-              </div>
-              <div className="section-content">
-                <div className="filter-group">
-                  <select
-                    className="filter-select"
-                    value={selectedSeverity}
-                    onChange={(e) => setSelectedSeverity(e.target.value)}
-                  >
-                    <option value="All Severity">All Severity</option>
-                    <option value="Low">Low</option>
-                    <option value="Moderate">Moderate</option>
-                    <option value="High">High</option>
-                  </select>
-                </div>
-              </div>
+              <h3 className="section-title">Severity</h3>
+              <select className="filter-select" value={selectedSeverity} onChange={(e) => setSelectedSeverity(e.target.value)}>
+                <option value="All Severity">All Severity</option>
+                <option value="Low">Low</option>
+                <option value="Moderate">Moderate</option>
+                <option value="High">High</option>
+              </select>
             </div>
-
-            {/* Divider */}
             <div className="section-divider"></div>
 
-            {/* SECTION 4 - Severity Legend */}
+            {/* Legend */}
             <div className="sidebar-section">
-              <div className="section-header">
-                <h3 className="section-title">Severity Legend</h3>
-              </div>
+              <h3 className="section-title">Severity Legend</h3>
               <div className="section-content">
-                <div className="legend-row">
-                  <span
-                    className="legend-dot"
-                    style={{ backgroundColor: "#22C55E" }}
-                  ></span>
-                  <span className="legend-label">Low Risk</span>
-                </div>
-                <div className="legend-row">
-                  <span
-                    className="legend-dot"
-                    style={{ backgroundColor: "#F97316" }}
-                  ></span>
-                  <span className="legend-label">Moderate Risk</span>
-                </div>
-                <div className="legend-row">
-                  <span
-                    className="legend-dot"
-                    style={{ backgroundColor: "#EF4444" }}
-                  ></span>
-                  <span className="legend-label">Critical Risk</span>
-                </div>
+                <div className="legend-row"><span className="legend-dot" style={{ backgroundColor: "#22C55E" }}></span><span className="legend-label">Low Risk</span></div>
+                <div className="legend-row"><span className="legend-dot" style={{ backgroundColor: "#F97316" }}></span><span className="legend-label">Moderate Risk</span></div>
+                <div className="legend-row"><span className="legend-dot" style={{ backgroundColor: "#EF4444" }}></span><span className="legend-label">Critical Risk</span></div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Map Container - EXPLICIT SIZING */}
-        <div 
-          className="map-container-full" 
-          style={{ 
-            flex: 1, 
-            height: '100%', 
-            width: '100%',
-            position: 'relative',
-            overflow: 'hidden',
-            background: '#f0f0f0'
-          }}
-        >
-          {loading && (
-            <div className="loading-indicator" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 100 }}>
-              Loading map data...
-            </div>
-          )}
-          {error && (
-            <div className="error-indicator" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 100, color: 'red' }}>
-              {error}
-            </div>
-          )}
-
-          {/* KEY is critical - forces map to remount and resize properly */}
+        {/* Map Container */}
+        <div className="map-container-full" style={{ flex: 1, height: '100%', width: '100%', position: 'relative', overflow: 'hidden' }}>
+          {loading && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 100 }}>Loading...</div>}
+          {error && <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', color: 'red', zIndex: 100 }}>{error}</div>}
           <MapContainer
             key={`map-${mapKey}`}
             center={[-29.6, 28.2]}
             zoom={8}
             minZoom={7}
-            maxBounds={[[-30.9, 26.7], [-28.3, 29.5]]}
-            maxBoundsViscosity={1.0}
             className="map-leaflet-container"
-            style={{ 
-              height: '100%', 
-              width: '100%',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              zIndex: 1
-            }}
+            style={{ position: 'absolute', height: '100%', width: '100%', top: 0, left: 0, zIndex: 1 }}
           >
-            <MapContent
-              incidentsWithCoords={incidentsWithCoords}
-              incidentsData={incidentsData}
-              styleDistrict={styleDistrict}
-              onEachDistrict={onEachDistrict}
-            />
+            <MapContent incidentsWithCoords={incidentsWithCoords} incidentsData={incidentsData} styleDistrict={styleDistrict} onEachDistrict={onEachDistrict} />
           </MapContainer>
         </div>
       </div>

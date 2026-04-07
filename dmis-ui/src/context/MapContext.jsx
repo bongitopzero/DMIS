@@ -33,7 +33,7 @@ export const MapProvider = ({ children }) => {
   const [selectedDistrict, setSelectedDistrict] = useState("All Districts");
   const [selectedType, setSelectedType] = useState("All");
   const [selectedSeverity, setSelectedSeverity] = useState("All Severity");
-  const [currentYearOnly, setCurrentYearOnly] = useState(true);
+  const [currentYearOnly, setCurrentYearOnly] = useState(false); // DISABLED - show all years
 
   // ==================== FETCH DATA ====================
   const fetchIncidents = useCallback(async () => {
