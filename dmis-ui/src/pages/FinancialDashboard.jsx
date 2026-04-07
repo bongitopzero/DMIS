@@ -194,7 +194,7 @@ export default function FinancialDashboard() {
           <option value="">All Approved Disasters</option>
           {disasters.map((disaster) => (
             <option key={disaster._id} value={disaster._id}>
-              {disaster._id.substring(0, 8)} - {disaster.type} ({disaster.district})
+              {disaster.disasterCode || disaster._id.substring(0, 8)} - {disaster.type} ({disaster.district})
             </option>
           ))}
         </select>

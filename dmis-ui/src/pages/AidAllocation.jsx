@@ -412,7 +412,7 @@ export default function AidAllocation() {
               <option value="">Select an approved disaster...</option>
               {disasters.map((d) => (
                 <option key={d._id} value={d._id}>
-                  {d._id.substring(0, 8)} - {d.type} ({d.district})
+                  {d.disasterCode || d._id.substring(0, 8)} - {d.type} ({d.district})
                 </option>
               ))}
             </select>
@@ -548,7 +548,7 @@ export default function AidAllocation() {
                   <div>
                     <h3>
                       Aid Allocation Plan —{" "}
-                      {currentDisaster?._id?.substring(0, 8) || "Selected Disaster"}
+                      {currentDisaster?.disasterCode || currentDisaster?._id?.substring(0, 8) || "Selected Disaster"}
                     </h3>
                     <p className="plan-subtitle">
                       {households.length} households assessed
@@ -728,7 +728,7 @@ export default function AidAllocation() {
               <div className="summary-dashboard">
                 <h3>
                   Allocation Summary —{" "}
-                  {currentDisaster?._id?.substring(0, 8) || "Selected Disaster"}
+                  {currentDisaster?.disasterCode || currentDisaster?._id?.substring(0, 8) || "Selected Disaster"}
                 </h3>
 
                 <div className="summary-cards">
