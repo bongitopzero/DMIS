@@ -137,25 +137,25 @@ const MapPage = () => {
   // RENDER
   return (
     <div className="gis-map-page-new">
-      {/* SIDEBAR - LEFT */}
+      {/* Sidebar */}
       <div className="map-sidebar">
         {/* Map Summary */}
-        <div className="sidebar-header" style={{ background: "white", padding: "16px", borderBottom: "1px solid #e5e7eb" }}>
-          <h3 style={{ margin: "0 0 12px 0", fontSize: "14px", fontWeight: "600", color: "#1f2937", display: "flex", alignItems: "center", gap: "6px" }}>
+        <div style={{ background: "white", padding: "16px", borderBottom: "1px solid #e5e7eb" }}>
+          <h3 style={{ margin: "0 0 16px 0", fontSize: "14px", fontWeight: "700", color: "#1f2937", display: "flex", alignItems: "center", gap: "8px" }}>
             <MapPin size={16} /> Map Summary
           </h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px", fontSize: "13px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", fontSize: "13px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ color: "#6b7280" }}>Visible Events</span>
-              <span style={{ fontWeight: "600", color: "#1f2937" }}>{summaries.visibleEvents}</span>
+              <span style={{ fontWeight: "700", fontSize: "16px", color: "#1f2937" }}>{summaries.visibleEvents}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ color: "#6b7280" }}>Active Events</span>
-              <span style={{ fontWeight: "600", color: "#EF4444" }}>{summaries.activeEvents}</span>
+              <span style={{ fontWeight: "700", fontSize: "16px", color: "#EF4444" }}>{summaries.activeEvents}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ color: "#6b7280" }}>Total Affected</span>
-              <span style={{ fontWeight: "600", color: "#1f2937" }}>{summaries.totalAffected.toLocaleString()}</span>
+              <span style={{ fontWeight: "700", fontSize: "16px", color: "#1f2937" }}>{summaries.totalAffected.toLocaleString()}</span>
             </div>
           </div>
         </div>
