@@ -64,15 +64,5 @@ export const useMapResize = () => {
     };
   }, [map]);
 };
-        clearTimeout(timer);
-        window.removeEventListener('resize', handleResize);
-      };
-    } catch (err) {
-      console.warn("useMapResize error:", err.message);
-    }
-  }, [map]);
-
-  return map;
-};
 
 export default useMapResize;
