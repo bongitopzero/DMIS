@@ -46,9 +46,6 @@ export const MapProvider = ({ children }) => {
 
       let list = disasters;
 
-      // Filter by approval status - only show APPROVED disasters
-      list = list.filter((item) => item.approvalStatus === "approved");
-
       // Filter by current year if enabled
       if (currentYearOnly) {
         const year = new Date().getFullYear();
@@ -61,7 +58,7 @@ export const MapProvider = ({ children }) => {
       }
 
       console.log(
-        `📊 MapContext: Fetched ${disasters.length} disasters → ${list.length} approved disasters`
+        `📊 MapContext: Fetched ${disasters.length} disasters → ${list.length} after year filter`
       );
 
       setIncidentsData(list);
