@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
@@ -177,6 +177,13 @@ const MapPage = () => {
   } = useMapContext();
 
   const [mapKey, setMapKey] = useState(0);
+
+  // Debug: Log when component mounts and data loads
+  useEffect(() => {
+    console.log("🗺️ GIS MapPage mounted");
+    console.log("📦 Context data loaded:", incidentsData.length, "incidents");
+    console.log("⏳ Loading:", loading, "Error:", error);
+  }, [incidentsData, loading, error]);
 
   const districts = [
     "All Districts",
@@ -468,7 +475,7 @@ const MapPage = () => {
         </div>
 
         {/* Map Container */}
-        <div className="map-container-full">
+        <div className="map-container-full" style={{ height: '100%', width: '100%' }}>
           {loading && <div className="loading-indicator">Loading map data...</div>}
           {error && <div className="error-indicator">{error}</div>}
 
@@ -481,6 +488,7 @@ const MapPage = () => {
             maxBounds={[[-30.9, 26.7], [-28.3, 29.5]]}
             maxBoundsViscosity={1.0}
             className="map-leaflet-container"
+            style={{ height: '100%', width: '100%' }}
           >
             <MapContent
               incidentsWithCoords={incidentsWithCoords}
