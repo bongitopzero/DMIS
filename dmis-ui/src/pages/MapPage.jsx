@@ -180,9 +180,9 @@ const MapPage = () => {
                 <label style={{ fontSize: "12px", fontWeight: "600", color: "#4b5563", display: "block", marginBottom: "4px" }}>Severity</label>
                 <select className="filter-select" value={selectedSeverity} onChange={(e) => setSelectedSeverity(e.target.value)}>
                   <option value="All Severity">All Severity</option>
-                  <option value="Low">Low</option>
-                  <option value="Moderate">Moderate</option>
-                  <option value="High">High</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
                 </select>
               </div>
             </div>
@@ -199,7 +199,7 @@ const MapPage = () => {
                 Drought
               </label>
               <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px", color: "#374151" }}>
-                <input type="checkbox" checked={selectedType === "All" || selectedType === "flooding"} onChange={() => setSelectedType(selectedType === "flooding" ? "All" : "flooding")} style={{ cursor: "pointer" }} />
+                <input type="checkbox" checked={selectedType === "All" || selectedType === "heavy_rainfall"} onChange={() => setSelectedType(selectedType === "heavy_rainfall" ? "All" : "heavy_rainfall")} style={{ cursor: "pointer" }} />
                 Heavy Rainfall
               </label>
               <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px", color: "#374151" }}>
@@ -219,7 +219,7 @@ const MapPage = () => {
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <span style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#F97316" }}></span>
-                <span>Moderate</span>
+                <span>Medium</span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <span style={{ width: "12px", height: "12px", borderRadius: "50%", backgroundColor: "#EF4444" }}></span>
