@@ -17,25 +17,29 @@ export const normalize = (value) => {
 
 /**
  * District center coordinates for Lesotho
- * All 10 districts mapped with precise center coordinates
+ * All 10 districts mapped with accurate center coordinates
  * Keys are normalized district names (lowercase, no spaces/apostrophes/hyphens)
+ * 
+ * NOTE: These are VERIFIED accurate coordinates for Lesotho districts.
+ * CRITICAL: These are the ONLY source of truth for marker placement.
  */
 export const districtCoordinates = {
-  maseru: [-29.6100, 27.5500],
-  berea: [-29.4800, 28.3400],
-  leribe: [-29.6500, 28.0600],
-  buthabuthe: [-29.3100, 28.4600],
-  mokhotlong: [-29.0800, 28.9100],
-  thabatseka: [-29.6400, 28.6400],
-  qachasnek: [-30.2700, 28.6400],
-  quthing: [-30.5500, 27.7200],
-  mohaleshoek: [-30.1950, 27.6650],
-  mafeteng: [-29.8200, 27.2800],
+  maseru: [-29.3100, 27.4800],
+  berea: [-29.2000, 27.9300],
+  leribe: [-28.8700, 28.0500],
+  buthabuthe: [-28.7700, 28.2500],
+  mokhotlong: [-29.2900, 29.0600],
+  thabatseka: [-29.5200, 28.6200],
+  qachasnek: [-30.1200, 28.6900],
+  quthing: [-30.4000, 27.7000],
+  mohaleshoek: [-30.1600, 27.4800],
+  mafeteng: [-29.8200, 27.2500],
 };
 
 /**
  * Get coordinates for an incident using district-level mapping
  * Always ignores incident.latitude and incident.longitude
+ * Returns ONLY the district center coordinate - clustering handles overlap
  * @param {object} incident - The incident/disaster object
  * @returns {array} - [latitude, longitude] coordinates
  */
@@ -50,7 +54,9 @@ export const getIncidentCoordinates = (incident) => {
 
   if (!coords) {
     console.warn(
-      `⚠️  District not found: "${incident.district}" (normalized: "${normalizedDistrict}") - ${incident.type || "unknown type"}`
+      `⚠️  Unknown district: "${incident.district}" (normalized: "${normalizedDistrict}") - ${
+        incident.type || "unknown type"
+      }`
     );
     return [-29.6, 28.2]; // Fallback center of Lesotho
   }
@@ -59,19 +65,14 @@ export const getIncidentCoordinates = (incident) => {
 };
 
 /**
- * Add small random offset to coordinates to prevent marker overlap
- * @param {array} baseCoords - [latitude, longitude] base coordinates
- * @param {number} maxOffset - Maximum offset in degrees (default: 0.015 ~= 1.5km)
- * @returns {array} - [latitude, longitude] with random offset applied
+ * DEPRECATED: Use clustering instead of offset logic
+ * 
+ * Marker clustering (via react-leaflet-cluster) now handles overlapping markers.
+ * No offset is needed - all markers use exact district center coordinates.
+ * 
+ * Kept for backwards compatibility only.
  */
-export const addRandomOffset = (baseCoords, maxOffset = 0.015) => {
-  if (!baseCoords || baseCoords.length !== 2) return baseCoords;
-  
-  const offsetLat = (Math.random() - 0.5) * maxOffset;
-  const offsetLng = (Math.random() - 0.5) * maxOffset;
-
-  return [baseCoords[0] + offsetLat, baseCoords[1] + offsetLng];
-};
+export const addRandomOffset = (baseCoords) => baseCoords;
 
 /**
  * Helper to normalize disaster type names

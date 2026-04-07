@@ -1,11 +1,11 @@
 // src/components/MapView.jsx
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup, Tooltip } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
 import "leaflet/dist/leaflet.css";
 import lesothoDistricts from "../data/gadm41_LSO_1.json";
 import {
   getIncidentCoordinates,
-  addRandomOffset,
   getSeverityColor,
 } from "../utils/locationUtils";
 
@@ -74,30 +74,33 @@ export default function MapView({ disasters, selectedDisaster }) {
         {/* District GeoJSON Outline */}
         <GeoJSON data={lesothoDistricts} style={styleDistrict} />
 
-        {/* Disaster Markers */}
-        {disasters.map((incident, idx) => {
-          // Get district-based coordinates (ignores database lat/long)
-          const baseCoords = getIncidentCoordinates(incident);
-          const coords = addRandomOffset(baseCoords, 0.015);
+        {/* Disaster Markers with Clustering */}
+        <MarkerClusterGroup
+          chunkedLoading
+          maxClusterRadius={80}
+        >
+          {disasters.map((incident, idx) => {
+            // Get district-based coordinates (ignores database lat/long)
+            const coords = getIncidentCoordinates(incident);
 
-          const isSelected = selectedDisaster?._id === incident._id;
-          const occurrenceDate = incident.occurrenceDate
-            ? new Date(incident.occurrenceDate).toLocaleDateString()
-            : incident.date
-            ? new Date(incident.date).toLocaleDateString()
-            : "N/A";
+            const isSelected = selectedDisaster?._id === incident._id;
+            const occurrenceDate = incident.occurrenceDate
+              ? new Date(incident.occurrenceDate).toLocaleDateString()
+              : incident.date
+              ? new Date(incident.date).toLocaleDateString()
+              : "N/A";
 
-          return (
-            <CircleMarker
-              key={incident._id || idx}
-              center={coords}
-              radius={isSelected ? 8 : 6}
-              fillColor={getSeverityColor(incident.severity)}
-              color="#fff"
-              weight={isSelected ? 3 : 2}
-              opacity={1}
-              fillOpacity={0.8}
-            >
+            return (
+              <CircleMarker
+                key={incident._id || idx}
+                center={coords}
+                radius={isSelected ? 8 : 6}
+                fillColor={getSeverityColor(incident.severity)}
+                color="#fff"
+                weight={isSelected ? 3 : 2}
+                opacity={1}
+                fillOpacity={0.8}
+              >
               <Popup>
                 <div style={{ minWidth: "200px", fontFamily: "sans-serif" }}>
                   <strong style={{ fontSize: "14px", color: "#1e293b" }}>
@@ -144,8 +147,9 @@ export default function MapView({ disasters, selectedDisaster }) {
                 {incident.type?.replace(/_/g, " ")} - {incident.district}
               </Tooltip>
             </CircleMarker>
-          );
-        })}
+            );
+          })}
+        </MarkerClusterGroup>
       </MapContainer>
     </div>
   );

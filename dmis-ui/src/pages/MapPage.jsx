@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup, Tooltip } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
 import { MapPin } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import "../leafletFix";
@@ -11,7 +12,6 @@ import {
   normalize,
   districtCoordinates,
   getIncidentCoordinates,
-  addRandomOffset,
   normalizeType,
   normalizeSeverity,
   getSeverityColor,
@@ -153,17 +153,17 @@ const MapPage = () => {
   ]);
 
   /**
-   * Prepare incidents with district-based coordinates and random offset
+   * Prepare incidents with district-based coordinates (NO offset)
+   * Clustering handles marker overlap visually
    * NEVER uses incident.latitude or incident.longitude from database
    */
   const incidentsWithCoords = filteredIncidents.map((incident) => {
-    const baseCoords = getIncidentCoordinates(incident);
-    const offsetCoords = addRandomOffset(baseCoords, 0.015);
+    const coords = getIncidentCoordinates(incident);
 
     return {
       ...incident,
-      latitude: offsetCoords[0],
-      longitude: offsetCoords[1],
+      latitude: coords[0],
+      longitude: coords[1],
     };
   });
 
@@ -419,72 +419,77 @@ const MapPage = () => {
           {/* District GeoJSON Overlay */}
           <GeoJSON data={lesothoDistricts} style={styleDistrict} onEachFeature={onEachDistrict} />
 
-          {/* Incident Markers */}
-          {incidentsWithCoords.map((incident, idx) => (
-            <CircleMarker
-              key={incident._id || idx}
-              center={[incident.latitude, incident.longitude]}
-              radius={8}
-              fillColor={getSeverityColor(incident.severity)}
-              color="#fff"
-              weight={2}
-              opacity={1}
-              fillOpacity={0.8}
-            >
-              <Popup>
-                <div style={{ minWidth: "200px" }}>
-                  <strong style={{ fontSize: "14px", color: "#1e293b" }}>
-                    {incident.type?.replace("_", " ").toUpperCase()}
-                  </strong>
-                  <hr
-                    style={{
-                      margin: "6px 0",
-                      border: "none",
-                      borderTop: "1px solid #e2e8f0",
-                    }}
-                  />
-                  <p style={{ margin: "4px 0", fontSize: "12px" }}>
-                    <strong>District:</strong> {incident.district}
-                    {incident.region && <span> - {incident.region}</span>}
-                  </p>
-                  <p style={{ margin: "4px 0", fontSize: "12px" }}>
-                    <strong>Location:</strong> {incident.location || incident.district}
-                  </p>
-                  <p style={{ margin: "4px 0", fontSize: "12px" }}>
-                    <strong>Severity:</strong>{" "}
-                    <span
+          {/* Incident Markers with Clustering */}
+          <MarkerClusterGroup
+            chunkedLoading
+            maxClusterRadius={80}
+          >
+            {incidentsWithCoords.map((incident, idx) => (
+              <CircleMarker
+                key={incident._id || idx}
+                center={[incident.latitude, incident.longitude]}
+                radius={8}
+                fillColor={getSeverityColor(incident.severity)}
+                color="#fff"
+                weight={2}
+                opacity={1}
+                fillOpacity={0.8}
+              >
+                <Popup>
+                  <div style={{ minWidth: "200px" }}>
+                    <strong style={{ fontSize: "14px", color: "#1e293b" }}>
+                      {incident.type?.replace("_", " ").toUpperCase()}
+                    </strong>
+                    <hr
                       style={{
-                        color: getSeverityColor(incident.severity),
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
+                        margin: "6px 0",
+                        border: "none",
+                        borderTop: "1px solid #e2e8f0",
                       }}
-                    >
-                      {incident.severity}
-                    </span>
-                  </p>
-                  <p style={{ margin: "4px 0", fontSize: "12px" }}>
-                    <strong>Affected:</strong>{" "}
-                    {incident.households ||
-                      incident.numberOfHouseholdsAffected ||
-                      "N/A"}{" "}
-                    households
-                  </p>
-                  <p style={{ margin: "4px 0", fontSize: "12px" }}>
-                    <strong>Status:</strong> {incident.status || "reported"}
-                  </p>
-                  {incident.damages && (
-                    <p style={{ margin: "4px 0", fontSize: "11px", color: "#64748b" }}>
-                      {incident.damages.substring(0, 80)}...
+                    />
+                    <p style={{ margin: "4px 0", fontSize: "12px" }}>
+                      <strong>District:</strong> {incident.district}
+                      {incident.region && <span> - {incident.region}</span>}
                     </p>
-                  )}
-                </div>
-              </Popup>
-              <Tooltip direction="top" offset={[0, -10]}>
-                {incident.type?.replace("_", " ")} - {incident.district}
-                {incident.region && ` (${incident.region})`}
-              </Tooltip>
-            </CircleMarker>
-          ))}
+                    <p style={{ margin: "4px 0", fontSize: "12px" }}>
+                      <strong>Location:</strong> {incident.location || incident.district}
+                    </p>
+                    <p style={{ margin: "4px 0", fontSize: "12px" }}>
+                      <strong>Severity:</strong>{" "}
+                      <span
+                        style={{
+                          color: getSeverityColor(incident.severity),
+                          fontWeight: "bold",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {incident.severity}
+                      </span>
+                    </p>
+                    <p style={{ margin: "4px 0", fontSize: "12px" }}>
+                      <strong>Affected:</strong>{" "}
+                      {incident.households ||
+                        incident.numberOfHouseholdsAffected ||
+                        "N/A"}{" "}
+                      households
+                    </p>
+                    <p style={{ margin: "4px 0", fontSize: "12px" }}>
+                      <strong>Status:</strong> {incident.status || "reported"}
+                    </p>
+                    {incident.damages && (
+                      <p style={{ margin: "4px 0", fontSize: "11px", color: "#64748b" }}>
+                        {incident.damages.substring(0, 80)}...
+                      </p>
+                    )}
+                  </div>
+                </Popup>
+                <Tooltip direction="top" offset={[0, -10]}>
+                  {incident.type?.replace("_", " ")} - {incident.district}
+                  {incident.region && ` (${incident.region})`}
+                </Tooltip>
+              </CircleMarker>
+            ))}
+          </MarkerClusterGroup>
         </MapContainer>
       </div>
     </div>
