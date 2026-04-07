@@ -39,29 +39,12 @@ export const MapProvider = ({ children }) => {
   const fetchIncidents = useCallback(async () => {
     try {
       setError("");
-      const [dRes, iRes] = await Promise.allSettled([
-        API.get("/disasters"),
-        API.get("/incidents"),
-      ]);
+      
+      // Fetch from /disasters endpoint (only source needed)
+      const response = await API.get("/disasters");
+      const disasters = Array.isArray(response.data) ? response.data : [];
 
-      const disasters =
-        dRes.status === "fulfilled" && Array.isArray(dRes.value.data)
-          ? dRes.value.data
-          : [];
-      const incidents =
-        iRes.status === "fulfilled" && Array.isArray(iRes.value.data)
-          ? iRes.value.data
-          : [];
-
-      // Deduplicate by _id only
-      const map = new Map();
-      [...disasters, ...incidents].forEach((item) => {
-        if (item._id) {
-          map.set(item._id, item);
-        }
-      });
-
-      let list = Array.from(map.values());
+      let list = disasters;
 
       // Filter by current year if enabled
       if (currentYearOnly) {
@@ -75,7 +58,7 @@ export const MapProvider = ({ children }) => {
       }
 
       console.log(
-        `📊 MapContext: Fetched ${disasters.length} disasters + ${incidents.length} incidents = ${map.size} total → ${list.length} after filters`
+        `📊 MapContext: Fetched ${disasters.length} disasters → ${list.length} after year filter`
       );
 
       setIncidentsData(list);

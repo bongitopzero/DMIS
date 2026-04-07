@@ -180,10 +180,15 @@ const MapPage = () => {
 
   // Debug: Log when component mounts and data loads
   useEffect(() => {
-    console.log("🗺️ GIS MapPage mounted");
+    console.log("🗺️ GIS MapPage MOUNTED");
     console.log("📦 Context data loaded:", incidentsData.length, "incidents");
-    console.log("⏳ Loading:", loading, "Error:", error);
-  }, [incidentsData, loading, error]);
+    console.log("⏳ Loading:", loading);
+    if (error) console.error("❌ Error:", error);
+    console.log("📍 Filtered incidents with coords:", incidentsWithCoords.length);
+    if (incidentsWithCoords.length > 0) {
+      console.log("First incident:", incidentsWithCoords[0]);
+    }
+  }, [incidentsData, loading, error, incidentsWithCoords]);
 
   const districts = [
     "All Districts",
@@ -334,7 +339,7 @@ const MapPage = () => {
       </div>
 
       {/* MAIN CONTENT - Sidebar + Map */}
-      <div className="gis-map-content">
+      <div className="gis-map-content" style={{ flex: 1, display: "flex", overflow: "hidden" }}>
         {/* Sidebar */}
         <div className="map-sidebar">
           <div className="sidebar-header">
@@ -474,10 +479,28 @@ const MapPage = () => {
           </div>
         </div>
 
-        {/* Map Container */}
-        <div className="map-container-full" style={{ height: '100%', width: '100%' }}>
-          {loading && <div className="loading-indicator">Loading map data...</div>}
-          {error && <div className="error-indicator">{error}</div>}
+        {/* Map Container - EXPLICIT SIZING */}
+        <div 
+          className="map-container-full" 
+          style={{ 
+            flex: 1, 
+            height: '100%', 
+            width: '100%',
+            position: 'relative',
+            overflow: 'hidden',
+            background: '#f0f0f0'
+          }}
+        >
+          {loading && (
+            <div className="loading-indicator" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 100 }}>
+              Loading map data...
+            </div>
+          )}
+          {error && (
+            <div className="error-indicator" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 100, color: 'red' }}>
+              {error}
+            </div>
+          )}
 
           {/* KEY is critical - forces map to remount and resize properly */}
           <MapContainer
@@ -488,7 +511,14 @@ const MapPage = () => {
             maxBounds={[[-30.9, 26.7], [-28.3, 29.5]]}
             maxBoundsViscosity={1.0}
             className="map-leaflet-container"
-            style={{ height: '100%', width: '100%' }}
+            style={{ 
+              height: '100%', 
+              width: '100%',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              zIndex: 1
+            }}
           >
             <MapContent
               incidentsWithCoords={incidentsWithCoords}
