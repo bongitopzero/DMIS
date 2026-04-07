@@ -19,35 +19,51 @@ export const useMapResize = () => {
   const map = useMap();
 
   useEffect(() => {
-    if (!map) return;
+    if (!map) {
+      console.warn("⚠️  useMapResize: map is null");
+      return;
+    }
 
-    try {
-      // Wait longer for map pane to be fully initialized
-      const timer = setTimeout(() => {
-        try {
-          // Check if map pane exists before invalidating
-          if (map._mapPane && map._mapPane.offsetHeight > 0) {
-            map.invalidateSize(false); // false = no animation
-          }
-        } catch (err) {
-          console.warn("Map invalidateSize warning:", err.message);
+    const attemptResize = () => {
+      try {
+        if (map._mapPane && map._mapPane.offsetHeight > 0) {
+          console.log("✅ useMapResize: Calling invalidateSize with pane height:", map._mapPane.offsetHeight);
+          map.invalidateSize(false);
+        } else {
+          console.warn("⚠️  useMapResize: Map pane not ready, height:", map._mapPane?.offsetHeight);
         }
-      }, 300); // Increased delay to 300ms
+      } catch (err) {
+        console.warn("useMapResize error:", err.message);
+      }
+    };
 
-      // Also invalidate on window resize
-      const handleResize = () => {
-        try {
-          if (map._mapPane && map._mapPane.offsetHeight > 0) {
-            map.invalidateSize(false);
-          }
-        } catch (err) {
-          console.warn("Map resize warning:", err.message);
+    // Multiple attempts to ensure resize happens
+    const timer1 = setTimeout(attemptResize, 100);
+    const timer2 = setTimeout(attemptResize, 300);
+    const timer3 = setTimeout(attemptResize, 500);
+
+    // Also invalidate on window resize
+    const handleResize = () => {
+      try {
+        if (map._mapPane && map._mapPane.offsetHeight > 0) {
+          console.log("📐 useMapResize: Window resize, calling invalidateSize");
+          map.invalidateSize(false);
         }
-      };
+      } catch (err) {
+        console.warn("Map resize warning:", err.message);
+      }
+    };
 
-      window.addEventListener('resize', handleResize);
-      
-      return () => {
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [map]);
+};
         clearTimeout(timer);
         window.removeEventListener('resize', handleResize);
       };
