@@ -375,52 +375,121 @@ const MapPage = () => {
     });
   };
 
+  /* ===================== SUMMARY STATS ===================== */
+  const calculateSummaries = () => {
+    const visibleEvents = filteredIncidents.length;
+    const activeEvents = filteredIncidents.filter(
+      (i) => i.status === "reported" || i.status === "verified"
+    ).length;
+    const totalAffected = filteredIncidents.reduce(
+      (sum, i) =>
+        sum +
+        (Number(i.households) || Number(i.numberOfHouseholdsAffected) || 0),
+      0
+    );
+    const totalResolved = filteredIncidents.filter(
+      (i) => i.status === "closed"
+    ).length;
+
+    return { visibleEvents, activeEvents, totalAffected, totalResolved };
+  };
+
+  const summaries = calculateSummaries();
+
   /* ===================== RENDER ===================== */
 
   return (
-    <div className="gis-map-page">
-      {/* Sidebar */}
-      <div className="map-sidebar">
-        <div className="sidebar-header">
-          <MapPin size={28} />
+    <div className="gis-map-page-new">
+      {/* TOP SECTION - Summary Cards */}
+      <div className="gis-map-header">
+        <div className="gis-map-title-section">
+          <h1 className="gis-map-title">GIS Disaster Map</h1>
+          <p className="gis-map-subtitle">Real-time disaster monitoring and analytics</p>
         </div>
 
-        <div className="sidebar-content">
-          {/* SECTION 1 - Map Summary */}
+        {/* Summary Cards Grid (4 columns like Dashboard) */}
+        <div className="gis-summary-cards">
+          <div className="gis-summary-card">
+            <div className="gis-card-label">Visible Events</div>
+            <div className="gis-card-value">{summaries.visibleEvents}</div>
+            <div className="gis-card-detail">on map with filters applied</div>
+          </div>
+          <div className="gis-summary-card">
+            <div className="gis-card-label">Active Events</div>
+            <div className="gis-card-value" style={{ color: "#EF4444" }}>
+              {summaries.activeEvents}
+            </div>
+            <div className="gis-card-detail">requiring response</div>
+          </div>
+          <div className="gis-summary-card">
+            <div className="gis-card-label">Total Affected</div>
+            <div className="gis-card-value">{summaries.totalAffected.toLocaleString()}</div>
+            <div className="gis-card-detail">households</div>
+          </div>
+          <div className="gis-summary-card">
+            <div className="gis-card-label">Resolved</div>
+            <div className="gis-card-value" style={{ color: "#22C55E" }}>
+              {summaries.totalResolved}
+            </div>
+            <div className="gis-card-detail">closed incidents</div>
+          </div>
+        </div>
+      </div>
+
+      {/* MAIN CONTENT - Sidebar + Map */}
+      <div className="gis-map-content">
+        {/* Sidebar */}
+        <div className="map-sidebar">
+          <div className="sidebar-header">
+            <MapPin size={24} />
+            <h2>Filters & Legend</h2>
+          </div>
+
+          <div className="sidebar-content">
+
+          {/* SECTION 1 - Disaster Type Filters */}
           <div className="sidebar-section">
             <div className="section-header">
-              <h3 className="section-title">Map Summary</h3>
+              <h3 className="section-title">Disaster Types</h3>
             </div>
             <div className="section-content">
-              <div className="summary-row">
-                <span className="summary-label">Visible Events</span>
-                <span className="summary-value">{filteredIncidents.length}</span>
+              <div className="disaster-type-item">
+                <input
+                  type="checkbox"
+                  checked={selectedType === "All" || selectedType === "drought"}
+                  onChange={() =>
+                    setSelectedType(selectedType === "drought" ? "All" : "drought")
+                  }
+                  className="type-checkbox"
+                  id="type-drought"
+                />
+                <label htmlFor="type-drought">Drought</label>
               </div>
-              <div className="summary-row">
-                <span className="summary-label">Active Events</span>
-                <span
-                  className="summary-value"
-                  style={{ color: "#EF4444", fontWeight: "600" }}
-                >
-                  {filteredIncidents.filter(
-                    (i) => i.status === "reported" || i.status === "verified"
-                  ).length}
-                </span>
+              <div className="disaster-type-item">
+                <input
+                  type="checkbox"
+                  checked={selectedType === "All" || selectedType === "flooding"}
+                  onChange={() =>
+                    setSelectedType(selectedType === "flooding" ? "All" : "flooding")
+                  }
+                  className="type-checkbox"
+                  id="type-rainfall"
+                />
+                <label htmlFor="type-rainfall">Heavy Rainfall</label>
               </div>
-              <div className="summary-row">
-                <span className="summary-label">Total Affected</span>
-                <span className="summary-value">
-                  {filteredIncidents
-                    .reduce(
-                      (sum, i) =>
-                        sum +
-                        (Number(i.households) ||
-                          Number(i.numberOfHouseholdsAffected) ||
-                          0),
-                      0
+              <div className="disaster-type-item">
+                <input
+                  type="checkbox"
+                  checked={selectedType === "All" || selectedType === "strong_winds"}
+                  onChange={() =>
+                    setSelectedType(
+                      selectedType === "strong_winds" ? "All" : "strong_winds"
                     )
-                    .toLocaleString()}
-                </span>
+                  }
+                  className="type-checkbox"
+                  id="type-winds"
+                />
+                <label htmlFor="type-winds">Strong Winds</label>
               </div>
             </div>
           </div>
@@ -428,15 +497,13 @@ const MapPage = () => {
           {/* Divider */}
           <div className="section-divider"></div>
 
-          {/* SECTION 2 - Filters */}
+          {/* SECTION 2 - District Filter */}
           <div className="sidebar-section">
             <div className="section-header">
-              <h3 className="section-title">Filters</h3>
+              <h3 className="section-title">District</h3>
             </div>
             <div className="section-content">
-              {/* District Dropdown */}
               <div className="filter-group">
-                <label className="filter-label">District</label>
                 <select
                   className="filter-select"
                   value={selectedDistrict}
@@ -449,10 +516,19 @@ const MapPage = () => {
                   ))}
                 </select>
               </div>
+            </div>
+          </div>
 
-              {/* Severity Dropdown */}
+          {/* Divider */}
+          <div className="section-divider"></div>
+
+          {/* SECTION 3 - Severity Filter */}
+          <div className="sidebar-section">
+            <div className="section-header">
+              <h3 className="section-title">Severity</h3>
+            </div>
+            <div className="section-content">
               <div className="filter-group">
-                <label className="filter-label">Severity</label>
                 <select
                   className="filter-select"
                   value={selectedSeverity}
@@ -463,61 +539,6 @@ const MapPage = () => {
                   <option value="Moderate">Moderate</option>
                   <option value="High">High</option>
                 </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="section-divider"></div>
-
-          {/* SECTION 3 - Disaster Types */}
-          <div className="sidebar-section">
-            <div className="section-header">
-              <h3 className="section-title">Disaster Types</h3>
-            </div>
-            <div className="section-content">
-              <div className="disaster-type-item">
-                <input
-                  type="checkbox"
-                  checked={selectedType === "All" || selectedType === "drought"}
-                  onChange={() =>
-                    setSelectedType(
-                      selectedType === "drought" ? "All" : "drought"
-                    )
-                  }
-                  className="type-checkbox"
-                />
-                <span>Drought</span>
-              </div>
-              <div className="disaster-type-item">
-                <input
-                  type="checkbox"
-                  checked={
-                    selectedType === "All" || selectedType === "flooding"
-                  }
-                  onChange={() =>
-                    setSelectedType(
-                      selectedType === "flooding" ? "All" : "flooding"
-                    )
-                  }
-                  className="type-checkbox"
-                />
-                <span>Heavy Rainfall</span>
-              </div>
-              <div className="disaster-type-item">
-                <input
-                  type="checkbox"
-                  checked={
-                    selectedType === "All" || selectedType === "strong_winds"
-                  }
-                  onChange={() =>
-                    setSelectedType(
-                      selectedType === "strong_winds" ? "All" : "strong_winds"
-                    )
-                  }
-                  className="type-checkbox"
-                />
-                <span>Strong Winds</span>
               </div>
             </div>
           </div>
@@ -536,21 +557,21 @@ const MapPage = () => {
                   className="legend-dot"
                   style={{ backgroundColor: "#22C55E" }}
                 ></span>
-                <span className="legend-label">Low</span>
+                <span className="legend-label">Low Risk</span>
               </div>
               <div className="legend-row">
                 <span
                   className="legend-dot"
                   style={{ backgroundColor: "#F97316" }}
                 ></span>
-                <span className="legend-label">Moderate</span>
+                <span className="legend-label">Moderate Risk</span>
               </div>
               <div className="legend-row">
                 <span
                   className="legend-dot"
                   style={{ backgroundColor: "#EF4444" }}
                 ></span>
-                <span className="legend-label">Critical</span>
+                <span className="legend-label">Critical Risk</span>
               </div>
             </div>
           </div>
@@ -558,7 +579,7 @@ const MapPage = () => {
       </div>
 
       {/* Map Container */}
-      <div className="map-container">
+      <div className="map-container-full">
         {loading && <div className="loading-indicator">Loading map data...</div>}
         {error && <div className="error-indicator">{error}</div>}
 
