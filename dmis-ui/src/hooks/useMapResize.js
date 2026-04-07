@@ -19,18 +19,41 @@ export const useMapResize = () => {
   const map = useMap();
 
   useEffect(() => {
-    // Invalidate map size immediately on mount
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 100);
+    if (!map) return;
 
-    // Also invalidate on window resize
-    const handleResize = () => {
-      map.invalidateSize();
-    };
+    try {
+      // Wait longer for map pane to be fully initialized
+      const timer = setTimeout(() => {
+        try {
+          // Check if map pane exists before invalidating
+          if (map._mapPane && map._mapPane.offsetHeight > 0) {
+            map.invalidateSize(false); // false = no animation
+          }
+        } catch (err) {
+          console.warn("Map invalidateSize warning:", err.message);
+        }
+      }, 300); // Increased delay to 300ms
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+      // Also invalidate on window resize
+      const handleResize = () => {
+        try {
+          if (map._mapPane && map._mapPane.offsetHeight > 0) {
+            map.invalidateSize(false);
+          }
+        } catch (err) {
+          console.warn("Map resize warning:", err.message);
+        }
+      };
+
+      window.addEventListener('resize', handleResize);
+      
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('resize', handleResize);
+      };
+    } catch (err) {
+      console.warn("useMapResize error:", err.message);
+    }
   }, [map]);
 
   return map;
