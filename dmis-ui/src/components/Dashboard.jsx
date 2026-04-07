@@ -4,22 +4,51 @@ import RecentDisasters from "./RecentDisasters";
 import API from "../api/axios";
 import { ToastManager } from "./Toast";
 import { getIncidentCoordinates } from "../utils/locationUtils";
+import { useMapContext } from "../context/MapContext";
 
 export default function Dashboard() {
+  // Get shared context data for real-time sync
+  const contextData = useMapContext();
+  
+  // Dashboard state - uses context data
   const [disasters, setDisasters] = useState([]);
   const [selectedDisaster, setSelectedDisaster] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(contextData.loading);
+  const [error, setError] = useState(contextData.error);
   const [disastersByType, setDisastersByType] = useState({});
   const [financialByMonth, setFinancialByMonth] = useState({});
   const [overview, setOverview] = useState(null);
 
+  // Sync Dashboard with context data in real-time
   useEffect(() => {
-    fetchDisasters();
+    if (!contextData.loading) {
+      // Transform context data with coordinates
+      const transformed = contextData.incidentsData.map((d) => {
+        const coords = getIncidentCoordinates(d);
+        return {
+          ...d,
+          latitude: coords[0],
+          longitude: coords[1],
+        };
+      });
+
+      console.log(
+        `📊 Dashboard synced: ${transformed.length} disasters from MapContext`
+      );
+      setDisasters(transformed);
+      setLoading(false);
+      setError(contextData.error || "");
+
+      if (transformed.length > 0 && !selectedDisaster) {
+        setSelectedDisaster(transformed[0]);
+      }
+    }
+  }, [contextData.incidentsData, contextData.loading, contextData.error]);
+
+  useEffect(() => {
     fetchDashboardStats();
     fetchCoordinatorOverview();
     const interval = setInterval(() => {
-      fetchDisasters();
       fetchDashboardStats();
       fetchCoordinatorOverview();
     }, 30000);
@@ -47,34 +76,6 @@ export default function Dashboard() {
       setFinancialByMonth(finRes.data.data || {});
     } catch (err) {
       console.error("Error fetching dashboard stats:", err);
-    }
-  };
-
-  const fetchDisasters = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await API.get("/disasters");
-      console.log(`📊 Dashboard fetched ${res.data.length} total disasters from API`);
-
-      const transformed = res.data.map((d) => {
-        const coords = getIncidentCoordinates(d);
-        return {
-          ...d,
-          latitude: coords[0],
-          longitude: coords[1],
-        };
-      });
-
-      console.log(`✅ Dashboard processed ${transformed.length} disasters for map`);
-      setDisasters(transformed);
-      if (transformed.length > 0 && !selectedDisaster) {
-        setSelectedDisaster(transformed[0]);
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to load disasters");
-    } finally {
-      setLoading(false);
     }
   };
 

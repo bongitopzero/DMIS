@@ -27,6 +27,7 @@ import Sidebar from "./components/sidebar";
 import Navbar from "./components/navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
+import { MapProvider } from "./context/MapContext";
 
 import "./App.css";
 
@@ -73,7 +74,8 @@ function Layout({ children }) {
 function App() {
   return (
     <ThemeProvider>
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <MapProvider>
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
@@ -276,7 +278,8 @@ function App() {
             }
           />
         </Routes>
-      </Router>
+        </Router>
+      </MapProvider>
     </ThemeProvider>
   );
 }
