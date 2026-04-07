@@ -3,6 +3,7 @@ import MapView from "./MapView";
 import RecentDisasters from "./RecentDisasters";
 import API from "../api/axios";
 import { ToastManager } from "./Toast";
+import { getIncidentCoordinates } from "../utils/locationUtils";
 
 export default function Dashboard() {
   const [disasters, setDisasters] = useState([]);
@@ -56,26 +57,12 @@ export default function Dashboard() {
       const res = await API.get("/disasters");
       console.log(`📊 Dashboard fetched ${res.data.length} total disasters from API`);
 
-     const districtCoordinates = {
-  "maseru": [-29.6100, 27.5500],
-  "berea": [-29.4800, 28.3400],
-  "leribe": [-29.6500, 28.0600],
-  "butha-buthe": [-29.3100, 28.4600],
-  "mokhotlong": [-29.0800, 28.9100],
-  "thaba-tseka": [-29.6400, 28.6400],
-  "qacha's nek": [-30.2700, 28.6400],
-  "quthing": [-30.5500, 27.7200],
-  "mohale's hoek": [-30.1950, 27.6650],
-  "mafeteng": [-29.8200, 27.2800],
-};
-
       const transformed = res.data.map((d) => {
-        const key = d.district?.toLowerCase().trim();
-const coords = districtCoordinates[key] || [-29.6, 27.5];
+        const coords = getIncidentCoordinates(d);
         return {
           ...d,
-          latitude: d.latitude || coords[0],
-          longitude: d.longitude || coords[1],
+          latitude: coords[0],
+          longitude: coords[1],
         };
       });
 
