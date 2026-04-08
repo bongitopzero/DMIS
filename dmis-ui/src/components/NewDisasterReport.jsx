@@ -312,6 +312,20 @@ export default function NewDisasterReport() {
   };
 
   const handleSaveDisaster = async () => {
+    // Validate header data first
+    if (!headerData.disasterType) {
+      ToastManager.error("Please select a disaster type");
+      return;
+    }
+    if (!headerData.district) {
+      ToastManager.error("Please select a district");
+      return;
+    }
+    if (!headerData.numberOfHouseholdsAffected) {
+      ToastManager.error("Please enter the number of affected households");
+      return;
+    }
+    
     if (households.length === 0) {
       ToastManager.error(
         `Please add at least 1 household before saving`
