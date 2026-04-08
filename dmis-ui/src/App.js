@@ -29,27 +29,82 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 
 import "./App.css";
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('React ErrorBoundary caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-br from-red-50 to-orange-50">
+          <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-red-200">
+            <div className="text-center mb-6">
+<div className="w-20 h-20 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{backgroundColor: 'var(--danger-light)'}}>
+                <span style={{fontSize: '2.5rem', color: 'var(--danger)'}}>!</span>
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h1>
+              <p className="text-gray-600 mb-6">We encountered an unexpected error. Please refresh the page.</p>
+            </div>
+            <div className="space-y-3 mb-6 text-sm">
+              <details className="bg-gray-50 p-3 rounded-lg open:bg-gray-100">
+                <summary className="font-medium text-gray-900 cursor-pointer select-none">Error details</summary>
+                <pre className="mt-2 text-xs text-gray-700 overflow-auto max-h-40 bg-gray-900 text-green-400 p-3 rounded font-mono">
+                  {this.state.error?.message || 'Unknown error'}
+                </pre>
+              </details>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => window.location.reload()}
+                className="flex-1 bg-indigo-600 text-white py-2.5 px-4 rounded-xl font-medium hover:bg-indigo-700 transition-all duration-200"
+              >
+                🔄 Refresh Page
+              </button>
+              <a href="/dashboard" className="flex-1 bg-gray-100 text-gray-900 py-2.5 px-4 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200 text-center">
+                🏠 Dashboard
+              </a>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function Layout({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
 
   return (
-    <div
-      className="flex min-h-screen"
-      style={{
-        backgroundColor: "var(--bg-secondary)",
-        color: "var(--text-primary)",
-        transition: "background-color 0.3s ease, color 0.3s ease",
-      }}
-    >
-      <Sidebar
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed((s) => !s)}
-      />
-      <div className="flex-1 flex flex-col">
-        <Navbar />
-        <main className="flex-1 overflow-y-auto">{children}</main>
+    <ErrorBoundary>
+      <div
+        className="flex min-h-screen"
+        style={{
+          backgroundColor: "var(--bg-secondary)",
+          color: "var(--text-primary)",
+          transition: "background-color 0.3s ease, color 0.3s ease",
+        }}
+      >
+        <Sidebar
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed((s) => !s)}
+        />
+        <div className="flex-1 flex flex-col">
+          <Navbar />
+          <main className="flex-1 overflow-y-auto">{children}</main>
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 }
 

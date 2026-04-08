@@ -122,6 +122,10 @@ const DisasterSchema = new mongoose.Schema(
       enum: ["reported", "submitted", "verified", "responding", "closed"],
       default: "reported",
     },
+    allocatedAid: {
+      type: Boolean,
+      default: false
+    },
 
     date: { type: Date, default: Date.now },
     reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

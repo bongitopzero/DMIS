@@ -79,6 +79,25 @@ router.post("/budget/create", authMiddleware, async (req, res) => {
   }
 });
 
+router.put("/budget/:id", authMiddleware, async (req, res) => {
+  try {
+    if (!requireFinanceOfficer(req, res)) return;
+    const budget = await Budget.findById(req.params.id);
+    if (!budget) {
+      return res.status(404).json({ message: "Budget not found" });
+    }
+    const { allocatedBudget } = req.body;
+    if (allocatedBudget && Number.isFinite(allocatedBudget)) {
+      budget.allocatedBudget = allocatedBudget;
+    }
+    applyBudgetUpdates(budget);
+    await budget.save();
+    return res.json(budget);
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to update budget", error: error.message });
+  }
+});
+
 router.get("/budget/current", authMiddleware, async (req, res) => {
   try {
     const budget = await getCurrentBudget();
@@ -95,7 +114,19 @@ router.get("/budget/current", authMiddleware, async (req, res) => {
 
 router.post("/request", authMiddleware, async (req, res) => {
   try {
-    const { incidentId, requestedAmount, category, urgency, purpose, notes, supportingDocs } = req.body;
+    const { incidentId, requestedAmount, category, urgency, purpose, notes, householdId, supportingDocs } = req.body;
+    
+    // Prevent duplicate allocation for same household/disaster
+    const existing = await FundRequest.findOne({
+      incidentId,
+      notes: { $regex: householdId || 'HH', $options: 'i' }, // Match household ID in notes
+      status: { $in: ['Pending', 'Approved', 'Disbursed'] }
+    });
+    
+    if (existing) {
+      return res.status(409).json({ message: "Allocation already exists for this household", existingId: existing._id });
+    }
+    
     if (!incidentId || !mongoose.Types.ObjectId.isValid(incidentId)) {
       return res.status(400).json({ message: "Invalid incidentId" });
     }
@@ -110,12 +141,45 @@ router.post("/request", authMiddleware, async (req, res) => {
       urgency: urgency || "Normal",
       purpose: purpose || "",
       notes: notes || "",
+      householdId: householdId || 'N/A',
       supportingDocs: Array.isArray(supportingDocs) ? supportingDocs : [],
       approvedAmount: 0,
       status: "Pending",
       requestedBy,
     });
-    return res.status(201).json(fundRequest);
+
+    // Create audit log entry
+    await AuditLog.create({
+      action: "Aid Allocation Request Created",
+      actorId: req.user?.id,
+      actorName: req.user?.name || requestedBy,
+      actorRole: req.user?.role || "Finance Officer",
+      entityType: "FundRequest",
+      entityId: fundRequest._id,
+      details: {
+        incidentId,
+        householdId,
+        amount: requestedAmount,
+        category,
+        urgency,
+        purpose: purpose.slice(0, 200),
+      }
+    });
+
+    // Auto-commit budget on allocation request (immediate commitment)
+    try {
+      const budget = await getCurrentBudget();
+      if (budget) {
+        budget.committedFunds += requestedAmount;
+        applyBudgetUpdates(budget);
+        await budget.save();
+        console.log(`💰 Auto-committed M${(requestedAmount/1_000_000).toFixed(1)} to budget for household ${householdId}`);
+      }
+    } catch (budgetErr) {
+      console.warn('Budget auto-commit failed (non-blocking):', budgetErr.message);
+    }
+
+    return res.status(201).json({ ...fundRequest._doc, budgetCommitted: true });
   } catch (error) {
     return res.status(500).json({ message: "Failed to submit request", error: error.message });
   }
@@ -173,6 +237,54 @@ router.put("/request/reject/:id", authMiddleware, async (req, res) => {
     return res.json(request);
   } catch (error) {
     return res.status(500).json({ message: "Failed to reject request", error: error.message });
+  }
+});
+
+router.put("/request/:id/disburse", authMiddleware, async (req, res) => {
+  try {
+    if (!requireFinanceOfficer(req, res)) return;
+    const { amountDisbursed } = req.body;
+    const request = await FundRequest.findById(req.params.id);
+    if (!request) return res.status(404).json({ message: "Request not found" });
+    if (request.status !== "Approved") return res.status(400).json({ message: "Only approved requests can be disbursed" });
+
+    // Record expenditure
+    await Expenditure.create({
+      incidentId: request.incidentId,
+      amountSpent: amountDisbursed || request.approvedAmount,
+      description: `Disbursement for ${request.purpose.slice(0, 100)}`,
+      recordedBy: req.user?.name || "Finance Officer"
+    });
+
+    // Update budget spentFunds
+    const budget = await getCurrentBudget();
+    if (budget) {
+      budget.spentFunds += (amountDisbursed || request.approvedAmount);
+      applyBudgetUpdates(budget);
+      await budget.save();
+    }
+
+    // Mark as disbursed
+    request.status = "Disbursed";
+    request.disbursedAmount = amountDisbursed || request.approvedAmount;
+    request.disbursedBy = req.user?.name || "Finance Officer";
+    request.disbursedAt = new Date();
+    await request.save();
+
+    // Audit log
+    await AuditLog.create({
+      action: "Funds Disbursed",
+      actorId: req.user?.id,
+      actorName: req.user?.name,
+      actorRole: req.user?.role,
+      entityType: "FundRequest",
+      entityId: request._id,
+      details: { amountDisbursed: amountDisbursed || request.approvedAmount }
+    });
+
+    res.json({ request, budget });
+  } catch (error) {
+    res.status(500).json({ message: "Disbursement failed", error: error.message });
   }
 });
 
@@ -406,6 +518,136 @@ router.get("/risk", authMiddleware, async (req, res) => {
     return res.status(500).json({ message: "Failed to fetch risk", error: error.message });
   }
 });
+router.get("/financial/auditlogs", authMiddleware, async (req, res) => {
+  try {
+    const { status, disasterId, limit = 100 } = req.query;
+    const query = {};
+    
+    if (status) query.status = status;
+    if (disasterId) query.disasterId = disasterId;
+    
+    // Only financial actions
+    query.action = { $in: [
+      "BUDGET_CREATED", "BUDGET_UPDATED", "REQUEST_CREATED", "REQUEST_APPROVED",
+      "REQUEST_REJECTED", "ALLOCATION_DISBURSED", "EXPENSE_LOGGED"
+    ] };
+    
+    const auditLogs = await AuditLog.find(query)
+      .populate('actorId', 'name email role')
+      .sort({ createdAt: -1 })
+      .limit(Number(limit));
+      
+    res.json({ auditLogs });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch audit logs", error: error.message });
+  }
+});
+
+router.get("/financial/auditlogs/export", authMiddleware, async (req, res) => {
+  try {
+    // Same query as above
+    const { disasterId, limit = 1000 } = req.query;
+    const query = {
+      action: { $in: [
+        "BUDGET_CREATED", "BUDGET_UPDATED", "REQUEST_CREATED", "REQUEST_APPROVED",
+        "REQUEST_REJECTED", "ALLOCATION_DISBURSED", "EXPENSE_LOGGED"
+      ] }
+    };
+    
+    if (disasterId) query.disasterId = disasterId;
+    
+    const auditLogs = await AuditLog.find(query)
+      .populate('actorId', 'name email role')
+      .sort({ createdAt: -1 })
+      .limit(Number(limit));
+    
+    // Generate CSV
+    const headers = ['Timestamp', 'Action', 'Entity', 'Amount', 'User', 'Details'];
+    const csvRows = auditLogs.map(log => [
+      new Date(log.createdAt).toLocaleString(),
+      log.action,
+      log.entityType,
+      log.amount || '',
+      log.actorName || log.actorRole || '',
+      JSON.stringify(log.details || {}).slice(0,100)
+    ]);
+    
+    const csvContent = [
+      headers.join(','),
+      ...csvRows.map(row => row.map(field => `"${field}"`).join(','))
+    ].join('\n');
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=audit-trail.csv');
+    res.send(csvContent);
+  } catch (error) {
+    res.status(500).json({ message: "Export failed", error: error.message });
+  }
+});
+
+router.get("/finance/envelopes/:disasterId", authMiddleware, async (req, res) => {
+  try {
+    const budget = await getCurrentBudget();
+    if (!budget) {
+      return res.status(404).json({ message: "No budget found" });
+    }
+
+    const disasterBudget = budget.allocatedBudget; // 100% national to disaster pool
+
+    const envelopes = {
+      core: {
+        total: Math.round(disasterBudget * 0.7),
+        committed: 0, // Track via allocations
+        remaining: Math.round(disasterBudget * 0.7),
+        subBreakdown: {
+          drought: Math.round(disasterBudget * 0.7 * 0.4),
+          flooding: Math.round(disasterBudget * 0.7 * 0.35),
+          winds: Math.round(disasterBudget * 0.7 * 0.15),
+          other: Math.round(disasterBudget * 0.7 * 0.1)
+        }
+      },
+      backlog: {
+        total: Math.round(disasterBudget * 0.15),
+        committed: 0,
+        remaining: Math.round(disasterBudget * 0.15)
+      },
+      reserve: {
+        total: Math.round(disasterBudget * 0.1),
+        committed: 0,
+        remaining: Math.round(disasterBudget * 0.1)
+      },
+      admin: {
+        total: Math.round(disasterBudget * 0.05),
+        committed: 0,
+        remaining: Math.round(disasterBudget * 0.05)
+      }
+    };
+
+    return res.json(envelopes);
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to fetch envelopes", error: error.message });
+  }
+});
+
+router.get("/auditlogs", authMiddleware, async (req, res) => {
+  try {
+    const { disasterId } = req.query;
+    const query = disasterId ? { "details.incidentId": disasterId } : {};
+ 
+    const logs = await AuditLog.find(query)
+      .sort({ createdAt: -1 })
+      .populate("actorId", "name role")
+      .limit(200);
+ 
+    return res.json({ logs });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to fetch audit logs",
+      error: error.message,
+    });
+  }
+});
+
 router.get("/requests", authMiddleware, async (req, res) => {
   try {
     const { status } = req.query;

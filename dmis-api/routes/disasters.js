@@ -135,7 +135,14 @@ router.post("/", protect, async (req, res) => {
 
 router.get("/", protect, async (req, res) => {
   try {
-    const disasters = await Disaster.find()
+    let query = {};
+    if (req.query.allocatable === 'true') {
+      query = {
+        status: 'verified',
+        allocatedAid: false
+      };
+    }
+    const disasters = await Disaster.find(query)
       .sort({ createdAt: -1 })
       .populate("reportedBy", "name email");
     res.json(disasters);

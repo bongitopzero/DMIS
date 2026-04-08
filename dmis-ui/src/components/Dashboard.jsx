@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import MapView from "./MapView";
 import RecentDisasters from "./RecentDisasters";
 import API from "../api/axios";
 import { ToastManager } from "./Toast";
-import { AlertCircle, Users, DollarSign, TrendingUp, RefreshCw } from "lucide-react";
+import { AlertCircle, Users, DollarSign, TrendingUp, RefreshCw, Bell } from "lucide-react";
 
 export default function Dashboard() {
   const [disasters, setDisasters] = useState([]);
@@ -13,7 +13,9 @@ export default function Dashboard() {
   const [disastersByType, setDisastersByType] = useState({});
   const [financialByMonth, setFinancialByMonth] = useState({});
   const [overview, setOverview] = useState(null);
-  const [approvingId, setApprovingId] = useState(null); // tracks which disaster is being approved
+const [approvingId, setApprovingId] = useState(null); // tracks which disaster is being approved
+  const [newSubmissions, setNewSubmissions] = useState([]);
+  const [notificationDismissed, setNotificationDismissed] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState(null);
 
   // ─── Data fetchers (stable references via useCallback) ────────────────────
@@ -70,6 +72,25 @@ export default function Dashboard() {
     }
   }, []);
 
+  // ─── Track new submissions for notifications ──────────────────────────────
+  const prevPendingCountRef = useRef(0);
+
+  useEffect(() => {
+    const pendingCount = disasters.filter((d) => d.status === "submitted").length;
+    if (pendingCount > prevPendingCountRef.current && pendingCount > 0) {
+      const newOnes = disasters.filter(d => d.status === "submitted").slice(0, pendingCount - prevPendingCountRef.current);
+      setNewSubmissions(prev => [...newOnes, ...prev].slice(-3)); // keep last 3
+      if (newOnes.length > 0) {
+        // Play notification sound (if supported)
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDq3/YR0jWiG9f8');
+        audio.play().catch(() => {}); // silent fail if no audio context
+        
+      ToastManager.success(`${newOnes.length} new disaster${newOnes.length > 1 ? 's' : ''} submitted for approval!`, 5000);
+      }
+    }
+    prevPendingCountRef.current = pendingCount;
+  }, [disasters]);
+
   // ─── Mount + 30s poll ─────────────────────────────────────────────────────
   useEffect(() => {
     fetchDisasters();
@@ -79,7 +100,7 @@ export default function Dashboard() {
       fetchDisasters();
       fetchDashboardStats();
       fetchCoordinatorOverview();
-    }, 30000);
+    }, 10000); // Faster polling for real-time notifications
     return () => clearInterval(id);
   }, [fetchDisasters, fetchDashboardStats, fetchCoordinatorOverview]);
 
@@ -175,6 +196,46 @@ export default function Dashboard() {
           subtitle={`${stats.byStatus.responding||0} active responses`}
           icon={<TrendingUp className="w-5 h-5 text-emerald-500" />} bgColor="bg-emerald-50" />
       </div>
+
+      {/* New Submissions Notification Banner */}
+      {newSubmissions.length > 0 && !notificationDismissed && (
+        <div style={{
+          position: "relative",
+          background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
+          border: "1px solid #f59e0b",
+          borderLeft: "4px solid #d97706",
+          borderRadius: "0.75rem",
+          padding: "1rem 1.25rem",
+          marginBottom: "1.5rem",
+          boxShadow: "0 4px 12px rgba(251, 191, 36, 0.3)",
+          animation: "slideDown 0.4s ease-out"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <Bell size={20} style={{ color: "#b45309" }} />
+            <div>
+              <p style={{ margin: 0, fontWeight: 700, color: "#92400e", fontSize: "0.95rem" }}>
+                {newSubmissions.length} new disaster{newSubmissions.length > 1 ? 's' : ''} awaiting your approval!
+              </p>
+              <p style={{ margin: "0.25rem 0 0", fontSize: "0.8rem", color: "#a16207" }}>
+                Submitted by Data Clerk{newSubmissions.length > 1 ? 's' : ''} • Auto-refreshes every 10s
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setNotificationDismissed(true)}
+            style={{
+              position: "absolute",
+              top: "0.5rem", right: "0.75rem",
+              background: "none", border: "none",
+              color: "#92400e", fontSize: "1.1rem",
+              cursor: "pointer", padding: "0.25rem"
+            }}
+            title="Dismiss notification"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* ── Pending Approval ── */}
       <div className="mb-6 bg-white rounded-xl shadow-sm p-6 border border-slate-200">

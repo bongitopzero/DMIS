@@ -1,28 +1,34 @@
 import "./BudgetAllocation.css";
 import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Save, CheckCircle, AlertCircle } from "lucide-react";
 import API from "../api/axios";
+import { ToastManager } from "../components/Toast";
 
-const initialNationalExpenditure = 82648374; // 2026/2027 national expenditure
+const initialNationalExpenditure = 82648374;
 
 const fundPartitions = [
-  { label: "Core Disaster Response", percent: 0.7, description: "Immediate disaster assistance" },
-  { label: "Backlog Clearance", percent: 0.15, description: "Pending cases from previous disasters" },
-  { label: "Strategic Reserve", percent: 0.1, description: "Unexpected large disasters" },
-  { label: "Administration", percent: 0.05, description: "System operations and monitoring" },
+  { label: "Core Disaster Response", percent: 0.7, description: "Immediate disaster assistance", sector: 'core' },
+  { label: "Backlog Clearance", percent: 0.15, description: "Pending cases from previous disasters", sector: 'backlog' },
+  { label: "Strategic Reserve", percent: 0.1, description: "Unexpected large disasters", sector: 'reserve' },
+  { label: "Administration", percent: 0.05, description: "System operations and monitoring", sector: 'admin' },
 ];
 
-const coreResponseSplit = [
+const coreSubPartitions = [
   { label: "Drought", percent: 0.4 },
   { label: "Heavy Rainfall / Flooding", percent: 0.35 },
   { label: "Strong Winds / Storms", percent: 0.15 },
   { label: "Other Emergencies", percent: 0.1 },
 ];
 
+function getBudgetStatus(usedPercent) {
+  if (usedPercent <= 50) return { label: 'Healthy', color: 'bg-green-100 text-green-800', bar: 'bg-green-500' };
+  if (usedPercent <= 80) return { label: 'Warning', color: 'bg-yellow-100 text-yellow-800', bar: 'bg-yellow-500' };
+  return { label: 'Critical', color: 'bg-red-100 text-red-800', bar: 'bg-red-500' };
+}
+
 function formatCurrency(value) {
-  if (value === "TBD" || value === null || value === undefined) return "TBD";
-  // 'M' is not a valid ISO currency code, so format as a normal number and prefix with 'M'
+  if (!value || value === "TBD") return "TBD";
   return `M${value.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 }
 
@@ -31,227 +37,242 @@ export default function BudgetAllocation() {
   const [nationalExpenditure, setNationalExpenditure] = useState(initialNationalExpenditure);
   const [disasters, setDisasters] = useState([]);
   const [selectedDisasterId, setSelectedDisasterId] = useState("");
-  const [allocateLoading, setAllocateLoading] = useState(false);
+  const [budget, setBudget] = useState(null);
+  const [envelopes, setEnvelopes] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [allocating, setAllocating] = useState(false);
 
-  // Fetch disasters on mount
   useEffect(() => {
+    fetchBudget();
     fetchDisasters();
   }, []);
+
+const fetchBudget = async () => {
+    try {
+      const res = await API.get("/budget/current");
+      setBudget(res.data);
+      setNationalExpenditure(res.data?.allocatedBudget || initialNationalExpenditure);
+    } catch {
+      setBudget(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const [showCoreBreakdown, setShowCoreBreakdown] = useState(false);
 
   const fetchDisasters = async () => {
     try {
       const res = await API.get("/disasters");
-      const approvedDisasters = res.data.filter(d => d.status === "verified");
-      setDisasters(approvedDisasters);
-      if (approvedDisasters.length > 0) {
-        setSelectedDisasterId(approvedDisasters[0]._id);
-      }
+      const approved = res.data.filter(d => d.status === "verified");
+      setDisasters(approved);
+      if (approved.length > 0) setSelectedDisasterId(approved[0]._id);
     } catch (err) {
-      console.error("Error fetching disasters:", err);
+      console.error(err);
     }
   };
 
-  const handleAllocate = () => {
-    if (!selectedDisasterId) {
-      alert("Please select a disaster");
-      return;
+  const fetchEnvelopes = async (disasterId) => {
+    try {
+      const res = await API.get(`/finance/envelopes/${disasterId}`);
+      setEnvelopes(res.data);
+    } catch {
+      setEnvelopes({});
     }
-    setAllocateLoading(true);
-    // Navigate to aid allocation page with selected disaster
-    navigate(`/aid-allocation?disasterId=${selectedDisasterId}`);
   };
 
-  const disasterBudget = useMemo(() => nationalExpenditure * 1.0, [nationalExpenditure]);
+  const handleAllocateToDisaster = async () => {
+    if (!selectedDisasterId) return;
+    setAllocating(true);
+    try {
+       await API.post(`/budget/disaster/${selectedDisasterId}/allocate`, {
+        nationalBudget: nationalExpenditure,
+      });
+      await fetchEnvelopes(selectedDisasterId);
+      ToastManager.success("✅ Budget envelopes auto-allocated to disaster");
+      navigate(`/aid-allocation?disasterId=${selectedDisasterId}`);
+    } catch (err) {
+      ToastManager.error("Failed to allocate budget envelopes");
+    } finally {
+      setAllocating(false);
+    }
+  };
 
-  const partitions = useMemo(
-    () =>
-      fundPartitions.map((p) => ({
-        ...p,
-        amount: Math.round(disasterBudget * p.percent),
-      })),
-    [disasterBudget]
-  );
+const handleSaveBudget = async () => {
+    try {
+      const res = await API.post("/budget/create", {
+        fiscalYear: new Date().getFullYear(),
+        allocatedBudget: nationalExpenditure,
+      });
+      setBudget(res.data);
+      ToastManager.success("✅ Budget SAVED!");
+    } catch (err) {
+      ToastManager.error("Failed to save budget");
+    }
+  };
 
-  const coreResponseAmount = partitions.find((p) => p.label === "Core Disaster Response")?.amount || 0;
+  useEffect(() => {
+    if (selectedDisasterId) fetchEnvelopes(selectedDisasterId);
+  }, [selectedDisasterId]);
 
-  const coreAllocations = useMemo(
-    () =>
-      coreResponseSplit.map((p) => ({
-        ...p,
-        amount: Math.round(coreResponseAmount * p.percent),
-      })),
-    [coreResponseAmount]
-  );
+  const disasterBudget = nationalExpenditure;
+  const partitions = useMemo(() => fundPartitions.map(p => ({
+    ...p,
+    amount: Math.round(disasterBudget * p.percent),
+    allocated: envelopes[p.sector]?.committed || 0,
+    remaining: Math.max(0, Math.round(disasterBudget * p.percent) - (envelopes[p.sector]?.committed || 0)),
+  })), [disasterBudget, envelopes]);
+
+  if (loading) return <div className="p-8 text-center">Loading...</div>;
 
   return (
+    <div className="p-8 max-w-7xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">Automated Budget Allocation</h1>
+      <p className="text-gray-600 mb-8">Set national budget, select disaster, auto-partition to envelopes, track allocations.</p>
 
-    <div className="p-8">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Disaster Budget Allocation</h1>
-        <p className="text-gray-600 mb-8">
-          The system derives the disaster budget as a percentage of national expenditure, partitions it into strategic envelopes, and tracks allocations by disaster type.
-        </p>
-
-        <section className="bg-white rounded-lg shadow p-8 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">1. National Disaster Budget</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">National Government Expenditure (2026/2027)</label>
-              <input
-                type="number"
-                value={nationalExpenditure}
-                onChange={(e) => setNationalExpenditure(Number(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Disaster Budget (100%)</label>
-              <div className="mt-1 text-lg font-semibold text-gray-800">{formatCurrency(disasterBudget)}</div>
+      {/* Budget Status Banner */}
+      {budget ? (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-8 flex flex-wrap gap-4 items-center">
+          <CheckCircle className="w-5 h-5 text-green-600" />
+          <div>
+            <div className="font-semibold text-green-800">Active Budget FY {budget.fiscalYear}</div>
+            <div className="text-sm text-green-700">
+              Allocated: {formatCurrency(budget.allocatedBudget)} | Committed: {formatCurrency(budget.committedFunds)} | Remaining: {formatCurrency(budget.remainingBudget)}
             </div>
           </div>
-          <p className="text-sm text-gray-500 mt-4">
-            Formula: <span className="font-medium">Disaster Budget = 100% × National Government Expenditure</span>
-          </p>
-        </section>
+          <button 
+            onClick={() => {/* edit logic later */}} 
+            className="ml-auto px-4 py-2 bg-white border border-green-600 text-green-600 rounded-md hover:bg-green-50 text-sm font-medium"
+          >
+            Edit Budget
+          </button>
+        </div>
+      ) : (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8 flex flex-wrap gap-4 items-center">
+          <AlertCircle className="w-5 h-5 text-red-600" />
+          <div>
+            <div className="font-semibold text-red-800">No Active Budget</div>
+            <div className="text-sm text-red-700">Create national budget to enable allocations</div>
+          </div>
+        </div>
+      )}
 
-        <section className="bg-white rounded-lg shadow p-8 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">2. Partition of Disaster Budget</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left">
-              <thead>
-                <tr className="border-b border-gray-200 text-sm font-semibold text-gray-600">
-                  <th className="px-4 py-3">Category</th>
-                  <th className="px-4 py-3">% of Total</th>
-                  <th className="px-4 py-3">Amount</th>
-                  <th className="px-4 py-3">Purpose</th>
-                </tr>
-              </thead>
-              <tbody className="text-sm text-gray-700">
-                {partitions.map((row) => (
-                  <tr key={row.label} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-800">{row.label}</td>
-                    <td className="px-4 py-3">{Math.round(row.percent * 100)}%</td>
-                    <td className="px-4 py-3">{formatCurrency(row.amount)}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600">{row.description}</td>
+      {/* National Budget */}
+      <div className="bg-white p-6 rounded-lg shadow mb-8">
+        <h2 className="text-xl font-semibold mb-4">National Disaster Budget</h2>
+        <div className="flex gap-4 mb-4">
+          <input
+            type="number"
+            value={nationalExpenditure}
+            onChange={e => setNationalExpenditure(Number(e.target.value))}
+            className="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          />
+          <button onClick={handleSaveBudget} className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Save National Budget
+          </button>
+        </div>
+        <div>Total for Disaster Allocation: {formatCurrency(disasterBudget)}</div>
+        {budget && <div className="text-green-600 mt-2">Active: FY {budget.fiscalYear}</div>}
+      </div>
+
+      {/* Partitions Table */}
+      <div className="bg-white rounded-lg shadow mb-8 overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-gray-50">
+              <th className="p-4 text-left font-semibold">Sector</th>
+              <th className="p-4 text-right font-semibold">Total</th>
+              <th className="p-4 text-right font-semibold">Committed</th>
+              <th className="p-4 text-right font-semibold">Remaining</th>
+              <th className="p-4 text-right font-semibold">Status</th>
+              <th className="p-4 text-right font-semibold">Progress</th>
+              <th className="p-4 font-semibold">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {partitions.map(p => {
+              const committed = budget?.committedFunds * p.percent || 0;
+              const usedPercent = committed > 0 ? Math.min(100, (committed / p.amount * 100)) : 0;
+              const status = getBudgetStatus(usedPercent);
+              const isCore = p.sector === 'core';
+              return (
+                <React.Fragment key={p.sector}>
+                  <tr className="border-t hover:bg-gray-50 cursor-pointer" onClick={() => isCore && setShowCoreBreakdown(!showCoreBreakdown)}>
+                    <td className="p-4 font-medium flex items-center gap-2">
+                      {p.label}
+                      {isCore && (showCoreBreakdown ? '▼' : '▶')}
+                    </td>
+                    <td className="p-4 text-right font-semibold">{formatCurrency(p.amount)}</td>
+                    <td className="p-4 text-right text-orange-600">{formatCurrency(committed)}</td>
+                    <td className="p-4 text-right font-bold text-green-600">{formatCurrency(p.amount - committed)}</td>
+                    <td className="p-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${status.color}`}>
+                        {status.label}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-300 ${status.bar}`} 
+                          style={{width: `${usedPercent}%`}}
+                        />
+                      </div>
+                    </td>
+                    <td className="p-4 text-sm text-gray-600">{p.description}</td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="text-sm text-gray-500 mt-4">
-            Total disaster budget is split into four envelopes; suggests tracking spend against each envelope and moving cases to backlog or reserve when envelopes are exhausted.
-          </p>
-        </section>
+                  {isCore && showCoreBreakdown && coreSubPartitions.map(sub => {
+                    const subAmount = Math.round(p.amount * sub.percent);
+                    return (
+                      <tr key={`${p.sector}-${sub.label}`} className="bg-gray-25 border-t">
+                        <td className="p-4 pl-12 text-sm font-medium opacity-90">{sub.label}</td>
+                        <td className="p-4 text-right text-sm">{formatCurrency(subAmount)}</td>
+                        <td className="p-4 text-right text-orange-600 text-sm">M0</td>
+                        <td className="p-4 text-right font-bold text-green-600 text-sm">{formatCurrency(subAmount)}</td>
+                        <td className="p-4"><span className="px-1 py-0.5 bg-green-100 text-green-800 text-xs rounded">Healthy</span></td>
+                        <td className="p-4">
+                          <div className="w-20 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="h-full bg-green-500 rounded-full w-0" />
+                          </div>
+                        </td>
+                        <td className="p-4 text-xs text-gray-500 italic">Sub-allocation of Core</td>
+                      </tr>
+                    );
+                  })}
+                </React.Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
-        <section className="bg-white rounded-lg shadow p-8 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">3. Core Response Allocation by Disaster Type</h2>
-          <p className="text-sm text-gray-600 mb-4">
-            The core response fund is divided by typical disaster frequency.
-          </p>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left">
-              <thead>
-                <tr className="border-b border-gray-200 text-sm font-semibold text-gray-600">
-                  <th className="px-4 py-3">Disaster Type</th>
-                  <th className="px-4 py-3">% of Core Fund</th>
-                  <th className="px-4 py-3">Amount</th>
-                </tr>
-              </thead>
-              <tbody className="text-sm text-gray-700">
-                {coreAllocations.map((row) => (
-                  <tr key={row.label} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-800">{row.label}</td>
-                    <td className="px-4 py-3">{Math.round(row.percent * 100)}%</td>
-                    <td className="px-4 py-3">{formatCurrency(row.amount)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section className="bg-white rounded-lg shadow p-8 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">4. Remaining Balance by Envelope</h2>
-          <p className="text-sm text-gray-600 mb-4">
-            Available funds in each envelope. As allocations are made through the system, these balances decrease in real-time.
-          </p>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left">
-              <thead>
-                <tr className="border-b border-gray-200 text-sm font-semibold text-gray-600">
-                  <th className="px-4 py-3">Envelope</th>
-                  <th className="px-4 py-3">Total Amount</th>
-                  <th className="px-4 py-3">Allocated</th>
-                  <th className="px-4 py-3">Remaining Balance</th>
-                  <th className="px-4 py-3">Status</th>
-                </tr>
-              </thead>
-              <tbody className="text-sm text-gray-700">
-                {partitions.map((partition) => {
-                  const allocated = 0; // Placeholder - will be updated from actual allocation data
-                  const remaining = partition.amount - allocated;
-                  const utilization = (allocated / partition.amount) * 100;
-                  const status = utilization > 80 ? 'Critical' : utilization > 50 ? 'Warning' : 'Healthy';
-                  const statusColor = status === 'Critical' ? 'text-red-600' : status === 'Warning' ? 'text-yellow-600' : 'text-green-600';
-
-                  return (
-                    <tr key={partition.label} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium text-gray-800">{partition.label}</td>
-                      <td className="px-4 py-3">{formatCurrency(partition.amount)}</td>
-                      <td className="px-4 py-3">{formatCurrency(allocated)}</td>
-                      <td className="px-4 py-3 font-semibold">{formatCurrency(remaining)}</td>
-                      <td className={`px-4 py-3 font-medium ${statusColor}`}>{status}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          <p className="text-sm text-gray-500 mt-4">
-            <span className="font-medium">Status Legend:</span> Healthy (0-50% used), Warning (50-80% used), Critical (80%+ used)
-          </p>
-        </section>
-
-        <section className="bg-white rounded-lg shadow p-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">5. Begin Allocation</h2>
-          <p className="text-sm text-gray-600 mb-6">
-            Select a disaster and proceed to allocate aid packages to affected households based on the available budget envelopes.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Select Disaster</label>
-              <select
-                value={selectedDisasterId}
-                onChange={(e) => setSelectedDisasterId(e.target.value)}
-                className="w-full px-4 py-2 rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              >
-                <option value="">-- Choose a disaster --</option>
-                {disasters.map((disaster) => (
-                  <option key={disaster._id} value={disaster._id}>
-                    {disaster.name} ({disaster.disasterType})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex items-end">
-              <button
-                onClick={handleAllocate}
-                disabled={!selectedDisasterId || allocateLoading}
-                className="w-full px-6 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
-              >
-                <span>{allocateLoading ? "Loading..." : "Proceed to Allocate"}</span>
-                <ArrowRight size={18} />
-              </button>
-            </div>
-          </div>
-
-          <p className="text-sm text-gray-500 mt-4">
-            This will take you to the Aid Allocation module where you can assess households, create allocation requests, and manage approvals and disbursements.
-          </p>
-        </section>
+      {/* Allocate to Disaster */}
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h2 className="text-xl font-semibold mb-4">Allocate to Disaster</h2>
+        <div className="flex gap-4 items-end">
+          <select
+            value={selectedDisasterId}
+            onChange={e => setSelectedDisasterId(e.target.value)}
+            className="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select Disaster</option>
+            {disasters.map(d => (
+              <option key={d._id} value={d._id}>
+                {d.type} - {d.district}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={handleAllocateToDisaster}
+            disabled={!selectedDisasterId || allocating}
+            className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-semibold flex items-center gap-2"
+          >
+            {allocating ? "Allocating..." : "Allocate & Proceed"}
+            <ArrowRight size={20} />
+          </button>
+        </div>
+        <p className="text-sm text-gray-600 mt-2">Auto-creates sector envelopes for disaster, navigates to aid allocation.</p>
       </div>
     </div>
   );
 }
+

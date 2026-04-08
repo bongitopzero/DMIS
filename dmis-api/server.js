@@ -1,4 +1,3 @@
-
 // server.js
 import express from "express";
 import mongoose from "mongoose";
@@ -10,10 +9,10 @@ import authRoutes from "./routes/auth.js";
 import disasterRoutes from "./routes/disasters.js";
 import incidentRoutes from "./routes/incidents.js";
 import fundRoutes from "./routes/fundRoutes.js";
-
 import financialRoutes from "./routes/financial.js";
 import allocationRoutes from "./routes/allocation.js";
 import coordinatorRoutes from "./routes/coordinator.js";
+import financeRoutes from "./routes/financeRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -21,7 +20,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
-app.use(express.json()); // parse JSON bodies
+app.use(express.json());
 
 // Test route
 app.get("/", (req, res) => {
@@ -36,7 +35,7 @@ app.use("/api/funds", fundRoutes);
 app.use("/api/financial", financialRoutes);
 app.use("/api/allocation", allocationRoutes);
 app.use('/api/coordinator', coordinatorRoutes);
-
+app.use("/api", financeRoutes);
 
 // Connect to MongoDB
 mongoose
