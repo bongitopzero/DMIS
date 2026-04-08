@@ -132,13 +132,30 @@ router.post("/", protect, async (req, res) => {
 
     const coords = getCoordinates(req.body.location, req.body.district);
 
-    // Count all disasters created before this moment to generate sequential code
+    // Generate unique sequential code by finding the highest existing code for this year
     const currentYear = new Date().getFullYear();
-    const disastersThisYear = await Disaster.countDocuments({
-      createdAt: { $gte: new Date(`${currentYear}-01-01`) }
-    });
-    const sequentialNumber = disastersThisYear + 1;
-    const disasterCode = `D-${currentYear}-${String(sequentialNumber).padStart(3, '0')}`;
+    const codePrefix = `D-${currentYear}-`;
+    
+    // Find the highest disaster code number for this year
+    let nextSequentialNumber = 1;
+    try {
+      const latestDisaster = await Disaster.findOne(
+        { disasterCode: { $regex: `^D-${currentYear}-` } },
+        { disasterCode: 1 },
+        { sort: { disasterCode: -1 } }
+      );
+      
+      if (latestDisaster && latestDisaster.disasterCode) {
+        const match = latestDisaster.disasterCode.match(/D-\d+-(\d+)/);
+        if (match && match[1]) {
+          nextSequentialNumber = parseInt(match[1]) + 1;
+        }
+      }
+    } catch (err) {
+      console.warn("Warning: Could not find latest disaster code, starting from 1:", err.message);
+    }
+    
+    const disasterCode = `D-${currentYear}-${String(nextSequentialNumber).padStart(3, '0')}`;
 
     // Explicitly handle status field - default to "reported" if not provided
     const disasterData = {
@@ -154,13 +171,45 @@ router.post("/", protect, async (req, res) => {
     console.log("📝 Final disaster data to save:", disasterData);
     console.log("✅ Generated disaster code: " + disasterCode);
 
-    const disaster = await Disaster.create(disasterData);
-
-    console.log("✅ Disaster created successfully:", disaster._id, "Code:", disaster.disasterCode, "Status:", disaster.status);
+    // Retry up to 3 times in case of duplicate key error (race condition)
+    let disaster = null;
+    let lastError = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        disaster = await Disaster.create(disasterData);
+        console.log("✅ Disaster created successfully:", disaster._id, "Code:", disaster.disasterCode, "Status:", disaster.status);
+        break;
+      } catch (createErr) {
+        if (createErr.code === 11000 && createErr.keyPattern?.disasterCode) {
+          // Duplicate key error on disasterCode - try next number
+          console.warn(`⚠️ Duplicate disasterCode ${disasterData.disasterCode}, trying next number (attempt ${attempt + 1}/3)`);
+          nextSequentialNumber++;
+          disasterData.disasterCode = `D-${currentYear}-${String(nextSequentialNumber).padStart(3, '0')}`;
+          lastError = createErr;
+        } else {
+          // Other error - don't retry
+          throw createErr;
+        }
+      }
+    }
+    
+    if (!disaster) {
+      throw lastError || new Error("Failed to create disaster after retries");
+    }
     res.status(201).json(disaster);
   } catch (err) {
     console.error("❌ Error creating disaster:", err.message);
     console.error("Error details:", err);
+    
+    // Handle duplicate key errors specifically
+    if (err.code === 11000 && err.keyPattern?.disasterCode) {
+      return res.status(409).json({
+        message: "Disaster code conflict - this disaster was already created. Please try again.",
+        error: "Duplicate disaster code",
+        code: err.keyPattern?.disasterCode ? "DUPLICATE_DISASTER_CODE" : "DUPLICATE_KEY"
+      });
+    }
+    
     res.status(500).json({
       message: "Server error",
       error: err.message,
