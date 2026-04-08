@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Eye, AlertTriangle, Users, Home } from "lucide-react";
 import API from "../api/axios";
 import { ToastManager } from "../components/Toast";
+import { assignDisasterIds } from "../utils/locationUtils";
 import "./ApprovedDisasters.css";
 
 export default function ApprovedDisasters() {
@@ -18,7 +19,10 @@ export default function ApprovedDisasters() {
     try {
       setLoading(true);
       const res = await API.get("/disasters/approved");
-      setDisasters(res.data || []);
+      const approvedList = res.data || [];
+      // Assign sequential IDs based on creation date
+      const disastersWithIds = assignDisasterIds(approvedList);
+      setDisasters(disastersWithIds);
     } catch (err) {
       console.error("Failed to fetch approved disasters:", err);
       ToastManager.error("Failed to load approved disasters");
@@ -28,7 +32,7 @@ export default function ApprovedDisasters() {
   };
 
   const getDisasterId = (disaster) => {
-    return disaster.disasterCode || `D-UNKNOWN`;
+    return disaster.disasterCode || "D-UNKNOWN";
   };
 
   const getSeverityColor = (severity) => {

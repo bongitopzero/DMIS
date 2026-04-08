@@ -103,6 +103,113 @@ export const getSeverityColor = (severity) => {
   return "#E5E7EB"; // gray for unknown
 };
 
+/**
+ * Extract a valid date from a disaster using fallback priority
+ * Priority: createdAt > date > updatedAt > ObjectId timestamp
+ * @param {object} disaster - The disaster object
+ * @returns {Date} - Valid date object
+ */
+export const getDisasterDate = (disaster) => {
+  if (!disaster) return new Date();
+
+  // Try createdAt first (most reliable)
+  if (disaster.createdAt) {
+    return new Date(disaster.createdAt);
+  }
+
+  // Fall back to date field
+  if (disaster.date) {
+    return new Date(disaster.date);
+  }
+
+  // Fall back to updatedAt
+  if (disaster.updatedAt) {
+    return new Date(disaster.updatedAt);
+  }
+
+  // Fall back to ObjectId timestamp (first 8 hex chars = timestamp in seconds)
+  if (disaster._id) {
+    try {
+      const timestamp = parseInt(disaster._id.substring(0, 8), 16) * 1000;
+      return new Date(timestamp);
+    } catch (e) {
+      console.warn("Could not extract timestamp from _id:", disaster._id);
+    }
+  }
+
+  // Last resort - return current date
+  return new Date();
+};
+
+/**
+ * Assign disaster IDs to a list of disasters
+ * Sorts by date (ascending), then assigns sequential IDs: D-YYYY-NNN
+ * @param {array} disasters - Array of disaster objects
+ * @returns {array} - Disasters with assigned IDs in disasterCode field
+ */
+export const assignDisasterIds = (disasters) => {
+  if (!Array.isArray(disasters) || disasters.length === 0) {
+    return disasters;
+  }
+
+  // Create a copy to avoid mutating the original array
+  const disastersWithDates = disasters.map((d) => ({
+    ...d,
+    _sortDate: getDisasterDate(d),
+  }));
+
+  // Sort by date ascending (earliest first)
+  disastersWithDates.sort((a, b) => a._sortDate - b._sortDate);
+
+  // Group by year and assign sequential IDs
+  const yearMap = {};
+
+  const result = disastersWithDates.map((disaster) => {
+    const year = disaster._sortDate.getFullYear();
+
+    // Initialize year counter if needed
+    if (!yearMap[year]) {
+      yearMap[year] = 0;
+    }
+
+    // Increment counter for this year
+    yearMap[year]++;
+
+    // Generate ID: D-YYYY-NNN (zero-padded to 3 digits)
+    const sequenceNumber = String(yearMap[year]).padStart(3, "0");
+    const generatedId = `D-${year}-${sequenceNumber}`;
+
+    // Use generated ID unless disasterCode already exists and is valid
+    return {
+      ...disaster,
+      disasterCode: disaster.disasterCode || generatedId,
+    };
+  });
+
+  return result;
+};
+
+/**
+ * Get the disaster ID for display
+ * Returns disasterCode if available, otherwise generates one
+ * @param {object} disaster - The disaster object
+ * @returns {string} - Disaster ID (e.g., "D-2026-001")
+ */
+export const getDisasterId = (disaster) => {
+  if (!disaster) return "D-UNKNOWN";
+  
+  // If disasterCode is set, use it
+  if (disaster.disasterCode) {
+    return disaster.disasterCode;
+  }
+
+  // Generate ID using date fallback logic
+  const date = getDisasterDate(disaster);
+  const year = date.getFullYear();
+  // Note: This is a fallback - in production, use assignDisasterIds for consistent numbering
+  return `D-${year}-UNK`;
+};
+
 export default {
   normalize,
   districtCoordinates,
@@ -111,4 +218,7 @@ export default {
   normalizeType,
   normalizeSeverity,
   getSeverityColor,
+  getDisasterDate,
+  assignDisasterIds,
+  getDisasterId,
 };

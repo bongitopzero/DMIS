@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Plus, Eye, FileText } from "lucide-react";
 import API from "../api/axios";
 import { ToastManager } from "../components/Toast";
+import { assignDisasterIds, getDisasterId } from "../utils/locationUtils";
 import "./AidAllocation.css";
 
 export default function AidAllocation() {
@@ -38,15 +39,6 @@ export default function AidAllocation() {
     }
   }, [selectedDisaster, disasters]);
 
-  const getDisasterId = (disaster) => {
-    // Always use the disasterCode from backend if available
-    if (disaster.disasterCode) {
-      return disaster.disasterCode;
-    }
-    // Fallback if somehow missing
-    return `D-UNKNOWN-${disaster._id.substring(0, 3).toUpperCase()}`;
-  };
-
   const fetchDisasters = async () => {
     try {
       const res = await API.get("/disasters");
@@ -55,16 +47,12 @@ export default function AidAllocation() {
       let allDisasters = res.data || [];
       const verifiedDisasters = allDisasters.filter((d) => d.status === "verified");
       
-      // Sort by creation date to maintain order
-      verifiedDisasters.sort((a, b) => {
-        const dateA = new Date(a.createdAt || 0);
-        const dateB = new Date(b.createdAt || 0);
-        return dateA - dateB;
-      });
+      // Assign sequential IDs based on creation date
+      const disastersWithIds = assignDisasterIds(verifiedDisasters);
       
-      setDisasters(verifiedDisasters);
-      if (verifiedDisasters.length > 0) {
-        setSelectedDisaster(verifiedDisasters[0]._id);
+      setDisasters(disastersWithIds);
+      if (disastersWithIds.length > 0) {
+        setSelectedDisaster(disastersWithIds[0]._id);
       }
     } catch (err) {
       ToastManager.error("Failed to load disasters");

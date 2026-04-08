@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import API from "../api/axios";
+import { assignDisasterIds } from "../utils/locationUtils";
 import "./MySubmissions.css";
 
 export default function MySubmissions() {
@@ -15,7 +16,10 @@ export default function MySubmissions() {
     setLoading(true);
     try {
       const res = await API.get("/disasters");
-      setDisasters(res.data || []);
+      const allDisasters = res.data || [];
+      // Assign sequential IDs based on creation date
+      const disastersWithIds = assignDisasterIds(allDisasters);
+      setDisasters(disastersWithIds);
     } catch (err) {
       console.error("Error fetching submissions:", err);
       setDisasters([]);
@@ -115,11 +119,10 @@ export default function MySubmissions() {
                 {filteredDisasters.map((disaster, idx) => {
                   const statusBadge = getStatusBadgeStyle(disaster.status);
                   const severityBadge = getSeverityBadgeStyle(disaster.severity);
-                  const disasterId = disaster.disasterCode || `D-UNKNOWN`;
                   
                   return (
                     <tr key={disaster._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">{disasterId}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">{disaster.disasterCode}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{disaster.type?.charAt(0).toUpperCase() + disaster.type?.slice(1)}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{disaster.district}</td>
                       <td className="px-6 py-4 text-sm">

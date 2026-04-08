@@ -500,9 +500,13 @@ export default function NewDisasterReport() {
     } catch (err) {
       console.error("❌ Error saving disaster:", err);
       console.log("Full error:", err.response?.data);
-      ToastManager.error(
-        err.response?.data?.message || "Failed to save disaster. Check console for details."
-      );
+      // Show detailed error information
+      const errorDetails = err.response?.data?.details || 
+                          err.response?.data?.validationErrors ||
+                          err.response?.data?.error;
+      const errorMsg = err.response?.data?.message || "Failed to save disaster. Check console for details.";
+      const fullError = errorDetails ? `${errorMsg} - ${JSON.stringify(errorDetails)}` : errorMsg;
+      ToastManager.error(fullError);
     } finally {
       setLoading(false);
     }

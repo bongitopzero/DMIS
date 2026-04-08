@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { TrendingUp, AlertCircle, DollarSign, BarChart3 } from "lucide-react";
 import { ToastManager } from "../components/Toast";
 import API from "../api/axios";
+import { assignDisasterIds } from "../utils/locationUtils";
 import {
   BarChart,
   Bar,
@@ -35,7 +36,9 @@ export default function FinancialDashboard() {
     const fetchDisasters = async () => {
       try {
         const res = await API.get("/disasters");
-        const list = res.data?.disasters || res.data || [];
+        let list = res.data?.disasters || res.data || [];
+        // Assign disasterId to each item for consistency
+        list = assignDisasterIds(list);
         setDisasters(list);
         // default to aggregated/all view (empty string keeps "All Approved Disasters")
         setSelectedDisaster("");

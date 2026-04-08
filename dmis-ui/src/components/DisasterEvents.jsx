@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Search, Plus, Eye, AlertTriangle, Cloud, Wind, Trash2 } from "lucide-react";
 import API from "../api/axios";
+import { assignDisasterIds } from "../utils/locationUtils";
 import "./DisasterEvents.css";
 
 export default function DisasterEvents() {
@@ -162,7 +163,10 @@ export default function DisasterEvents() {
     setError("");
     try {
       const res = await API.get("/disasters");
-      setDisasters(res.data);
+      const allDisasters = res.data || [];
+      // Assign sequential IDs based on creation date
+      const disastersWithIds = assignDisasterIds(allDisasters);
+      setDisasters(disastersWithIds);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Failed to load disasters");
@@ -251,8 +255,16 @@ export default function DisasterEvents() {
     setSuccess("");
 
     const { district, affectedPopulation, damages, needs } = formData;
-    if (!district || !affectedPopulation || !damages || !needs || needs.length === 0) {
-      setError("Please fill in all required fields including selecting at least one need");
+    
+    // Validate all required fields
+    // needs must be an array with at least one item selected
+    if (!district || !affectedPopulation || !damages) {
+      setError("Please fill in all required fields: District, Affected Population, and Damages");
+      return;
+    }
+    
+    if (!Array.isArray(needs) || needs.length === 0) {
+      setError("Please select at least one immediate need");
       return;
     }
 
@@ -307,7 +319,14 @@ export default function DisasterEvents() {
       fetchDisasters();
     } catch (err) {
       console.error("Error submitting disaster:", err.response?.data || err);
-      setError(err.response?.data?.message || err.response?.data?.error || "Operation failed");
+      // Show detailed error information from server
+      const errorMessage = err.response?.data?.details || 
+                          err.response?.data?.validationErrors || 
+                          err.response?.data?.message || 
+                          err.response?.data?.error || 
+                          err.message ||
+                          "Operation failed";
+      setError(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage);
     }
   };
 
@@ -539,6 +558,28 @@ export default function DisasterEvents() {
               </option>
             ))}
           </select>
+
+          {isClerk && (
+            <button 
+              onClick={openAddModal}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 1rem',
+                backgroundColor: '#059669',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontWeight: '500',
+                fontSize: '0.875rem'
+              }}
+            >
+              <Plus size={18} />
+              New Disaster
+            </button>
+          )}
         </div>
       </div>
 
@@ -567,11 +608,10 @@ export default function DisasterEvents() {
               {filteredDisasters.map((disaster, idx) => {
                 const statusBadge = getStatusBadge(disaster.status);
                 const severityBadge = getSeverityBadge(disaster.severity);
-                const disasterId = disaster.disasterCode || `D-UNKNOWN`;
                 
                 return (
                   <tr key={disaster._id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '500', color: '#111827' }}>{disasterId}</td>
+                    <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', fontWeight: '500', color: '#111827' }}>{disaster.disasterCode}</td>
                     <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#4b5563' }}>{disaster.type?.replace(/_/g, ' ').charAt(0).toUpperCase() + disaster.type?.replace(/_/g, ' ').slice(1)}</td>
                     <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem', color: '#4b5563' }}>{disaster.district}</td>
                     <td style={{ padding: '1rem 1.5rem', fontSize: '0.875rem' }}>
