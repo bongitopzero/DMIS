@@ -1,60 +1,82 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Plus, Eye, FileText } from "lucide-react";
 import API from "../api/axios";
 import { ToastManager } from "../components/Toast";
 import { assignDisasterIds, getDisasterId } from "../utils/locationUtils";
 import "./AidAllocation.css";
 
+// Normalize any allocation record (backend or local) into one consistent shape
+function normalizeAllocation(raw) {
+  return {
+    householdId:    raw.householdId      || raw.householdAssessmentId || "",
+    householdName:  raw.householdName    || raw.householdHeadName     || "No name provided",
+    district:       raw.district         || "N/A",
+    disasterId:     raw.disasterId       || "",
+    // packages: always an array of { name, cost }
+    packages: (raw.allocatedPackages || raw.packages || []).map((p) => ({
+      name: p.packageName || p.name || "Package",
+      cost: p.totalCost   || p.unitCost || p.cost || 0,
+    })),
+    // totalCost: always a number
+    totalCost:      raw.totalEstimatedCost ?? raw.totalCost ?? 0,
+    isOverride:     raw.isOverride        || raw.isOverridden || false,
+    createdAt:      raw.createdAt         || raw.timestamp    || null,
+  };
+}
+
 export default function AidAllocation() {
-  const [disasters, setDisasters] = useState([]);
-  const [selectedDisaster, setSelectedDisaster] = useState("");
-  const [currentDisaster, setCurrentDisaster] = useState(null);
-  const [activeTab, setActiveTab] = useState("assess");
-  const [households, setHouseholds] = useState([]);
-  const [allocationPlans, setAllocationPlans] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [generatingPlan, setGeneratingPlan] = useState(false);
+  const [disasters, setDisasters]                   = useState([]);
+  const [selectedDisaster, setSelectedDisaster]     = useState("");
+  const [currentDisaster, setCurrentDisaster]       = useState(null);
+  const [activeTab, setActiveTab]                   = useState("assess");
+  const [households, setHouseholds]                 = useState([]);
+  const [allocationPlans, setAllocationPlans]       = useState([]);
+  const [loading, setLoading]                       = useState(false);
+  const [generatingPlan, setGeneratingPlan]         = useState(false);
+  const [overriddenHouseholds, setOverriddenHouseholds] = useState({});
+  // Global normalized allocations — persisted across tab switches and re-fetched on mount
+  const [globalAllocations, setGlobalAllocations]   = useState([]);
+  // Set of disaster IDs that already have at least one allocation in the backend
+  const [allocatedDisasterIds, setAllocatedDisasterIds] = useState(new Set());
 
-  const [formData, setFormData] = useState({
-    householdHeadName: "",
-    gender: "Female",
-    age: "",
-    householdSize: "",
-    monthlyIncome: "",
-    district: "Maseru",
-    damageSeverity: "Minor",
-    damageDescription: "",
-  });
-
+  // ─── Boot: fetch disasters + all existing allocations ────────────────────
   useEffect(() => {
     fetchDisasters();
+    fetchAllAllocations();
   }, []);
 
+  // ─── When selected disaster changes, reload households & plan ─────────────
   useEffect(() => {
     if (selectedDisaster) {
       fetchHouseholds();
-      const disaster = disasters.find((d) => d._id === selectedDisaster);
-      setCurrentDisaster(disaster);
+      const d = disasters.find((x) => x._id === selectedDisaster);
+      setCurrentDisaster(d || null);
       setAllocationPlans([]);
+      setOverriddenHouseholds({});
     }
   }, [selectedDisaster, disasters]);
+
+  // ─── Refresh summary whenever the summary tab is opened ──────────────────
+  useEffect(() => {
+    if (activeTab === "summary") {
+      fetchAllAllocations();
+    }
+  }, [activeTab]);
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // DATA FETCHING
+  // ─────────────────────────────────────────────────────────────────────────
 
   const fetchDisasters = async () => {
     try {
       const res = await API.get("/disasters");
-      
-      // Get all disasters and filter to verified status only
-      let allDisasters = res.data || [];
-      const verifiedDisasters = allDisasters.filter((d) => d.status === "verified");
-      
-      // Assign sequential IDs based on creation date
-      const disastersWithIds = assignDisasterIds(verifiedDisasters);
-      
-      setDisasters(disastersWithIds);
-      if (disastersWithIds.length > 0) {
-        setSelectedDisaster(disastersWithIds[0]._id);
-      }
-    } catch (err) {
+      const verified = (res.data || []).filter(
+        (d) => d.status === "approved" || d.status === "verified"
+      );
+      const withIds = assignDisasterIds(verified);
+      setDisasters(withIds);
+      // Do NOT auto-select first disaster - user should manually select
+    } catch {
       ToastManager.error("Failed to load disasters");
     }
   };
@@ -63,99 +85,171 @@ export default function AidAllocation() {
     try {
       setLoading(true);
       const res = await API.get(`/allocation/assessments/${selectedDisaster}`);
-      const householdsData = res.data.assessments || res.data || [];
-      setHouseholds(householdsData);
-    } catch (err) {
+      setHouseholds(res.data.assessments || res.data || []);
+    } catch {
       setHouseholds([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const getSeverityLabel = (level) => {
-    const severityMap = {
-      1: "Minor",
-      2: "Moderate",
-      3: "Severe",
-      4: "Catastrophic",
-    };
-    return severityMap[level] || "Unknown";
-  };
+  /**
+   * Fetch ALL allocation requests across every disaster and normalize them.
+   * We iterate over all known disasters; if the backend has a cross-disaster
+   * endpoint you can simplify this to a single call.
+   */
+  const fetchAllAllocations = useCallback(async () => {
+    try {
+      // Fetch the disaster list if we haven't yet (e.g. on initial boot)
+      let disasterList = disasters;
+      if (disasterList.length === 0) {
+        const res = await API.get("/disasters");
+        disasterList = (res.data || []).filter(
+          (d) => d.status === "approved" || d.status === "verified"
+        );
+      }
 
-  const getSeverityClass = (level) => {
-    const classMap = {
-      1: "minor",
-      2: "moderate",
-      3: "severe",
-      4: "catastrophic",
-    };
-    return classMap[level] || "minor";
-  };
+      const allNormalized = [];
+      const allocatedIds  = new Set();
 
-  // ===== STEP 2: KEYWORD DETECTION =====
+      await Promise.all(
+        disasterList.map(async (d) => {
+          try {
+            const res = await API.get(`/allocation/requests/${d._id}`);
+            const requests = res.data?.requests || [];
+            if (requests.length > 0) {
+              allocatedIds.add(d._id);
+              requests.forEach((r) =>
+                allNormalized.push(
+                  normalizeAllocation({ ...r, district: d.district || "N/A" })
+                )
+              );
+            }
+          } catch {
+            // individual disaster may have no allocations — that's fine
+          }
+        })
+      );
+
+      setGlobalAllocations(allNormalized);
+      setAllocatedDisasterIds(allocatedIds);
+    } catch (err) {
+      console.error("fetchAllAllocations error:", err.message);
+    }
+  }, [disasters]);
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ALLOCATION SCORING LOGIC - STRENGTHENED ENGINE
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const getSeverityLabel = (level) =>
+    ({ 1: "Minor", 2: "Moderate", 3: "Severe", 4: "Catastrophic" }[level] || "Unknown");
+
+  const getSeverityClass = (level) =>
+    ({ 1: "minor", 2: "moderate", 3: "severe", 4: "catastrophic" }[level] || "minor");
+
+  /**
+   * STEP 2: Robust keyword detection using includes() with lowercase normalization
+   */
   const detectKeywordsInDescription = (description = "") => {
     const desc = (description || "").toLowerCase();
     
+    const hasChildrenUnder5 = ["infant", "baby", "toddler", "child under 5", "young child", "newborn"]
+      .some(kw => desc.includes(kw));
+    
+    const hasDisabledMembers = ["disabled", "wheelchair", "bedridden", "handicapped", "disability"]
+      .some(kw => desc.includes(kw));
+    
+    const hasNoWaterAccess = ["no water", "water cut", "no access to water", "water supply damaged", "no clean water"]
+      .some(kw => desc.includes(kw));
+    
+    const hasInjuries = ["injured", "hurt", "wound", "hospital", "medical attention", "casualty"]
+      .some(kw => desc.includes(kw));
+    
+    const isUninhabitableKeywords = ["completely destroyed", "fully destroyed", "uninhabitable", "no rooms", "collapsed", "total loss"]
+      .some(kw => desc.includes(kw));
+    
+    const hasRoofDamage = ["roof blown", "roof damaged", "roof destroyed", "roof off", "no roof", "roofless"]
+      .some(kw => desc.includes(kw));
+    
     return {
-      hasChildrenUnder5: /\b(infant|baby|toddler|child under 5|young child|newborn)\b/.test(desc),
-      hasDisabledMembers: /\b(disabled|wheelchair|bedridden|handicapped|disability)\b/.test(desc),
-      hasNoWaterAccess: /\b(no water|water cut|no access to water|water supply damaged|no clean water)\b/.test(desc),
-      hasInjuries: /\b(injured|hurt|wound|hospital|medical attention|casualty)\b/.test(desc),
-      isUninhabitable: /\b(completely destroyed|fully destroyed|uninhabitable|no rooms|collapsed|total loss)\b/.test(desc),
-      hasRoofDamage: /\b(roof blown|roof damaged|roof destroyed|roof off|no roof|roofless)\b/.test(desc),
+      hasChildrenUnder5,
+      hasDisabledMembers,
+      hasNoWaterAccess,
+      hasInjuries,
+      isUninhabitableKeywords,
+      hasRoofDamage,
     };
   };
 
-  // ===== STEP 1: DISQUALIFICATION CHECK =====
-  const checkDisqualification = (household, damageLevel, keywords, disasterType) => {
+  /**
+   * STEP 3 & 4: Override damage level and check disqualification
+   * Returns { finalDamageLevel, isUninhabitable, isDisqualified }
+   */
+  const processDamageAndDisqualification = (household, selectedDamageLevel, keywords) => {
     const age = parseInt(household.headOfHousehold?.age || household.age || 0);
     const householdSize = parseInt(household.householdSize || 0);
     const monthlyIncome = parseFloat(household.monthlyIncome || 0);
-    
-    // Check if more than 50% of rooms are still habitable
-    const habitable = damageLevel <= 2 || keywords.isUninhabitable === false || 
-                      /\b(still habitable|rooms habitable|partially damaged)\b/.test((household.damageDescription || "").toLowerCase());
-    
-    // All four conditions must be true to disqualify
-    const condition1 = age < 40;
-    const condition2 = householdSize <= 4;
-    const condition3 = monthlyIncome > 10000;
-    const condition4 = habitable && damageLevel <= 2;
-    
-    return condition1 && condition2 && condition3 && condition4;
+    const desc = (household.damageDescription || "").toLowerCase();
+
+    // STEP 3: Override damage level if uninhabitable keywords found
+    let finalDamageLevel = selectedDamageLevel || 1;
+    let isUninhabitable = false;
+
+    if (keywords.isUninhabitableKeywords) {
+      finalDamageLevel = 4;
+      isUninhabitable = true;
+    } else {
+      isUninhabitable = (finalDamageLevel === 4);
+    }
+
+    // STEP 4: Check disqualification (BEFORE any other logic)
+    // Disqualified if ALL conditions are true:
+    const isMoreThan50PercentHabitable = 
+      finalDamageLevel <= 2 || 
+      desc.includes("still habitable") || 
+      desc.includes("partially damaged") || 
+      desc.includes("rooms habitable");
+
+    const isDisqualified = 
+      age < 40 && 
+      householdSize <= 4 && 
+      monthlyIncome > 10000 && 
+      isMoreThan50PercentHabitable;
+
+    return { finalDamageLevel, isUninhabitable, isDisqualified };
   };
 
-  // ===== STEP 3: VULNERABILITY SCORE =====
+  /**
+   * STEP 5: Calculate vulnerability score
+   * Only called if NOT disqualified
+   */
   const calculateVulnerabilityScore = (household, keywords) => {
     let score = 0;
-
     const age = parseInt(household.headOfHousehold?.age || household.age || 0);
-    if (age > 65) score += 2;
-
-    if (keywords.hasChildrenUnder5) score += 2;
-
     const householdSize = parseInt(household.householdSize || 0);
-    if (householdSize > 6) score += 2;
-
     const income = parseFloat(household.monthlyIncome || 0);
+
+    if (age > 65) score += 2;
+    if (keywords.hasChildrenUnder5) score += 2;
+    if (householdSize > 6) score += 2;
     if (income <= 3000) score += 3;
     else if (income <= 10000) score += 1;
 
     return score;
   };
 
-  // ===== STEP 4: DAMAGE SCORE =====
-  const calculateDamageScore = (damageLevel) => {
-    const levelMap = {
-      1: 1,
-      2: 2,
-      3: 3,
-      4: 4,
-    };
-    return levelMap[damageLevel] || 1;
+  /**
+   * STEP 6: Calculate damage score based on FINAL damage level
+   */
+  const calculateDamageScore = (finalDamageLevel) => {
+    const scores = { 1: 1, 2: 2, 3: 3, 4: 4 };
+    return scores[finalDamageLevel] || 1;
   };
 
-  // ===== STEP 5: DETERMINE TIER =====
+  /**
+   * STEP 7: Determine tier from composite score
+   */
   const determineTier = (compositeScore) => {
     if (compositeScore >= 10) return "Priority";
     if (compositeScore >= 7) return "Extended";
@@ -163,226 +257,377 @@ export default function AidAllocation() {
     return "Minimal";
   };
 
-  // ===== STEP 6: PACKAGE ELIGIBILITY =====
-  const getEligiblePackages = (household, keywords, damageLevel, disasterType) => {
+  /**
+   * STEP 8: Get eligible packages - STRICT enforcement, NO exceptions
+   * Also includes logic to prevent unnecessary aid allocation
+   */
+  const getEligiblePackages = (household, keywords, finalDamageLevel, isUninhabitable, disasterType) => {
     const age = parseInt(household.headOfHousehold?.age || household.age || 0);
     const monthlyIncome = parseFloat(household.monthlyIncome || 0);
-    const isDrought = disasterType.toLowerCase().includes("drought");
-    const isWindRain = disasterType.toLowerCase().includes("rainfall") || 
-                       disasterType.toLowerCase().includes("wind") ||
-                       disasterType.toLowerCase().includes("strong wind") ||
-                       disasterType.toLowerCase().includes("heavy rainfall");
+    const disasterLower = (disasterType || "").toLowerCase();
+    const desc = (household.damageDescription || "").toLowerCase();
+    
+    const isWindRain = disasterLower.includes("rainfall") || disasterLower.includes("wind");
+    const isDrought = disasterLower.includes("drought");
+    
+    /**
+     * SECTION 1: Extract room information from damage description
+     * Detect if fully destroyed vs partially damaged with habitable rooms
+     */
+    const isFullyDestroyed = desc.includes("completely destroyed") || desc.includes("fully destroyed");
+    const isPartiallyDamaged = desc.includes("partially") || desc.includes("some rooms");
+    const hasMultipleHabitableRooms = desc.includes("still habitable") || 
+                                      desc.includes("remaining rooms") || 
+                                      desc.includes("rooms habitable");
+    
+    /**
+     * SECTION 2: Check "No Aid Needed" condition
+     * Aid is not needed if: house still habitable AND no injuries AND no disability
+     * These households should receive no assistance
+     */
+    const noAidNeeded = hasMultipleHabitableRooms && 
+                        !keywords.hasInjuries && 
+                        !keywords.hasDisabledMembers;
+    
+    if (noAidNeeded) {
+      // Return empty package list - no aid required
+      return [];
+    }
+    
+    const pkgs = [];
 
-    const packages = [];
-
-    // Emergency Tent: isUninhabitable AND damage level 4
-    if (keywords.isUninhabitable && damageLevel === 4) {
-      packages.push({ name: "Emergency Tent", cost: 6500 });
+    // Emergency Tent: ONLY if isUninhabitable AND damageLevel === 4
+    if (isUninhabitable && finalDamageLevel === 4) {
+      pkgs.push({ name: "Emergency Tent", cost: 6500 });
     }
 
-    // Reconstruction Grant: isUninhabitable AND damage level 4, Heavy rainfall/strong winds only
-    if (keywords.isUninhabitable && damageLevel === 4 && isWindRain) {
-      packages.push({ name: "Reconstruction Grant", cost: 75000 });
+    /**
+     * SECTION 3: Fixed Reconstruction Grant Logic
+     * ONLY give when house is truly uninhabitable (completely destroyed)
+     * Do NOT give when homes are partially damaged with habitable rooms
+     */
+    if (isFullyDestroyed && finalDamageLevel === 4 && isWindRain) {
+      pkgs.push({ name: "Reconstruction Grant", cost: 75000 });
     }
 
-    // Re-roofing Kit: hasRoofDamage AND damage level 2 or 3, Heavy rainfall/strong winds only
-    if (keywords.hasRoofDamage && (damageLevel === 2 || damageLevel === 3) && isWindRain) {
-      packages.push({ name: "Re-roofing Kit", cost: 18000 });
+    // Re-roofing Kit: ONLY if hasRoofDamage AND (damageLevel 2 or 3) AND (Heavy Rainfall OR Strong Winds)
+    // BUT NOT if multiple rooms still habitable
+    if (keywords.hasRoofDamage && (finalDamageLevel === 2 || finalDamageLevel === 3) && isWindRain && !hasMultipleHabitableRooms) {
+      pkgs.push({ name: "Re-roofing Kit", cost: 18000 });
     }
 
-    // Tarpaulin Kit: damage level >= 2, Heavy rainfall/strong winds only
-    if (damageLevel >= 2 && isWindRain) {
-      packages.push({ name: "Tarpaulin Kit", cost: 2000 });
+    // Tarpaulin Kit: ONLY if damageLevel >= 2 AND (Heavy Rainfall OR Strong Winds)
+    // BUT NOT if multiple rooms still habitable
+    if (finalDamageLevel >= 2 && isWindRain && !hasMultipleHabitableRooms) {
+      pkgs.push({ name: "Tarpaulin Kit", cost: 2000 });
     }
 
-    // Food Parcel: income < M10,000 OR isUninhabitable
-    if (monthlyIncome < 10000 || keywords.isUninhabitable) {
-      packages.push({ name: "Food Parcel", cost: 1500 });
+    // Food Parcel: ONLY if income < 10000 OR isUninhabitable
+    if (monthlyIncome < 10000 || isUninhabitable) {
+      pkgs.push({ name: "Food Parcel", cost: 1500 });
     }
 
-    // Water Tank: Drought disasters only AND hasNoWaterAccess
-    // For drought disasters, assume hasNoWaterAccess is true by default
-    if (isDrought && (keywords.hasNoWaterAccess || !/(water|supply|access).*(ok|good|available|fine)/i.test(household.damageDescription || ""))) {
-      packages.push({ name: "Water Tank", cost: 6000 });
+    // Water Tank: ONLY if Drought AND hasNoWaterAccess
+    if (isDrought && keywords.hasNoWaterAccess) {
+      pkgs.push({ name: "Water Tank", cost: 6000 });
     }
 
-    // Blanket & Clothing: hasChildrenUnder5 OR age > 65 OR hasDisabledMembers
+    // Blanket & Clothing: ONLY if hasChildrenUnder5 OR age > 65 OR hasDisabledMembers
     if (keywords.hasChildrenUnder5 || age > 65 || keywords.hasDisabledMembers) {
-      packages.push({ name: "Blanket & Clothing", cost: 1500 });
+      pkgs.push({ name: "Blanket & Clothing", cost: 1500 });
     }
 
-    // Medical Aid: hasInjuries OR hasDisabledMembers OR hasChildrenUnder5 OR age > 65
-    if (keywords.hasInjuries || keywords.hasDisabledMembers || keywords.hasChildrenUnder5 || age > 65) {
-      packages.push({ name: "Medical Aid", cost: 1000 });
+    // Medical Aid: ONLY if hasInjuries OR hasDisabledMembers (actual medical needs)
+    if (keywords.hasInjuries || keywords.hasDisabledMembers) {
+      pkgs.push({ name: "Medical Aid", cost: 1000 });
     }
 
-    return packages;
+    return pkgs;
   };
 
-  // ===== STEP 1-7: COMPLETE ALLOCATION LOGIC =====
+  const getIneligibilityReason = (household, finalDamageLevel, keywords) => {
+    const age = parseInt(household.headOfHousehold?.age || household.age || 0);
+    const householdSize = parseInt(household.householdSize || 0);
+    const monthlyIncome = parseFloat(household.monthlyIncome || 0);
+    const desc = (household.damageDescription || "").toLowerCase();
+    
+    const isMoreThan50PercentHabitable = 
+      finalDamageLevel <= 2 || 
+      desc.includes("still habitable") || 
+      desc.includes("partially damaged") ||
+      desc.includes("rooms habitable");
+
+    const reasons = [];
+    if (age < 40) reasons.push("Age < 40");
+    if (householdSize <= 4) reasons.push("Household ≤ 4");
+    if (monthlyIncome > 10000) reasons.push("Income > M10,000");
+    if (isMoreThan50PercentHabitable) reasons.push("> 50% rooms habitable");
+    
+    return reasons.length > 0 ? reasons.join("; ") : "Does not meet eligibility criteria";
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PLAN GENERATION
+  // ─────────────────────────────────────────────────────────────────────────
+
   const generateAllocationPlan = () => {
     try {
       setGeneratingPlan(true);
+      setOverriddenHouseholds({});
 
-      const plans = households.map((household, idx) => {
-        const damageLevel = household.damageSeverityLevel || 1;
-        const damageDescription = household.damageDescription || "";
-        const disasterType = household.disasterType || currentDisaster?.type || currentDisaster?.disasterType || "";
-
-        // STEP 2: Detect keywords
-        const keywords = detectKeywordsInDescription(damageDescription);
-
-        // STEP 1: Check disqualification
-        const isDisqualified = checkDisqualification(household, damageLevel, keywords, disasterType);
+      const plans = households.map((hh, idx) => {
+        const selectedDamageLevel = hh.damageSeverityLevel || 1;
+        const disasterType = hh.disasterType || currentDisaster?.type || currentDisaster?.disasterType || "";
+        const keywords = detectKeywordsInDescription(hh.damageDescription || "");
+        
+        // STEP 3 & 4: Process damage level override and check disqualification
+        const { finalDamageLevel, isUninhabitable, isDisqualified } = 
+          processDamageAndDisqualification(hh, selectedDamageLevel, keywords);
 
         if (isDisqualified) {
+          const ineligReason = getIneligibilityReason(hh, finalDamageLevel, keywords);
           return {
-            id: household._id || idx,
-            hhId: household.householdId || `HH-${String(idx + 1).padStart(3, "0")}`,
-            head: household.headOfHousehold?.name || household.householdHeadName || "Unknown",
+            id: hh._id || idx, 
+            hhId: hh.householdId || `HH-${String(idx + 1).padStart(3, "0")}`,
+            head: hh.headOfHousehold?.name || hh.householdHeadName || "No name provided",
             district: currentDisaster?.district || "N/A",
-            damage: getSeverityLabel(damageLevel),
-            damageScore: calculateDamageScore(damageLevel),
-            vulnerability: 0,
-            compositeScore: 0,
+            damage: getSeverityLabel(finalDamageLevel), 
+            damageScore: calculateDamageScore(finalDamageLevel),
+            vulnerability: 0, 
+            compositeScore: 0, 
             tier: "Not Eligible",
-            packages: [],
-            totalCost: 0,
+            ineligibilityReason: ineligReason,
+            packages: [], 
+            totalCost: 0, 
             isDisqualified: true,
           };
         }
 
-        // STEP 3: Calculate vulnerability score
-        const vulnScore = calculateVulnerabilityScore(household, keywords);
-
-        // STEP 4: Calculate damage score
-        const damageScore = calculateDamageScore(damageLevel);
-
-        // STEP 5: Calculate composite score and tier
+        // STEP 5-7: Calculate scores and determine tier
+        const vulnScore = calculateVulnerabilityScore(hh, keywords);
+        const damageScore = calculateDamageScore(finalDamageLevel);
         const compositeScore = vulnScore + damageScore;
         const tier = determineTier(compositeScore);
 
-        // STEP 6: Get eligible packages
-        const packages = getEligiblePackages(household, keywords, damageLevel, disasterType);
-
-        const totalCost = packages.reduce((sum, pkg) => sum + pkg.cost, 0);
+        // STEP 8: Get eligible packages (strict enforcement)
+        const packages = getEligiblePackages(hh, keywords, finalDamageLevel, isUninhabitable, disasterType);
 
         return {
-          id: household._id || idx,
-          hhId: household.householdId || `HH-${String(idx + 1).padStart(3, "0")}`,
-          head: household.headOfHousehold?.name || household.householdHeadName || "Unknown",
+          id: hh._id || idx, 
+          hhId: hh.householdId || `HH-${String(idx + 1).padStart(3, "0")}`,
+          head: hh.headOfHousehold?.name || hh.householdHeadName || "No name provided",
           district: currentDisaster?.district || "N/A",
-          damage: getSeverityLabel(damageLevel),
+          damage: getSeverityLabel(finalDamageLevel), 
           damageScore,
-          vulnerability: vulnScore,
-          compositeScore,
+          vulnerability: vulnScore, 
+          compositeScore, 
           tier,
-          packages,
-          totalCost,
+          packages, 
+          totalCost: packages.reduce((s, p) => s + p.cost, 0),
           isDisqualified: false,
         };
       });
 
-      // STEP 7: Sort - eligible first (by composite score descending), then disqualified at bottom
-      const eligible = plans.filter(p => !p.isDisqualified).sort((a, b) => b.compositeScore - a.compositeScore);
-      const disqualified = plans.filter(p => p.isDisqualified);
-      const sortedPlans = [...eligible, ...disqualified];
+      // STEP 9: Sort and separate
+      const eligible = plans.filter((p) => !p.isDisqualified).sort((a, b) => b.compositeScore - a.compositeScore);
+      const disqualified = plans.filter((p) => p.isDisqualified);
+      
+      setAllocationPlans([...eligible, ...disqualified]);
 
-      // Calculate summary statistics
-      const summary = {
-        totalAidNeeded: eligible.reduce((sum, p) => sum + p.totalCost, 0),
-        eligibleCount: eligible.length,
-        disqualifiedCount: disqualified.length,
-        priorityCount: eligible.filter(p => p.tier === "Priority").length,
-        extendedCount: eligible.filter(p => p.tier === "Extended").length,
-        basicCount: eligible.filter(p => p.tier === "Basic").length,
-        minimalCount: eligible.filter(p => p.tier === "Minimal").length,
+      // STEP 10: Summary calculation
+      const totalAidRequired = eligible.reduce((sum, p) => sum + p.totalCost, 0);
+      const tiers = {
+        Priority: eligible.filter(p => p.tier === "Priority").length,
+        Extended: eligible.filter(p => p.tier === "Extended").length,
+        Basic: eligible.filter(p => p.tier === "Basic").length,
+        Minimal: eligible.filter(p => p.tier === "Minimal").length,
       };
 
-      setAllocationPlans(sortedPlans);
-      
-      const eligibleMsg = `${eligible.length} eligible household${eligible.length !== 1 ? "s" : ""}`;
-      const disqualMsg = disqualified.length > 0 ? `, ${disqualified.length} disqualified` : "";
-      
       ToastManager.success(
-        `Allocation plan generated: ${eligibleMsg}${disqualMsg}`
+        `Plan generated: ${eligible.length} eligible (Priority: ${tiers.Priority}, Extended: ${tiers.Extended}, Basic: ${tiers.Basic}, Minimal: ${tiers.Minimal}), ${disqualified.length} disqualified. Total aid needed: M${totalAidRequired}`
       );
     } catch (err) {
-      console.error("Error generating allocation plan:", err);
+      console.error("Error generating plan:", err);
       ToastManager.error("Failed to generate allocation plan");
     } finally {
       setGeneratingPlan(false);
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  // ─────────────────────────────────────────────────────────────────────────
+  // OVERRIDE
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const handleOverride = (planId, household) => {
+    setOverriddenHouseholds((prev) => ({ ...prev, [planId]: true }));
+    setAllocationPlans((prev) =>
+      prev.map((plan) => {
+        if (plan.id !== planId) return plan;
+        
+        const selectedDamageLevel = household.damageSeverityLevel || 1;
+        const disasterType = household.disasterType || currentDisaster?.type || "";
+        const keywords = detectKeywordsInDescription(household.damageDescription || "");
+        
+        // Process with damage override
+        const { finalDamageLevel, isUninhabitable } = 
+          processDamageAndDisqualification(household, selectedDamageLevel, keywords);
+        
+        // Calculate scores
+        const vulnScore = calculateVulnerabilityScore(household, keywords);
+        const damageScore = calculateDamageScore(finalDamageLevel);
+        const compositeScore = vulnScore + damageScore;
+        const tier = determineTier(compositeScore);
+        
+        // Get packages
+        const packages = getEligiblePackages(household, keywords, finalDamageLevel, isUninhabitable, disasterType);
+        
+        return {
+          ...plan, 
+          isDisqualified: false, 
+          vulnerability: vulnScore,
+          damage: getSeverityLabel(finalDamageLevel),
+          damageScore,
+          compositeScore, 
+          tier,
+          packages, 
+          totalCost: packages.reduce((s, p) => s + p.cost, 0), 
+          overridden: true,
+        };
+      })
+    );
+    ToastManager.success("Household eligibility overridden");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // ─────────────────────────────────────────────────────────────────────────
+  // ALLOCATE PLAN  (the main action)
+  // ─────────────────────────────────────────────────────────────────────────
 
-    if (!formData.householdHeadName.trim()) {
-      ToastManager.error("Household head name is required");
-      return;
-    }
-    if (!formData.age) {
-      ToastManager.error("Age is required");
-      return;
-    }
-    if (!formData.householdSize) {
-      ToastManager.error("Household size is required");
-      return;
-    }
-    if (!formData.monthlyIncome) {
-      ToastManager.error("Monthly income is required");
+  const handleAllocatePlan = async () => {
+    if (allocatedDisasterIds.has(selectedDisaster)) {
+      ToastManager.info("This disaster has already been allocated.");
       return;
     }
 
-    setLoading(true);
-    try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      await API.post("/api/household-assessments", {
-        disasterId: selectedDisaster,
-        householdHeadName: formData.householdHeadName,
-        gender: formData.gender,
-        age: parseInt(formData.age),
-        householdSize: parseInt(formData.householdSize),
-        monthlyIncome: parseFloat(formData.monthlyIncome),
-        district: formData.district,
-        damageSeverity: formData.damageSeverity,
-        damageDescription: formData.damageDescription,
-        createdBy: user.user?.id,
-      });
+    const userData  = JSON.parse(localStorage.getItem("user") || "{}");
+    const userId    = userData?.user?._id || userData?.user?.id || userData?._id || userData?.id;
+    const userRole  = userData?.user?.role || userData?.role;
 
-      ToastManager.success("Household assessed successfully");
-      setFormData({
-        householdHeadName: "",
-        gender: "Female",
-        age: "",
-        householdSize: "",
-        monthlyIncome: "",
-        district: "Maseru",
-        damageSeverity: "Minor",
-        damageDescription: "",
-      });
-      fetchHouseholds();
-    } catch (err) {
-      ToastManager.error(
-        err.response?.data?.message || "Failed to assess household"
-      );
-    } finally {
-      setLoading(false);
+    const allowed = ["Finance Officer", "Coordinator", "Administrator"];
+    if (!allowed.includes(userRole)) {
+      ToastManager.error(`Role "${userRole}" cannot allocate.`);
+      return;
+    }
+
+    const eligiblePlans = allocationPlans.filter((p) => !p.isDisqualified && p.packages.length > 0);
+    if (eligiblePlans.length === 0) {
+      ToastManager.error("No eligible households to allocate.");
+      return;
+    }
+
+    let successCount = 0;
+
+    for (const plan of eligiblePlans) {
+      try {
+        await API.post(
+          "/allocation/allocate",
+          {
+            disasterId:            selectedDisaster,
+            householdAssessmentId: plan.id,
+            householdId:           plan.hhId,
+            householdHeadName:     plan.head,
+            packages:              plan.packages,
+            totalCost:             plan.totalCost,
+            compositeScore:        plan.compositeScore,
+            damageScore:           plan.damageScore,
+            vulnerability:         plan.vulnerability,
+            tier:                  plan.tier,
+            allocatedBy:           userId,
+            timestamp:             new Date().toISOString(),
+            isOverridden:          overriddenHouseholds[plan.id] || false,
+          },
+          { headers: { user: JSON.stringify({ role: userRole, id: userId }) } }
+        );
+        successCount++;
+      } catch (err) {
+        console.error(`Failed to allocate ${plan.head}:`, err.response?.data?.message || err.message);
+      }
+    }
+
+    if (successCount > 0) {
+      // Refresh the global allocation state from the backend so the
+      // summary dashboard reflects the true persisted data.
+      await fetchAllAllocations();
+
+      if (successCount === eligiblePlans.length) {
+        ToastManager.success(`All ${successCount} households allocated!`);
+      } else {
+        ToastManager.warning(`${successCount}/${eligiblePlans.length} households allocated.`);
+      }
+    } else {
+      ToastManager.error("Allocation failed. Check console for details.");
     }
   };
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // HELPERS
+  // ─────────────────────────────────────────────────────────────────────────
 
   const getIncomeCategory = (income) => {
-    const inc = parseFloat(income) || 0;
-    if (inc <= 3000) return "Low";
-    if (inc <= 10000) return "Middle";
+    const n = parseFloat(income) || 0;
+    if (n <= 3000)  return "Low";
+    if (n <= 10000) return "Middle";
     return "High";
   };
+
+  // Disasters available for new allocation (not yet allocated)
+  const unallocatedDisasters = disasters.filter((d) => !allocatedDisasterIds.has(d._id));
+  const isCurrentAllocated   = allocatedDisasterIds.has(selectedDisaster);
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // SUMMARY DASHBOARD COMPUTED VALUES
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const totalBudget       = globalAllocations.reduce((s, a) => s + a.totalCost, 0);
+  const totalPackages     = globalAllocations.reduce((s, a) => s + a.packages.length, 0);
+  const numDisasters      = allocatedDisasterIds.size;
+
+  // Per-district totals for bar chart
+  const byDistrict = {};
+  globalAllocations.forEach((a) => {
+    const district = a.district || "Unknown";
+    byDistrict[district] = (byDistrict[district] || 0) + a.totalCost;
+  });
+  const districtEntries = Object.entries(byDistrict).sort((a, b) => b[1] - a[1]);
+
+  // Per-package-type counts for pie chart
+  const packageCounts = {};
+  globalAllocations.forEach((a) =>
+    a.packages.forEach((p) => {
+      packageCounts[p.name] = (packageCounts[p.name] || 0) + 1;
+    })
+  );
+  const totalPkgCount  = Object.values(packageCounts).reduce((s, v) => s + v, 0);
+  const packageEntries = Object.entries(packageCounts)
+    .map(([name, count]) => ({ name, count, pct: totalPkgCount ? ((count / totalPkgCount) * 100).toFixed(1) : 0 }))
+    .sort((a, b) => b.count - a.count);
+
+  // Per-disaster summary rows for the table
+  const disasterRows = disasters
+    .filter((d) => allocatedDisasterIds.has(d._id))
+    .map((d) => {
+      const allocs = globalAllocations.filter((a) => a.disasterId === d._id);
+      return {
+        label:      `${getDisasterId(d, disasters)} – ${d.type} (${d.district})`,
+        households: allocs.length,
+        packages:   allocs.reduce((s, a) => s + a.packages.length, 0),
+        totalCost:  allocs.reduce((s, a) => s + a.totalCost, 0),
+        date:       allocs.length > 0 ? allocs[allocs.length - 1].createdAt : null,
+      };
+    });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // RENDER
+  // ─────────────────────────────────────────────────────────────────────────
 
   return (
     <div className="aid-allocation">
@@ -397,60 +642,45 @@ export default function AidAllocation() {
               onChange={(e) => setSelectedDisaster(e.target.value)}
               className="disaster-select"
             >
-              <option value="">Select an approved disaster...</option>
-              {disasters.map((d) => (
-                <option key={d._id} value={d._id}>
-                  {d.disasterCode || d._id.substring(0, 8)} - {d.type} ({d.district})
-                </option>
-              ))}
+              <option value="">Select a disaster…</option>
+              {disasters
+                .filter((d) => !allocatedDisasterIds.has(d._id))
+                .map((d) => (
+                  <option key={d._id} value={d._id}>
+                    {getDisasterId(d, disasters)} – {d.type} ({d.district})
+                  </option>
+                ))}
             </select>
           </div>
           <div className="household-count">
-            <span>
-              {households.length}{" "}
-              {currentDisaster?.numberOfHouseholdsAffected
-                ? `of ${currentDisaster.numberOfHouseholdsAffected}`
-                : ""}{" "}
-              household(s) assessed
-            </span>
+            {households.length}{" "}
+            {currentDisaster?.numberOfHouseholdsAffected
+              ? `of ${currentDisaster.numberOfHouseholdsAffected}`
+              : ""}{" "}
+            household(s) assessed
           </div>
         </div>
 
         {/* Tabs */}
         <div className="tabs-section">
-          <button
-            className={`tab-btn ${activeTab === "assess" ? "active" : ""}`}
-            onClick={() => setActiveTab("assess")}
-          >
-            <Plus size={18} />
-            Assess Household
+          <button className={`tab-btn ${activeTab === "assess" ? "active" : ""}`} onClick={() => setActiveTab("assess")}>
+            <Plus size={18} /> Assess Household
           </button>
-          <button
-            className={`tab-btn ${activeTab === "plan" ? "active" : ""}`}
-            onClick={() => setActiveTab("plan")}
-          >
-            <FileText size={18} />
-            Allocation Plan
+          <button className={`tab-btn ${activeTab === "plan" ? "active" : ""}`} onClick={() => setActiveTab("plan")}>
+            <FileText size={18} /> Allocation Plan
           </button>
-          <button
-            className={`tab-btn ${activeTab === "summary" ? "active" : ""}`}
-            onClick={() => setActiveTab("summary")}
-          >
-            <Eye size={18} />
-            Summary Dashboard
+          <button className={`tab-btn ${activeTab === "summary" ? "active" : ""}`} onClick={() => setActiveTab("summary")}>
+            <Eye size={18} /> Summary Dashboard
           </button>
         </div>
 
-        {/* TAB: Assess Household */}
+        {/* ── TAB: Assess Household ─────────────────────────────────────── */}
         {activeTab === "assess" && (
           <div className="tab-content">
             {households.length === 0 ? (
               <div className="placeholder-section">
                 <h3>Assessed Households</h3>
-                <p>
-                  Household assessment data from approved disasters will appear
-                  here after coordinator approval
-                </p>
+                <p>No household assessments found for this disaster.</p>
               </div>
             ) : (
               <div className="households-table-section">
@@ -459,56 +689,29 @@ export default function AidAllocation() {
                   <table className="households-table">
                     <thead>
                       <tr>
-                        <th>Household Head</th>
-                        <th>Gender</th>
-                        <th>Age</th>
-                        <th>Size</th>
-                        <th>Monthly Income</th>
-                        <th>Income Category</th>
-                        <th>Damage Severity</th>
+                        <th>Household Head</th><th>Gender</th><th>Age</th>
+                        <th>Size</th><th>Income Category</th><th>Damage Severity</th>
                         <th>Damage Description</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {households.map((household, idx) => (
-                        <tr key={household._id || idx}>
-                          <td className="font-medium">
-                            {household.headOfHousehold?.name ||
-                              household.householdHeadName}
-                          </td>
+                      {households.map((hh, idx) => (
+                        <tr key={hh._id || idx}>
+                          <td className="font-medium">{hh.headOfHousehold?.name || hh.householdHeadName}</td>
+                          <td>{hh.headOfHousehold?.gender || hh.gender}</td>
+                          <td>{hh.headOfHousehold?.age || hh.age}</td>
+                          <td>{hh.householdSize}</td>
                           <td>
-                            {household.headOfHousehold?.gender ||
-                              household.gender}
-                          </td>
-                          <td>
-                            {household.headOfHousehold?.age || household.age}
-                          </td>
-                          <td>{household.householdSize}</td>
-                          <td>
-                            M{" "}
-                            {parseFloat(
-                              household.monthlyIncome
-                            ).toLocaleString()}
-                          </td>
-                          <td>
-                            <span
-                              className={`income-badge ${getIncomeCategory(
-                                household.monthlyIncome
-                              ).toLowerCase()}`}
-                            >
-                              {getIncomeCategory(household.monthlyIncome)}
+                            <span className={`income-badge ${getIncomeCategory(hh.monthlyIncome).toLowerCase()}`}>
+                              {getIncomeCategory(hh.monthlyIncome)}
                             </span>
                           </td>
                           <td>
-                            <span
-                              className={`severity-badge ${getSeverityClass(
-                                household.damageSeverityLevel
-                              )}`}
-                            >
-                              {getSeverityLabel(household.damageSeverityLevel)}
+                            <span className={`severity-badge ${getSeverityClass(hh.damageSeverityLevel)}`}>
+                              {getSeverityLabel(hh.damageSeverityLevel)}
                             </span>
                           </td>
-                          <td>{household.damageDescription}</td>
+                          <td>{hh.damageDescription}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -519,264 +722,303 @@ export default function AidAllocation() {
           </div>
         )}
 
-        {/* TAB: Allocation Plan */}
+        {/* ── TAB: Allocation Plan ──────────────────────────────────────── */}
         {activeTab === "plan" && (
           <div className="tab-content">
-            {households.length === 0 ? (
-              <div className="placeholder-section">
-                <h3>Allocation Plan</h3>
-                <p>
-                  Select a disaster and assess households first to generate
-                  allocation plans
-                </p>
-              </div>
-            ) : (
-              <div className="allocation-plan-section">
-                <div className="plan-header">
-                  <div>
-                    <h3>
-                      Aid Allocation Plan —{" "}
-                      {currentDisaster?.disasterCode || currentDisaster?._id?.substring(0, 8) || "Selected Disaster"}
-                    </h3>
-                    <p className="plan-subtitle">
-                      {households.length} households assessed
-                    </p>
-                  </div>
+            <div className="allocation-plan-section">
+              <div className="plan-header">
+                <div>
+                  <h3>Aid Allocation Plan — {currentDisaster?.disasterCode || selectedDisaster?.substring(0, 8) || "Selected Disaster"}</h3>
+                  <p className="plan-subtitle">{households.length} households assessed</p>
+                </div>
+                {allocationPlans.length === 0 ? (
                   <button
                     className="btn-generate-plan"
                     onClick={generateAllocationPlan}
-                    disabled={generatingPlan}
+                    disabled={generatingPlan || households.length === 0}
                   >
-                    {generatingPlan
-                      ? "Generating..."
-                      : "Generate Allocation Plan"}
+                    {generatingPlan ? "Generating…" : "Generate Allocation Plan"}
                   </button>
-                </div>
+                ) : null}
+              </div>
 
-                {allocationPlans.length > 0 ? (
-                  <div className="allocation-table-wrapper">
-                    <table className="allocation-table">
-                      <thead>
-                        <tr>
-                          <th>HH ID</th>
-                          <th>Head</th>
-                          <th>District</th>
-                          <th>Damage</th>
-                          <th>Damage Score</th>
-                          <th>Vuln. Score</th>
-                          <th>Composite Score</th>
-                          <th>Tier</th>
-                          <th>Packages</th>
-                          <th>Total Cost</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {allocationPlans.map((plan) => (
-                          <tr key={plan.id} style={{ 
-                            backgroundColor: plan.isDisqualified ? '#fef2f2' : 'transparent',
-                            opacity: plan.isDisqualified ? 0.7 : 1
-                          }}>
+              {households.length === 0 ? (
+                <div className="placeholder-section">
+                  <p>Select a disaster and assess households first.</p>
+                </div>
+              ) : allocationPlans.length > 0 ? (
+                <div className="allocation-table-wrapper">
+                  <table className="allocation-table">
+                    <thead>
+                      <tr>
+                        <th>HH ID</th><th>Head</th><th>District</th><th>Damage</th>
+                        <th>Damage Score</th><th>Vuln. Score</th><th>Composite</th>
+                        <th>Packages</th><th>Eligibility Note</th><th>Total Cost</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {allocationPlans.map((plan) => {
+                        const rawHH = households.find((h) => h._id === plan.id) || {};
+                        const kw    = detectKeywordsInDescription(rawHH.damageDescription || "");
+                        return (
+                          <tr key={plan.id} style={{ backgroundColor: plan.isDisqualified ? "#fef2f2" : "transparent", opacity: plan.isDisqualified ? 0.7 : 1 }}>
                             <td className="font-mono">{plan.hhId}</td>
                             <td className="font-medium">{plan.head}</td>
                             <td>{plan.district}</td>
                             <td>{plan.damage}</td>
                             <td className="text-center">{plan.damageScore}</td>
-                            <td className="text-center">
-                              {plan.vulnerability}
-                            </td>
-                            <td className="text-center font-bold">
-                              {plan.compositeScore}
-                            </td>
-                            <td>
-                              <span className="tier-badge" style={{
-                                backgroundColor: plan.isDisqualified ? '#fee2e2' : undefined,
-                                color: plan.isDisqualified ? '#991b1b' : undefined
-                              }}>
-                                {plan.tier}
-                              </span>
-                            </td>
+                            <td className="text-center">{plan.vulnerability}</td>
+                            <td className="text-center font-bold">{plan.compositeScore}</td>
                             <td>
                               {plan.packages.length === 0 ? (
-                                <span className="no-assistance">
-                                  {plan.isDisqualified ? "Not Eligible" : "No assistance"}
-                                </span>
+                                <div className="ineligible-info">
+                                  <span className="ineligible-badge">Not Eligible</span>
+                                </div>
                               ) : (
                                 <div className="packages-list">
-                                  {plan.packages.map((pkg, idx) => (
-                                    <div key={idx} className="package-item">
-                                      <span className="package-name">
-                                        {pkg.name}
-                                      </span>
-                                      <span className="package-cost">
-                                        M{pkg.cost.toLocaleString()}
-                                      </span>
+                                  {plan.packages.map((pkg, i) => (
+                                    <div key={i} className="package-item">
+                                      <span className="package-name">{pkg.name}</span>
+                                      <span className="package-cost">M{pkg.cost.toLocaleString()}</span>
                                     </div>
                                   ))}
                                 </div>
                               )}
                             </td>
-                            <td className="text-right font-bold">
-                              {plan.totalCost === 0
-                                ? "—"
-                                : `M${plan.totalCost.toLocaleString()}`}
-                            </td>
-                            <td>
-                              {!plan.isDisqualified && plan.tier !== "Not Eligible" && plan.packages.length > 0 && (
-                                <button className="btn-action">
-                                  ✓ Allocate
-                                </button>
+                            <td className="eligibility-note" style={{ textAlign: "center" }}>
+                              {plan.isDisqualified ? (
+                                <span className="note-ineligible">
+                                  {getIneligibilityReason(rawHH, plan.damageScore, kw)}
+                                </span>
+                              ) : (
+                                <span className="note-eligible">—</span>
                               )}
+                            </td>
+                            <td className="text-right font-bold">
+                              {plan.totalCost === 0 ? "—" : `M${plan.totalCost.toLocaleString()}`}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+
+                  {allocationPlans.some((p) => !p.isDisqualified && p.packages.length > 0) && (
+                    <div className="allocate-plan-footer">
+                      {isCurrentAllocated ? (
+                        <div className="already-allocated-badge">
+                          ✓ Allocation Plan Complete
+                        </div>
+                      ) : (
+                        <button className="btn-allocate-plan" onClick={handleAllocatePlan}>
+                          Allocate Plan
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="placeholder-section">
+                  <p>Click "Generate Allocation Plan" to create a plan for the assessed households.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB: Summary Dashboard ────────────────────────────────────── */}
+        {activeTab === "summary" && (
+          <div className="tab-content">
+            {globalAllocations.length === 0 ? (
+              <div className="placeholder-section">
+                <h3>Summary Dashboard</h3>
+                <p>No allocations have been made yet. Allocate a disaster plan to see data here.</p>
+              </div>
+            ) : (
+              <div className="summary-dashboard">
+
+                {/* Top KPI Cards */}
+                <div className="summary-cards">
+                  <div className="summary-card">
+                    <p className="card-label">Total Budget Allocated</p>
+                    <p className="card-value">M{totalBudget.toLocaleString()}</p>
+                  </div>
+                  <div className="summary-card">
+                    <p className="card-label">Packages Distributed</p>
+                    <p className="card-value">{totalPackages}</p>
+                  </div>
+                  <div className="summary-card">
+                    <p className="card-label">Disasters Allocated</p>
+                    <p className="card-value">{numDisasters}</p>
+                  </div>
+                  <div className="summary-card">
+                    <p className="card-label">Households Supported</p>
+                    <p className="card-value">{globalAllocations.length}</p>
+                  </div>
+                </div>
+
+                {/* Charts Row */}
+                <div className="charts-row">
+                  {/* Bar chart: allocation per district */}
+                  <div className="chart-card">
+                    <h4>Budget by District</h4>
+                    <div className="chart-container">
+                      {districtEntries.length === 0 ? (
+                        <p style={{ color: "var(--color-text-secondary)", fontSize: "0.9rem" }}>No data</p>
+                      ) : (() => {
+                        const entries = districtEntries;
+                        const count   = entries.length;
+                        const maxVal  = Math.max(...entries.map((e) => e[1])) || 1;
+                        const minChartW = 520;
+                        const chartW  = Math.max(minChartW, 80 + count * 60);
+                        const chartH  = 220;
+                        const padL    = 60;
+                        const padB    = 40;
+                        const plotW   = chartW - padL - 10;
+                        const plotH   = chartH - padB - 10;
+                        const bw      = Math.floor(plotW / count) - 12;
+                        const gap     = Math.floor((plotW - bw * count) / (count + 1));
+                        return (
+                          <svg width="100%" viewBox={`0 0 ${chartW} ${chartH}`} className="bar-chart-svg" style={{ overflow: "visible" }}>
+                            {[0, 0.25, 0.5, 0.75, 1].map((frac, i) => {
+                              const y = 10 + (1 - frac) * plotH;
+                              return (
+                                <g key={i}>
+                                  <line x1={padL} y1={y} x2={chartW - 10} y2={y} className="grid-line" />
+                                  <text x={padL - 6} y={y + 4} textAnchor="end" className="axis-label" fontSize="11">
+                                    M{Math.round(maxVal * frac)}
+                                  </text>
+                                </g>
+                              );
+                            })}
+                            <line x1={padL} y1="10" x2={padL} y2={10 + plotH} className="axis-line" />
+                            <line x1={padL} y1={10 + plotH} x2={chartW - 10} y2={10 + plotH} className="axis-line" />
+                            {entries.map(([label, val], idx) => {
+                              const bx   = padL + gap + idx * (bw + gap);
+                              const bh   = Math.max(2, (val / maxVal) * plotH);
+                              const by   = 10 + plotH - bh;
+                              const lx   = bx + bw / 2;
+                              return (
+                                <g key={idx}>
+                                  <rect x={bx} y={by} width={bw} height={bh} fill="#1f3b5c" rx="3" className="bar" />
+                                  <text x={lx} y={10 + plotH + 14} textAnchor="middle" className="axis-label" fontSize="10">
+                                    {label}
+                                  </text>
+                                </g>
+                              );
+                            })}
+                          </svg>
+                        );
+                      })()}
+                    </div>
+                  </div>
+
+                  {/* Pie chart: package distribution */}
+                  <div className="chart-card">
+                    <h4>Packages Distributed</h4>
+                    <div className="chart-container">
+                      {packageEntries.length === 0 ? (
+                        <p style={{ color: "var(--color-text-secondary)", fontSize: "0.9rem" }}>No data</p>
+                      ) : (() => {
+                        const colors = ["#1f3b5c", "#2f8f83", "#6c9bcf", "#8bc4a0", "#e8a87c", "#c084a0", "#a3c4f3"];
+                        // Fixed layout: pie on the left, legend on the right
+                        const cx = 120, cy = 130, r = 90;
+                        let angle = -90;
+                        const slices = packageEntries.map((entry, idx) => {
+                          const sweep = (entry.count / totalPkgCount) * 360;
+                          const start = angle;
+                          const end   = angle + sweep;
+                          angle       = end;
+                          const mid   = (start + end) / 2;
+                          const toRad = (d) => (d * Math.PI) / 180;
+                          return {
+                            ...entry,
+                            sx: cx + r * Math.cos(toRad(start)),
+                            sy: cy + r * Math.sin(toRad(start)),
+                            ex: cx + r * Math.cos(toRad(end)),
+                            ey: cy + r * Math.sin(toRad(end)),
+                            sweep,
+                            color: colors[idx % colors.length],
+                          };
+                        });
+                        const legendX = 240;
+                        const legendStartY = 30;
+                        const rowH = 22;
+                        const svgH = Math.max(270, legendStartY + packageEntries.length * rowH + 20);
+                        return (
+                          <svg width="100%" viewBox={`0 0 460 ${svgH}`} className="pie-chart-svg">
+                            {slices.map((sl, i) => {
+                              const large = sl.sweep > 180 ? 1 : 0;
+                              return (
+                                <path
+                                  key={i}
+                                  d={`M${cx},${cy} L${sl.sx},${sl.sy} A${r},${r} 0 ${large} 1 ${sl.ex},${sl.ey} Z`}
+                                  fill={sl.color} stroke="white" strokeWidth="2" className="pie-slice"
+                                />
+                              );
+                            })}
+                            {slices.map((sl, i) => (
+                              <g key={`leg-${i}`}>
+                                <rect x={legendX} y={legendStartY + i * rowH} width="12" height="12" rx="2" fill={sl.color} />
+                                <text
+                                  x={legendX + 18}
+                                  y={legendStartY + i * rowH + 10}
+                                  className="pie-label"
+                                  fontSize="11"
+                                  fill="var(--color-text-primary)"
+                                >
+                                  {sl.name} ({sl.pct}%)
+                                </text>
+                              </g>
+                            ))}
+                          </svg>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Disaster allocation log */}
+                <div className="status-panel-card">
+                  <div className="panel-header">
+                    <h3 className="panel-title">Disaster Allocation Log</h3>
+                    <span className="status-badge plan-allocated">
+                      {numDisasters} disaster{numDisasters !== 1 ? "s" : ""} allocated
+                    </span>
+                  </div>
+                  <div className="panel-list">
+                    <table className="allocation-table">
+                      <thead>
+                        <tr>
+                          <th>Disaster</th>
+                          <th>Households</th>
+                          <th>Packages</th>
+                          <th>Allocation Amount</th>
+                          <th>Date Allocated</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {disasterRows.map((row, i) => (
+                          <tr key={i} className="row-allocated">
+                            <td className="cell-name">{row.label}</td>
+                            <td>{row.households}</td>
+                            <td>{row.packages}</td>
+                            <td className="cell-cost">M{row.totalCost.toLocaleString()}</td>
+                            <td className="cell-date">
+                              {row.date ? new Date(row.date).toLocaleDateString() : "—"}
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                </div>
 
-                    <div className="plan-summary">
-                      <div className="summary-item">
-                        <span>Total Households Assessed:</span>
-                        <span className="summary-value">
-                          {allocationPlans.length}
-                        </span>
-                      </div>
-                      <div className="summary-item">
-                        <span>Eligible Households:</span>
-                        <span className="summary-value">
-                          {allocationPlans.filter(p => !p.isDisqualified).length}
-                        </span>
-                      </div>
-                      <div className="summary-item">
-                        <span>Disqualified Households:</span>
-                        <span className="summary-value" style={{ color: '#991b1b' }}>
-                          {allocationPlans.filter(p => p.isDisqualified).length}
-                        </span>
-                      </div>
-                      <div className="summary-item">
-                        <span>Total Budget Required (Eligible):</span>
-                        <span className="summary-value">
-                          M{allocationPlans
-                            .filter(p => !p.isDisqualified)
-                            .reduce((sum, p) => sum + p.totalCost, 0)
-                            .toLocaleString()}
-                        </span>
-                      </div>
-                      <hr style={{ margin: "1rem 0", borderColor: "#e5e7eb" }} />
-                      <div className="summary-item">
-                        <span>Priority Tier:</span>
-                        <span className="summary-value">
-                          {allocationPlans.filter(p => p.tier === "Priority").length}
-                        </span>
-                      </div>
-                      <div className="summary-item">
-                        <span>Extended Tier:</span>
-                        <span className="summary-value">
-                          {allocationPlans.filter(p => p.tier === "Extended").length}
-                        </span>
-                      </div>
-                      <div className="summary-item">
-                        <span>Basic Tier:</span>
-                        <span className="summary-value">
-                          {allocationPlans.filter(p => p.tier === "Basic").length}
-                        </span>
-                      </div>
-                      <div className="summary-item">
-                        <span>Minimal Tier:</span>
-                        <span className="summary-value">
-                          {allocationPlans.filter(p => p.tier === "Minimal").length}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="placeholder-section">
-                    <p>
-                      Click "Generate Allocation Plan" to create an allocation
-                      plan for the assessed households
-                    </p>
-                  </div>
-                )}
               </div>
             )}
           </div>
         )}
 
-        {/* TAB: Summary Dashboard */}
-        {activeTab === "summary" && (
-          <div className="tab-content">
-            {allocationPlans.length === 0 ? (
-              <div className="placeholder-section">
-                <h3>Summary Dashboard</h3>
-                <p>
-                  Generate an allocation plan first to view the summary
-                  dashboard
-                </p>
-              </div>
-            ) : (
-              <div className="summary-dashboard">
-                <h3>
-                  Allocation Summary —{" "}
-                  {currentDisaster?.disasterCode || currentDisaster?._id?.substring(0, 8) || "Selected Disaster"}
-                </h3>
-
-                <div className="summary-cards">
-                  <div className="summary-card">
-                    <p className="card-label">Total Households</p>
-                    <p className="card-value">{allocationPlans.length}</p>
-                  </div>
-                  <div className="summary-card">
-                    <p className="card-label">Eligible</p>
-                    <p className="card-value">
-                      {allocationPlans.filter(p => !p.isDisqualified).length}
-                    </p>
-                  </div>
-                  <div className="summary-card">
-                    <p className="card-label">Not Eligible</p>
-                    <p className="card-value" style={{ color: '#991b1b' }}>
-                      {allocationPlans.filter(p => p.isDisqualified).length}
-                    </p>
-                  </div>
-                  <div className="summary-card">
-                    <p className="card-label">Total Budget (Eligible)</p>
-                    <p className="card-value">
-                      M{allocationPlans
-                        .filter(p => !p.isDisqualified)
-                        .reduce((sum, p) => sum + p.totalCost, 0)
-                        .toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="tier-breakdown">
-                  <h4>Breakdown by Aid Tier</h4>
-                  {[
-                    "Priority",
-                    "Extended",
-                    "Basic",
-                    "Minimal",
-                  ].map((tier) => {
-                    const count = allocationPlans.filter(
-                      (p) => p.tier === tier
-                    ).length;
-                    if (count === 0) return null;
-                    const cost = allocationPlans
-                      .filter((p) => p.tier === tier)
-                      .reduce((sum, p) => sum + p.totalCost, 0);
-                    return (
-                      <div key={tier} className="tier-row">
-                        <span className="tier-name">{tier}</span>
-                        <span className="tier-count">{count} households</span>
-                        <span className="tier-cost">
-                          {cost === 0 ? "—" : `M${cost.toLocaleString()}`}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

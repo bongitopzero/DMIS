@@ -684,7 +684,6 @@ export default function FundManagement({ embedded = false }) {
         onCancel={() => setShowDeleteConfirm(false)}
         isLoading={loading}
       />
->>>>>>> 2beef1669ff02dda749abfd97ac7fe48ac181b7e
     </div>
   );
 }

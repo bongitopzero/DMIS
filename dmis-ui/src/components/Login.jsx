@@ -52,7 +52,7 @@ export default function Login() {
       const roleRoutes = {
         "Coordinator": "/dashboard",
         "Finance Officer": "/finance-dashboard",
-        "Data Clerk": "/my-submissions",
+        "Data Clerk": "/disaster-events",
         "Administrator": "/admin-dashboard",
       };
 
@@ -60,12 +60,12 @@ export default function Login() {
       console.log("🚀 Redirecting to:", redirectPath);
       
       // Show success notification
-      ToastManager.success(`Welcome back, ${res.data.name}!`, 1000);
+      ToastManager.success(`✅ Welcome back, ${res.data.name}! Redirecting...`, 3000);
       
-      // Redirect after toast duration to show notification fully
+      // Redirect after brief delay to show notification
       setTimeout(() => {
         navigate(redirectPath);
-      }, 1000);
+      }, 1500);
 
     } catch (err) {
       console.error("❌ Login error:", err);

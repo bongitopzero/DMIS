@@ -79,7 +79,7 @@ export default function Navbar() {
       "/budget-allocation": "Budget Allocation",
       "/audit-trail": "Finance Audit Trail",
       "/finance-audit-trail": "Finance Audit Trail",
-      "/approved-disasters": "Approved Disasters",
+
       "/disaster-events": "Incident Management",
       "/incidents": "Incident Management",
       "/fund-management": "Fund Management",

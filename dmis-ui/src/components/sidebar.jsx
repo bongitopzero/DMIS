@@ -78,12 +78,6 @@ export default function Sidebar() {
                   <span>Analysis</span>
                 </Link>
               </li>
-              <li className={isActive("/forecasting")}>
-                <Link to="/forecasting">
-                  <Zap size={20} />
-                  <span>Forecasting</span>
-                </Link>
-              </li>
               <li>
                 <Link to="/dashboard">
                   <Settings size={20} />
@@ -114,12 +108,6 @@ export default function Sidebar() {
                   <span>Budget Allocation</span>
                 </Link>
               </li>
-              <li className={isActive("/expense-log")}>
-                <Link to="/expense-log">
-                  <Receipt size={20} />
-                  <span>Expense Log</span>
-                </Link>
-              </li>
               <li className={isActive("/audit-trail")}>
                 <Link to="/audit-trail">
                   <BarChart3 size={20} />
@@ -130,12 +118,6 @@ export default function Sidebar() {
                 <Link to="/forecasting">
                   <TrendingUp size={20} />
                   <span>Forecasting</span>
-                </Link>
-              </li>
-              <li className={isActive("/approved-disasters")}>
-                <Link to="/approved-disasters">
-                  <CheckCircle size={20} />
-                  <span>Approved Disasters</span>
                 </Link>
               </li>
             </>
