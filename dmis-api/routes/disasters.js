@@ -2,6 +2,7 @@ import express from "express";
 import Disaster from "../models/Disaster.js";
 import Expense from "../models/Expense.js";
 import { protect } from "../middleware/auth.js";
+import allocationController from "../controllers/allocationController.js";
 
 const router = express.Router();
 
@@ -245,10 +246,14 @@ router.put("/:id", protect, async (req, res) => {
 
     let updateData = { ...req.body };
 
+    // Fetch current disaster BEFORE update to check status change
+    const previousDisaster = await Disaster.findById(req.params.id);
+    const statusChanged = req.body.status && (req.body.status === "verified" || req.body.status === "approved");
+    const previousStatusNotApproved = previousDisaster?.status !== "verified" && previousDisaster?.status !== "approved";
+
     if (req.body.district || req.body.location) {
-      const currentDisaster = await Disaster.findById(req.params.id);
-      const district = req.body.district || currentDisaster?.district;
-      const location = req.body.location || currentDisaster?.location;
+      const district = req.body.district || previousDisaster?.district;
+      const location = req.body.location || previousDisaster?.location;
 
       const coords = getCoordinates(location, district);
       updateData.latitude = coords[0];
@@ -270,6 +275,26 @@ router.put("/:id", protect, async (req, res) => {
     if (!disaster) {
       console.error("❌ Disaster not found:", req.params.id);
       return res.status(404).json({ message: "Disaster not found" });
+    }
+
+    // Auto-create household assessments if status is being set to "verified" or "approved"
+    if (statusChanged && previousStatusNotApproved && disaster.householdDamageDetails) {
+      console.log(`🔄 Coordinator approved disaster - auto-creating household assessments from damage details`);
+      try {
+        const result = await allocationController.createAssessmentsFromDisasterDetails(
+          req.params.id,
+          disaster.householdDamageDetails,
+          {
+            type: disaster.type,
+            location: disaster.location || disaster.village,
+            district: disaster.district,
+          }
+        );
+        console.log(`✅ Auto-creation completed:`, result);
+      } catch (autoCreateError) {
+        console.error(`⚠️ Warning: Auto-creation of assessments failed (non-blocking):`, autoCreateError.message);
+        // Don't fail the disaster update if auto-creation fails
+      }
     }
 
     console.log("✅ Disaster updated successfully:", disaster._id, "Code:", disaster.disasterCode);

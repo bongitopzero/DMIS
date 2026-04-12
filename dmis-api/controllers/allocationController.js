@@ -10,17 +10,13 @@ import AllocationPlan from '../models/AllocationPlan.js';
 import AssistancePackage from '../models/AssistancePackage.js';
 import AuditLog from '../models/AuditLog.js';
 import Expense from '../models/Expense.js';
+import Expenditure from '../models/Expenditure.js';
+import Disaster from '../models/Disaster.js';
 import {
   calculateCompositeScore,
-  getAidTier,
   validateOverride,
   generateScoringSummary,
-} from '../utils/allocationScoringEngine.js';
-import {
-  getPackagesByTier,
-  getAllocationRulesForTier,
-  ASSISTANCE_PACKAGES,
-} from '../utils/assistancePackages.js';
+} from '../utils/allocationScoringEngine.js'
 
 /**
  * @POST /api/allocation/assessments
@@ -181,16 +177,79 @@ const getAssessmentsByDisaster = async (req, res) => {
     const { status } = req.query;
 
     // Convert disasterId string to MongoDB ObjectId for proper matching
-    const query = { disasterId: new mongoose.Types.ObjectId(disasterId) };
+    const objectId = new mongoose.Types.ObjectId(disasterId);
+    const query = { disasterId: objectId };
     if (status) query.status = status;
 
+    // Fetch assessments from HouseholdAssessment collection
     const assessments = await HouseholdAssessment.find(query)
       .sort({ assessmentDate: -1 })
       .lean();
 
+    // Fetch disaster document and its householdDamageDetails array
+    const disaster = await Disaster.findById(disasterId).lean();
+    const disasterHouseholdDetails = disaster?.householdDamageDetails || [];
+
+    // Normalize householdDamageDetails to match assessment structure
+    const normalizedDisasterDetails = disasterHouseholdDetails.map((detail) => ({
+      _id: detail._id || new mongoose.Types.ObjectId(),
+      disasterId: objectId,
+      householdHeadName: detail.householdHeadName || detail.headOfHousehold?.name || 'Unknown',
+      gender: detail.gender || detail.headOfHousehold?.gender || '',
+      age: detail.age || detail.headOfHousehold?.age || null,
+      householdSize: detail.householdSize || 1,
+      monthlyIncome: detail.monthlyIncome || 0,
+      district: detail.district || disaster?.district || '',
+      damageDescription: detail.damageDescription || '',
+      damageSeverityLevel: detail.damageSeverityLevel || 1,
+      damageLevel: detail.damageLevel || 1, // Alias for damageSeverityLevel
+      headOfHousehold: detail.headOfHousehold || {
+        name: detail.householdHeadName || 'Unknown',
+        gender: detail.gender || '',
+        age: detail.age || null,
+      },
+      householdId: detail.householdId || `HH-${detail._id}`,
+      assessmentDate: detail.createdAt || detail.assessmentDate || new Date(),
+      source: 'disasterDetails', // Mark that this came from disaster document
+    }));
+
+    // Merge and deduplicate by household head name and damage level
+    const mergedArray = [];
+    const seenKey = new Set();
+
+    // Add assessments from HouseholdAssessment collection
+    assessments.forEach((assessment) => {
+      // Normalize to include householdHeadName at root level
+      const normalizedAssessment = {
+        ...assessment,
+        householdHeadName: assessment.householdHeadName || assessment.headOfHousehold?.name || 'Unknown',
+      };
+      
+      const headName = normalizedAssessment.householdHeadName || '';
+      const damageLevel = assessment.damageSeverityLevel || assessment.damageLevel || 1;
+      const key = `${headName.toLowerCase().trim()}-${damageLevel}`;
+
+      if (!seenKey.has(key)) {
+        seenKey.add(key);
+        mergedArray.push(normalizedAssessment);
+      }
+    });
+
+    // Add disaster details that aren't already in assessments
+    normalizedDisasterDetails.forEach((detail) => {
+      const headName = detail.householdHeadName || detail.headOfHousehold?.name || '';
+      const damageLevel = detail.damageSeverityLevel || detail.damageLevel || 1;
+      const key = `${headName.toLowerCase().trim()}-${damageLevel}`;
+
+      if (!seenKey.has(key)) {
+        seenKey.add(key);
+        mergedArray.push(detail);
+      }
+    });
+
     res.json({
-      count: assessments.length,
-      assessments,
+      count: mergedArray.length,
+      assessments: mergedArray,
     });
   } catch (error) {
     console.error('Error fetching assessments:', error);
@@ -238,192 +297,7 @@ const calculateAllocationScore = async (req, res) => {
   }
 };
 
-/**
- * @POST /api/allocation/create-request
- * Create aid allocation request with automatic package assignment
- */
-const createAllocationRequest = async (req, res) => {
-  try {
-    const {
-      assessmentId,
-      disasterId,
-      override,
-      overrideReason,
-      overrideJustification,
-    } = req.body;
 
-    // Fetch assessment
-    const assessment = await HouseholdAssessment.findById(assessmentId);
-    if (!assessment) {
-      return res.status(404).json({ message: 'Assessment not found' });
-    }
-
-    // Calculate score
-    const scoring = calculateCompositeScore(assessment);
-    const aidTier = getAidTier(scoring.compositeScore);
-
-    // Get allocation rules and recommended packages
-    const rules = getAllocationRulesForTier(aidTier);
-    const applicablePackages = getPackagesByTier(
-      scoring.compositeScore,
-      assessment.disasterType
-    );
-
-    // Assign packages based on tier
-    let allocatedPackages = [];
-    let totalEstimatedCost = 0;
-
-    // For recommended packages, include relevant ones
-    for (const pkgKey of rules.recommendedPackages) {
-      const pkgConfig = ASSISTANCE_PACKAGES[pkgKey];
-      if (pkgConfig) {
-        const quantity =
-          scoring.compositeScore >= 7
-            ? 2
-            : scoring.compositeScore >= 4
-              ? 1
-              : 1;
-
-        const allocation = {
-          packageId: pkgConfig.packageId,
-          packageName: pkgConfig.name,
-          quantity,
-          unitCost: pkgConfig.unitCost,
-          totalCost: quantity * pkgConfig.unitCost,
-          category: pkgConfig.category,
-        };
-
-        allocatedPackages.push(allocation);
-        totalEstimatedCost += allocation.totalCost;
-      }
-    }
-
-    // Generate request ID
-    const requestId =
-      'AL-' +
-      Date.now() +
-      '-' +
-      Math.random().toString(36).substr(2, 9).toUpperCase();
-
-    // Create allocation request
-    const allocationRequest = new AidAllocationRequest({
-      requestId,
-      householdAssessmentId: assessmentId,
-      disasterId,
-      householdId: assessment.householdId,
-      damageLevel: scoring.damageLevel,
-      vulnerabilityPoints: scoring.vulnerabilityPoints,
-      compositeScore: scoring.compositeScore,
-      scoreBreakdown: scoring.scoreBreakdown,
-      aidTier,
-      allocatedPackages,
-      totalEstimatedCost,
-      isOverride: !!override,
-      overrideReason,
-      overrideJustification,
-      status: override ? 'Pending Approval' : 'Proposed',
-      createdBy: req.user?.id,
-    });
-
-    await allocationRequest.save();
-
-    // Update assessment status
-    await HouseholdAssessment.findByIdAndUpdate(assessmentId, {
-      status: 'Allocated',
-    });
-
-    // Decrease budget allocation for disaster
-    try {
-      const BudgetAllocation = (await import('../models/BudgetAllocation.js')).default;
-      const Expense = (await import('../models/Expense.js')).default;
-      
-      // Find budget allocation for this disaster
-      const budgetAlloc = await BudgetAllocation.findOne({
-        disasterId,
-        approvalStatus: 'Approved',
-        isVoided: false
-      });
-
-      if (budgetAlloc) {
-        // Record the expense/allocation
-        const expense = new Expense({
-          budgetAllocationId: budgetAlloc._id,
-          disasterId,
-          description: `Aid allocation for household - ${assessment.householdId}`,
-          amount: totalEstimatedCost,
-          category: 'Aid Allocation',
-          date: new Date(),
-          allocatedTo: assessmentId,
-          createdBy: req.user?.id,
-        });
-        await expense.save();
-
-        // Update budget allocation remaining amount
-        budgetAlloc.remainingAmount = (budgetAlloc.remainingAmount || budgetAlloc.allocatedAmount) - totalEstimatedCost;
-        await budgetAlloc.save();
-      }
-    } catch (err) {
-      console.warn('Budget update warning:', err.message);
-      // Don't fail allocation if budget update fails
-    }
-
-    // Create financial audit trail
-    try {
-      const FinanceAuditLog = (await import('../models/FinanceAuditLog.js')).default;
-      if (FinanceAuditLog) {
-        await FinanceAuditLog.create({
-          actionType: 'ALLOCATION_CREATED',
-          disasterId,
-          relatedEntityId: allocationRequest._id,
-          relatedEntityType: 'AidAllocationRequest',
-          amount: totalEstimatedCost,
-          description: `Aid allocation created for ${assessment.householdId}`,
-          performedBy: req.user?.id,
-          performerRole: req.user?.role || 'Finance Officer',
-          status: 'Active',
-          timestamp: new Date(),
-        });
-      }
-    } catch (err) {
-      console.warn('Financial audit trail warning:', err.message);
-      // Don't fail allocation if audit trail fails
-    }
-
-    // Log audit trail with detailed allocation breakdown
-    await createAuditLog({
-      actionType: 'CREATE',
-      entityType: 'AidAllocationRequest',
-      entityId: allocationRequest._id,
-      disasterId,
-      performedBy: req.user?.id,
-      performerRole: req.user?.role || 'Finance Officer',
-      newValues: allocationRequest.toObject(),
-      changes: {
-        requestId: requestId,
-        householdId: assessment.householdId,
-        allocatedPackages: allocatedPackages,
-        totalEstimatedCost: totalEstimatedCost,
-        aidTier: aidTier,
-        status: override ? 'Pending Approval' : 'Proposed',
-      },
-      reason: override
-        ? `Aid allocation created with override: ${overrideReason} - Total: M${totalEstimatedCost}`
-        : `Aid allocation created based on scoring rules - Total: M${totalEstimatedCost}`,
-    });
-
-    res.status(201).json({
-      message: 'Allocation request created successfully',
-      requestId,
-      allocationRequest,
-    });
-  } catch (error) {
-    console.error('Error creating allocation request:', error);
-    res.status(500).json({
-      message: 'Error creating allocation request',
-      error: error.message,
-    });
-  }
-};
 
 /**
  * @PUT /api/allocation/requests/:requestId/approve
@@ -848,12 +722,79 @@ const getAllocationRequestsByDisaster = async (req, res) => {
     if (status) query.status = status;
 
     const requests = await AidAllocationRequest.find(query)
+      .populate({
+        path: 'householdAssessmentId',
+        select: 'householdId headOfHousehold householdSize district vulnerabilityLevel damageAssessment address',
+      })
       .sort({ createdAt: -1 })
       .lean();
 
+    // Enrich data by fetching household assessments and disasters if populate didn't work
+    const enrichedRequests = await Promise.all(
+      requests.map(async (req) => {
+        let householdData = req.householdAssessmentId || {};
+        let disasterData = {};
+
+        // If populate didn't return household data, fetch it manually
+        if (!householdData || !householdData.householdHeadName) {
+          try {
+            const assessment = await HouseholdAssessment.findById(req.householdAssessmentId || req.householdId)
+              .select('householdId headOfHousehold householdSize district vulnerabilityLevel damageAssessment address')
+              .lean();
+            if (assessment) {
+              // Normalize to include householdHeadName at root
+              householdData = {
+                ...assessment,
+                householdHeadName: assessment.householdHeadName || assessment.headOfHousehold?.name || 'Unknown',
+              };
+            }
+          } catch (err) {
+            console.warn('Could not fetch household assessment:', err.message);
+          }
+        }
+
+        // Fetch disaster data if available
+        if (req.disasterId) {
+          try {
+            const disaster = await Disaster.findById(req.disasterId)
+              .select('disasterType incidentName location')
+              .lean();
+            if (disaster) {
+              disasterData = disaster;
+            }
+          } catch (err) {
+            console.warn('Could not fetch disaster:', err.message);
+          }
+        }
+
+        return {
+          _id: req._id,
+          requestId: req.requestId,
+          householdAssessmentId: req.householdAssessmentId,
+          disasterId: req.disasterId,
+          householdId: householdData.householdId || req.householdId,
+          householdName: householdData.householdHeadName || 'Unknown',
+          householdSize: householdData.householdSize || 0,
+          district: householdData.district || 'N/A',
+          address: householdData.address || 'N/A',
+          damageLevel: req.damageLevel,
+          compositeScore: req.compositeScore,
+          vulnerabilityLevel: householdData.vulnerabilityLevel,
+          aidTier: req.aidTier,
+          allocatedPackages: req.allocatedPackages || [],
+          totalEstimatedCost: req.totalEstimatedCost,
+          disasterType: disasterData.disasterType || 'Unknown',
+          incidentName: disasterData.incidentName,
+          status: req.status,
+          isOverride: req.isOverride,
+          createdAt: req.createdAt,
+        };
+      })
+    );
+
     res.json({
-      count: requests.length,
-      requests,
+      count: enrichedRequests.length,
+      requests: enrichedRequests,
     });
   } catch (error) {
     console.error('Error fetching allocation requests:', error);
@@ -990,17 +931,350 @@ async function createAuditLog(logData) {
   }
 }
 
+/**
+ * Allocate aid to household directly from allocation plan
+ * Creates an AidAllocationRequest and optional Expense record
+ */
+async function allocateAidToHousehold(req, res) {
+  try {
+    const {
+      disasterId,
+      householdAssessmentId,
+      householdId,
+      householdHeadName,
+      packages,
+      totalCost,
+      compositeScore,
+      damageScore,
+      vulnerability,
+      tier,
+      isOverridden,
+    } = req.body;
+
+    // Get user from either req.user (set by auth middleware) or headers
+    const user = req.user || (req.headers.user ? JSON.parse(req.headers.user) : {});
+    
+    console.log('📝 allocateAidToHousehold - User object:', { 
+      id: user._id || user.id,
+      role: user.role,
+      name: user.name
+    });
+
+    // Validate required fields
+    if (!disasterId || !householdAssessmentId || !householdId || !packages || !Array.isArray(packages)) {
+      console.error('❌ Missing required fields:', { disasterId, householdAssessmentId, householdId, packagesCount: packages?.length });
+      return res.status(400).json({
+        message: 'Missing required fields: disasterId, householdAssessmentId, householdId, packages array',
+      });
+    }
+
+    if (packages.length === 0) {
+      console.error('❌ No packages provided');
+      return res.status(400).json({
+        message: 'At least one package must be provided',
+      });
+    }
+
+    // Validate packages structure
+    for (const pkg of packages) {
+      if (!pkg.name || pkg.cost === undefined) {
+        console.error('❌ Invalid package structure:', pkg);
+        return res.status(400).json({
+          message: 'Each package must have name and cost properties',
+        });
+      }
+    }
+
+    // Validate and convert householdAssessmentId to ObjectId
+    let assessmentId;
+    try {
+      if (mongoose.Types.ObjectId.isValid(householdAssessmentId)) {
+        assessmentId = householdAssessmentId;
+      } else {
+        console.error('❌ Invalid householdAssessmentId format:', householdAssessmentId);
+        return res.status(400).json({
+          message: 'Invalid householdAssessmentId format',
+        });
+      }
+    } catch (idError) {
+      console.error('❌ Error validating householdAssessmentId:', idError.message);
+      return res.status(400).json({
+        message: 'Invalid householdAssessmentId',
+        error: idError.message,
+      });
+    }
+
+    // Convert tier string to aidTier enum value - MUST have a value
+    let aidTier = tier ? (
+      {
+        'Minimal': 'Basic Support (0-3)',
+        'Basic': 'Basic Support (0-3)',
+        'Extended': 'Shelter + Food + Cash (4-6)',
+        'Priority': 'Tent + Reconstruction + Food (7-9)',
+      }[tier] || 'Basic Support (0-3)'
+    ) : null;
+
+    // Fallback: calculate from compositeScore if aidTier not set
+    if (!aidTier && compositeScore !== undefined) {
+      if (compositeScore >= 10) aidTier = 'Priority Reconstruction + Livelihood (10+)';
+      else if (compositeScore >= 7) aidTier = 'Tent + Reconstruction + Food (7-9)';
+      else if (compositeScore >= 4) aidTier = 'Shelter + Food + Cash (4-6)';
+      else aidTier = 'Basic Support (0-3)';
+    }
+
+    // Ensure we have an aidTier
+    if (!aidTier) {
+      console.error('❌ Could not determine aidTier from tier or compositeScore');
+      aidTier = 'Basic Support (0-3)'; // Default fallback
+    }
+
+    // Generate request ID
+    const requestId = `AAR-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+    // Map packages to allocatedPackages format
+    const allocatedPackages = packages.map((pkg, index) => ({
+      packageId: pkg._id || pkg.id || `pkg-${index}`,
+      packageName: pkg.name,
+      quantity: 1,
+      unitCost: pkg.cost,
+      totalCost: pkg.cost,
+      category: pkg.category || 'Aid Package',
+    }));
+
+    // Ensure createdBy is a valid ObjectId
+    let createdById;
+    try {
+      if (req.user && req.user._id) {
+        // From auth middleware - most reliable
+        createdById = req.user._id;
+      } else if (user._id && mongoose.Types.ObjectId.isValid(user._id)) {
+        createdById = user._id;
+      } else if (user.id && mongoose.Types.ObjectId.isValid(user.id)) {
+        createdById = user.id;
+      } else {
+        console.error('❌ Could not extract valid user ID from:', { userObj: user });
+        return res.status(400).json({
+          message: 'Could not extract valid user ID from authentication',
+        });
+      }
+    } catch (idError) {
+      console.error('❌ Error converting user ID to ObjectId:', idError.message);
+      return res.status(400).json({
+        message: 'Invalid user ID format',
+        error: idError.message,
+      });
+    }
+
+    console.log('📝 Creating allocation request with:');
+    console.log('  - requestId:', requestId);
+    console.log('  - disasterId:', disasterId);
+    console.log('  - householdAssessmentId:', assessmentId);
+    console.log('  - householdId:', householdId);
+    console.log('  - packages:', packages.length);
+    console.log('  - totalCost:', totalCost);
+    console.log('  - createdBy:', createdById);
+    console.log('  - aidTier:', aidTier);
+
+    // Use findOneAndUpdate with upsert to prevent duplicates
+    // Check if allocation already exists for this household in this disaster
+    const allocationRequest = await AidAllocationRequest.findOneAndUpdate(
+      {
+        disasterId: new mongoose.Types.ObjectId(disasterId),
+        householdAssessmentId: assessmentId,
+      },
+      {
+        requestId, // Update or set the requestId
+        householdId,
+        damageLevel: damageScore || 1,
+        vulnerabilityPoints: {
+          incomeScore: vulnerability || 0,
+        },
+        compositeScore: compositeScore || 0,
+        scoreBreakdown: {
+          damageComponent: damageScore || 0,
+          vulnerabilityComponent: vulnerability || 0,
+          totalVulnerability: vulnerability || 0,
+        },
+        aidTier, // Now guaranteed to have a value
+        allocatedPackages,
+        totalEstimatedCost: totalCost || 0,
+        status: 'Approved',
+        isOverride: isOverridden || false,
+        createdBy: createdById,
+        lastModifiedBy: createdById,
+      },
+      {
+        upsert: true, // Create if doesn't exist, update if exists
+        new: true,    // Return the updated document
+        runValidators: true,
+      }
+    );
+
+    console.log('✓ Allocation request saved:', allocationRequest._id);
+    const isNew = allocationRequest.createdAt === allocationRequest.updatedAt || 
+                  (new Date(allocationRequest.updatedAt).getTime() - new Date(allocationRequest.createdAt).getTime() < 1000);
+    console.log(isNew ? '✓ NEW allocation created' : '✓ EXISTING allocation updated');
+
+    // Create expense record if totalCost > 0
+    if (totalCost > 0) {
+      try {
+        await Expenditure.create({
+          incidentId: disasterId,
+          expenseType: 'Aid Allocation',
+          description: `Aid allocation for household ${householdHeadName || householdId}`,
+          amount: totalCost,
+          status: 'recorded',
+          relatedAllocationId: allocationRequest._id,
+          recordedBy: createdById,
+        });
+        console.log('✓ Expense record created for amount:', totalCost);
+      } catch (expenseError) {
+        console.warn('⚠️ Failed to create expense record:', expenseError.message);
+        // Don't fail the whole request if expense creation fails
+      }
+    }
+
+    // Log action in audit trail
+    try {
+      await createAuditLog({
+        action: 'ALLOCATE',
+        module: 'Allocation',
+        actor: user.name || user.username || 'System',
+        actorRole: user.role || 'Unknown',
+        affectedRecord: householdId,
+        changes: {
+          status: 'Approved',
+          amount: totalCost,
+          packages: packages.map(p => p.name),
+          overridden: isOverridden,
+        },
+        status: 'success',
+        timestamp: new Date(),
+      });
+    } catch (logError) {
+      console.warn('⚠️ Failed to create audit log:', logError.message);
+    }
+
+    res.status(201).json({
+      message: 'Aid allocated successfully',
+      requestId: allocationRequest.requestId,
+      allocationId: allocationRequest._id,
+      household: householdHeadName || householdId,
+      amount: totalCost,
+      packageCount: packages.length,
+      status: 'Approved',
+    });
+  } catch (error) {
+    console.error('❌ Error allocating aid:', error.message);
+    console.error('   Full error:', error.errors || error);
+    res.status(500).json({
+      message: 'Failed to allocate aid',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? (error.errors || error.stack) : undefined,
+    });
+  }
+}
+
+/**
+ * Auto-create household assessments from disaster damage details
+ * Called when coordinator approves/verifies a disaster
+ */
+const createAssessmentsFromDisasterDetails = async (disasterId, householdDamageDetails, disasterData) => {
+  try {
+    if (!Array.isArray(householdDamageDetails) || householdDamageDetails.length === 0) {
+      console.log('ℹ️ No household damage details to process for disaster:', disasterId);
+      return { created: 0, skipped: 0, errors: [] };
+    }
+
+    let createdCount = 0;
+    let skippedCount = 0;
+    const errors = [];
+
+    for (const detail of householdDamageDetails) {
+      try {
+        // Map damageLevel string to severity number
+        const damageLevelMap = {
+          'partial': 2,
+          'severe': 3,
+          'destroyed': 4,
+        };
+        
+        const severityLevel = damageLevelMap[detail.damageLevel?.toLowerCase()] || 1;
+        
+        // Create damage description from assetsDamaged and needsCategory
+        const damageDescription = `${detail.assetsDamaged || 'Property'} damage - ${detail.needsCategory || 'General assistance needed'}`;
+
+        // Check if assessment already exists for this household and disaster
+        const existingAssessment = await HouseholdAssessment.findOne({
+          disasterId: new mongoose.Types.ObjectId(disasterId),
+          householdId: detail.householdId,
+          'headOfHousehold.name': detail.headName,
+        });
+
+        if (existingAssessment) {
+          console.log(`ℹ️ Assessment already exists for household ${detail.headName} in disaster ${disasterId}`);
+          skippedCount++;
+          continue;
+        }
+
+        // Create new assessment
+        const assessment = await HouseholdAssessment.create({
+          disasterId: new mongoose.Types.ObjectId(disasterId),
+          householdId: detail.householdId,
+          headOfHousehold: {
+            name: detail.headName,
+            idNumber: detail.idNumber || '',
+          },
+          householdSize: detail.householdSize || 1,
+          childrenUnder5: detail.childrenUnder5 || 0,
+          monthlyIncome: detail.monthlyIncome || 0,
+          incomeCategory: detail.monthlyIncome <= 3000 ? 'Low' : detail.monthlyIncome <= 10000 ? 'Middle' : 'High',
+          disasterType: disasterData?.type || 'Unknown',
+          damageDescription,
+          damageSeverityLevel: severityLevel,
+          damageDetails: {
+            assetsDamaged: detail.assetsDamaged || '',
+            needsCategory: detail.needsCategory || '',
+          },
+          location: {
+            village: disasterData?.location || disasterData?.village || '',
+            district: disasterData?.district || '',
+          },
+          assessedBy: 'System',
+          createdAt: new Date(),
+        });
+
+        console.log(`✅ Created household assessment for ${detail.headName} (Household ID: ${detail.householdId})`);
+        createdCount++;
+      } catch (itemError) {
+        console.error(`❌ Error creating assessment for household ${detail.headName}:`, itemError.message);
+        errors.push({
+          household: detail.headName,
+          error: itemError.message,
+        });
+      }
+    }
+
+    console.log(`📊 Auto-creation summary: ${createdCount} created, ${skippedCount} skipped, ${errors.length} errors`);
+    return { created: createdCount, skipped: skippedCount, errors };
+  } catch (error) {
+    console.error('❌ Error in createAssessmentsFromDisasterDetails:', error.message);
+    throw error;
+  }
+};
+
 export default {
   createHouseholdAssessment,
   getAssessmentsByDisaster,
   deleteHouseholdAssessment,
   updateHouseholdAssessment,
   calculateAllocationScore,
-  createAllocationRequest,
   approveAllocationRequest,
   disburseAllocationRequest,
   generateAllocationPlan,
   getAllocationPlansByDisaster,
   getAllocationRequestsByDisaster,
   getDashboardStats,
+  allocateAidToHousehold,
+  createAssessmentsFromDisasterDetails,
 };

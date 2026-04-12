@@ -151,6 +151,24 @@ router.post(
 );
 
 /**
+ * POST /api/allocation/allocate
+ * Allocate aid to a household directly from allocation plan
+ * Role: Finance Officer, Coordinator, Administrator
+ */
+router.post('/allocate', protect, validateBudgetAvailability, logAllocationAction('ALLOCATE'), (req, res) => {
+  const user = req.headers.user
+    ? JSON.parse(req.headers.user)
+    : req.user || {};
+  if (!['Finance Officer', 'Coordinator', 'Administrator'].includes(user.role)) {
+    return res.status(403).json({
+      message: 'Insufficient permissions to allocate aid',
+    });
+  }
+
+  allocationController.allocateAidToHousehold(req, res);
+});
+
+/**
  * PUT /api/allocation/requests/:requestId/approve
  * Approve allocation request
  * Role: Finance Officer, Administrator

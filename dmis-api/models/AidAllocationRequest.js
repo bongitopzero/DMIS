@@ -134,4 +134,7 @@ const aidAllocationRequestSchema = new mongoose.Schema(
 aidAllocationRequestSchema.index({ disasterId: 1, status: 1 });
 aidAllocationRequestSchema.index({ householdId: 1, disasterId: 1 });
 
+// Unique index to prevent duplicate allocations for the same household in the same disaster
+aidAllocationRequestSchema.index({ disasterId: 1, householdAssessmentId: 1 }, { unique: true, sparse: true });
+
 export default mongoose.model('AidAllocationRequest', aidAllocationRequestSchema);

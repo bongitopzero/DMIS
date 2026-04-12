@@ -1,10 +1,12 @@
 /**
  * Allocation Scoring Engine
  * Implements the scoring framework for fair and transparent aid allocation
+ * 
+ * NOTE: The frontend now handles all package assignment using Step 1-7 logic.
+ * These functions remain for reference and potential audit purposes.
  */
 
 import HouseholdAssessment from '../models/HouseholdAssessment.js';
-import { getScoringTier } from './assistancePackages.js';
 
 /**
  * Calculate damage level score (1-4)
@@ -140,13 +142,6 @@ function calculateCompositeScore(assessment) {
 }
 
 /**
- * Get aid tier string based on composite score
- */
-function getAidTier(compositeScore) {
-  return getScoringTier(compositeScore);
-}
-
-/**
  * Validate emergency override
  * Requires written justification for deviations from scoring rules
  */
@@ -166,7 +161,6 @@ function validateOverride(proposedAction, justification) {
  */
 function generateScoringSummary(assessment) {
   const scoring = calculateCompositeScore(assessment);
-  const tier = getAidTier(scoring.compositeScore);
 
   return {
     householdId: assessment.householdId,
@@ -177,7 +171,6 @@ function generateScoringSummary(assessment) {
     vulnerabilityBreakdown: scoring.vulnerabilityPoints,
     totalVulnerabilityPoints: scoring.totalVulnerability,
     compositeScore: scoring.compositeScore,
-    aidTier: tier,
     scoreBreakdown: scoring.scoreBreakdown,
   };
 }
@@ -186,7 +179,6 @@ export {
   calculateDamageLevel,
   calculateVulnerabilityPoints,
   calculateCompositeScore,
-  getAidTier,
   validateOverride,
   generateScoringSummary,
 };
@@ -195,7 +187,6 @@ export default {
   calculateDamageLevel,
   calculateVulnerabilityPoints,
   calculateCompositeScore,
-  getAidTier,
   validateOverride,
   generateScoringSummary,
 };

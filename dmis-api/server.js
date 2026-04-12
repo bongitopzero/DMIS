@@ -10,6 +10,7 @@ import disasterRoutes from "./routes/disasters.js";
 import fundRoutes from "./routes/fundRoutes.js";
 import forecastingRoutes from "./routes/forecasting.js";
 import financialRoutes from "./routes/financial.js";
+import predictionRoutes from "./routes/prediction.js";
 import allocationRoutes from "./routes/allocation.js";
 
 dotenv.config();
@@ -29,6 +30,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/disasters", disasterRoutes);
 app.use("/api/funds", fundRoutes);
+app.use("/api/prediction", predictionRoutes);
 app.use("/api/forecasting", forecastingRoutes);
 app.use("/api/financial", financialRoutes);
 app.use("/api/allocation", allocationRoutes);
