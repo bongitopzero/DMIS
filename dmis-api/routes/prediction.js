@@ -251,7 +251,61 @@ router.get("/history", protect, async (req, res) => {
   }
 });
 
+router.get("/metrics", protect, async (req, res) => {
+  try {
+    const data = await Prediction.find({
+      actualFunding: { $ne: null }
+    });
 
+    if (data.length === 0) {
+      return res.json({
+        success: true,
+        message: "No actual funding data available for evaluation"
+      });
+    }
+
+    let mae = 0;
+    let mse = 0;
+    let mape = 0;
+
+    data.forEach(d => {
+      const error = d.actualFunding - d.estimatedFunding;
+
+      mae += Math.abs(error);
+      mse += error * error;
+
+      if (d.actualFunding !== 0) {
+        mape += Math.abs(error / d.actualFunding);
+      }
+    });
+
+    const n = data.length;
+
+    mae = mae / n;
+    mse = mse / n;
+    const rmse = Math.sqrt(mse);
+    mape = (mape / n) * 100;
+    const accuracy = 100 - mape;
+
+    res.json({
+      success: true,
+      count: n,
+      metrics: {
+        MAE: mae,
+        MSE: mse,
+        RMSE: rmse,
+        MAPE: mape,
+        Accuracy: accuracy
+      }
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: err.message
+    });
+  }
+});
 /**
  * GET /api/prediction/:id
  * Get a specific prediction by ID

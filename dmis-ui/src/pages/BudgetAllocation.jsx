@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
 import API from "../api/axios";
 import { ToastManager } from "../components/Toast";
@@ -34,53 +33,24 @@ function formatCurrency(value) {
 }
 
 export default function BudgetAllocation() {
-  const navigate = useNavigate();
   const [nationalExpenditure, setNationalExpenditure] = useState(initialNationalExpenditure);
-  const [disasters, setDisasters] = useState([]);
-  const [selectedDisasterId, setSelectedDisasterId] = useState("");
-  const [allocateLoading, setAllocateLoading] = useState(false);
   const [savingBudget, setSavingBudget] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [budgetData, setBudgetData] = useState({});
-  const [loadingBudget, setLoadingBudget] = useState(false);
   const [summaryData, setSummaryData] = useState([]);
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
 
   useEffect(() => {
     fetchDisasters();
-    fetchBudgetData();
     fetchDisasterSummary();
-  }, []);
-
-  // Auto-refresh budget data every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(fetchBudgetData, 30000);
-    return () => clearInterval(interval);
   }, []);
 
   const fetchDisasters = async () => {
     try {
-      const res = await API.get("/disasters");
-      const approvedDisasters = res.data.filter(d => d.status === "verified");
-      setDisasters(approvedDisasters);
-      if (approvedDisasters.length > 0) setSelectedDisasterId(approvedDisasters[0]._id);
+      await API.get("/disasters");
     } catch (err) {
       console.error("Error fetching disasters:", err);
       ToastManager.error("Failed to load disasters");
-    }
-  };
-
-  const fetchBudgetData = async () => {
-    try {
-      setLoadingBudget(true);
-      const res = await API.get("/budgets/envelope-status/all");
-      setBudgetData(res.data || {});
-    } catch (err) {
-      console.error("Error fetching budget data:", err);
-      setBudgetData({});
-    } finally {
-      setLoadingBudget(false);
     }
   };
 
@@ -105,22 +75,12 @@ export default function BudgetAllocation() {
         fiscalYear: "2026/2027",
       });
       ToastManager.success("National budget saved successfully");
-      fetchBudgetData();
     } catch (err) {
       console.error("Error saving budget:", err);
       ToastManager.error(err.response?.data?.message || "Failed to save budget");
     } finally {
       setSavingBudget(false);
     }
-  };
-
-  const handleAllocate = () => {
-    if (!selectedDisasterId) {
-      ToastManager.error("Please select a disaster");
-      return;
-    }
-    setAllocateLoading(true);
-    navigate(`/aid-allocation?disasterId=${selectedDisasterId}`);
   };
 
   const disasterBudget = useMemo(() => nationalExpenditure * 1.0, [nationalExpenditure]);
