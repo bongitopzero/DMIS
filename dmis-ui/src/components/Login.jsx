@@ -20,6 +20,11 @@ export default function Login() {
     return unsubscribe;
   }, []);
 
+  // Clear any previous toast messages when login page loads
+  useEffect(() => {
+    ToastManager.clear();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -52,20 +57,21 @@ export default function Login() {
       const roleRoutes = {
         "Coordinator": "/dashboard",
         "Finance Officer": "/finance-dashboard",
-        "Data Clerk": "/disaster-events",
+        "Data Clerk": "/my-submissions",
         "Administrator": "/admin-dashboard",
       };
 
       const redirectPath = roleRoutes[res.data.role] || "/unauthorized";
       console.log("🚀 Redirecting to:", redirectPath);
       
-      // Show success notification
-      ToastManager.success(`✅ Welcome back, ${res.data.name}! Redirecting...`, 3000);
+      // Clear old toasts and show only this login notification
+      ToastManager.clear();
+      ToastManager.success(`✅ Welcome back, ${res.data.name}!`, 3000);
       
       // Redirect after brief delay to show notification
       setTimeout(() => {
         navigate(redirectPath);
-      }, 1500);
+      }, 500);
 
     } catch (err) {
       console.error("❌ Login error:", err);

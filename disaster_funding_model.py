@@ -1,491 +1,381 @@
 """
-Disaster Funding Prediction Model
-==================================
-This script does 3 things:
-  1. Simulates 800 disaster events with realistic household data
-  2. Runs each household through the allocation engine to get total cost
-  3. Trains a linear regression model and saves it
+disaster_funding_model.py
+=========================
+Trains a Decision Tree regression model for disaster funding prediction.
+Lesotho Disaster Management Authority.
 
-After running this script you will have:
-  - disaster_model.pkl  (the trained model)
-  - disaster_encoder.pkl (encodes text like district and disaster type into numbers)
+Dataset: disaster_dataset.csv (2000 simulated events)
+         Calibrated against real October 2023 DMA expenditure records:
+           - Reconstruction Grant : LSL 130,000
+           - Re-roofing Kit       : LSL 35,000
+
+Model: Decision Tree Regressor
+       - Appropriate for regression problems with threshold-based rules
+       - Optimal tree depth determined automatically via 5-fold cross-validation
+       - Pruned to prevent overfitting on training data
+
+Evaluation metrics (as recommended for regression problems):
+  - R²   : proportion of variance explained (closer to 1.0 is better)
+  - RMSE : root mean squared error in LSL (lower is better)
+  - MAE  : mean absolute error in LSL (lower is better)
+
+Output files:
+  - disaster_model.pkl     (trained Decision Tree model)
+  - disaster_encoders.pkl  (encoders + feature column order for predict.py)
 """
 
-import random
 import pickle
 import numpy as np
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score, mean_squared_error
+import pandas as pd
+
+from sklearn.tree            import DecisionTreeRegressor, export_text
+from sklearn.preprocessing   import LabelEncoder
+from sklearn.model_selection import train_test_split, KFold, cross_val_score
+from sklearn.metrics         import r2_score, mean_squared_error, mean_absolute_error
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SECTION 1: DISTRICT PROFILES
-# Each district has realistic ranges for age, income, and household size
-# based on Lesotho's actual demographics
+# SECTION 1: LOAD DATASET
 # ─────────────────────────────────────────────────────────────────────────────
 
-DISTRICT_PROFILES = {
-    "Maseru": {
-        "age_range": (25, 65),
-        "income_weights": [0.2, 0.5, 0.3],   # low, middle, high
-        "household_size_range": (2, 7),
-    },
-    "Leribe": {
-        "age_range": (28, 70),
-        "income_weights": [0.4, 0.45, 0.15],
-        "household_size_range": (3, 8),
-    },
-    "Berea": {
-        "age_range": (28, 70),
-        "income_weights": [0.4, 0.45, 0.15],
-        "household_size_range": (3, 8),
-    },
-    "Mafeteng": {
-        "age_range": (30, 72),
-        "income_weights": [0.6, 0.35, 0.05],
-        "household_size_range": (3, 9),
-    },
-    "Mohale's Hoek": {
-        "age_range": (30, 72),
-        "income_weights": [0.65, 0.30, 0.05],
-        "household_size_range": (3, 9),
-    },
-    "Quthing": {
-        "age_range": (32, 74),
-        "income_weights": [0.7, 0.25, 0.05],
-        "household_size_range": (4, 10),
-    },
-    "Qacha's Nek": {
-        "age_range": (35, 75),
-        "income_weights": [0.75, 0.22, 0.03],
-        "household_size_range": (4, 10),
-    },
-    "Butha-Buthe": {
-        "age_range": (32, 74),
-        "income_weights": [0.70, 0.25, 0.05],
-        "household_size_range": (4, 9),
-    },
-    "Thaba-Tseka": {
-        "age_range": (35, 76),
-        "income_weights": [0.78, 0.20, 0.02],
-        "household_size_range": (4, 11),
-    },
-    "Mokhotlong": {
-        "age_range": (35, 76),
-        "income_weights": [0.80, 0.18, 0.02],
-        "household_size_range": (5, 11),
-    },
-}
-
-DISTRICTS = list(DISTRICT_PROFILES.keys())
-
-# Income ranges in Maloti per income category
-INCOME_RANGES = {
-    "low":    (500,   3000),
-    "middle": (3001, 10000),
-    "high":  (10001, 30000),
-}
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SECTION 2: DISASTER RULES
-# Controls how many households and what damage levels per disaster type/severity
-# ─────────────────────────────────────────────────────────────────────────────
-
-HOUSEHOLD_COUNT_RANGES = {
-    "Low":      (10,  50),
-    "Moderate": (51,  200),
-    "Critical": (201, 500),
-}
-
-# Damage level probabilities per disaster type
-# [level1, level2, level3, level4]
-DAMAGE_LEVEL_WEIGHTS = {
-    "Heavy Rainfall": [0.10, 0.25, 0.40, 0.25],
-    "Strong Winds":   [0.15, 0.30, 0.35, 0.20],
-    "Drought":        [0.50, 0.40, 0.10, 0.00],
-}
-
-DISASTER_TYPES = list(DAMAGE_LEVEL_WEIGHTS.keys())
-SEVERITIES     = ["Low", "Moderate", "Critical"]
-SEASONS        = ["Summer", "Autumn", "Winter", "Spring"]
+def load_data(filepath="disaster_dataset.csv"):
+    print(f"Loading dataset: {filepath}")
+    df = pd.read_csv(filepath)
+    print(f"  Rows    : {len(df)}")
+    print(f"  Columns : {list(df.columns)}\n")
+    return df
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SECTION 3: DAMAGE DESCRIPTION GENERATOR
-# Generates realistic damage descriptions that match your keyword engine
+# SECTION 2: PREPARE FEATURES
 # ─────────────────────────────────────────────────────────────────────────────
 
-def generate_damage_description(damage_level, disaster_type):
+def prepare_features(df):
     """
-    Creates a realistic damage description string.
-    The keywords in these descriptions are picked up by your allocation engine
-    to assign the right packages.
+    Encodes categorical columns and builds the feature matrix X.
+
+    Problem type  : Regression (predicting continuous LSL amount)
+    Model         : Decision Tree Regressor
+
+    Categorical features (label encoded):
+      - disaster_type  : Heavy Rainfall, Strong Winds, Drought
+      - severity       : Low, Moderate, Critical
+      - season         : Summer, Autumn, Winter, Spring
+
+    Numerical features (used as-is):
+      - num_households    : strongest predictor — scales total cost directly
+      - avg_damage_level  : determines which packages apply at each threshold
+      - pct_elderly       : affects blanket/clothing package eligibility
+      - pct_children_u5   : affects blanket/clothing package eligibility
+      - pct_disabled      : affects medical aid package eligibility
+      - avg_household_size: scales per-household costs
+
+    Not used as a feature:
+      - district  : reference column only
     """
 
-    descriptions = {
-        "Heavy Rainfall": {
-            1: [
-                "Minor water seepage through the walls. House is still habitable.",
-                "Small flood in the yard. House partially damaged but rooms habitable.",
-                "Some dampness in walls. Rooms habitable with minor repairs needed.",
-            ],
-            2: [
-                "Roof damaged by heavy rain. Two rooms still habitable.",
-                "Flooding caused roof damage. Some rooms habitable.",
-                "Water supply damaged by floods. Roof blown partially.",
-            ],
-            3: [
-                "House severely flooded. Roof damaged and no clean water access.",
-                "Severely flooded home. Injured family member needs medical attention.",
-                "Roof destroyed by rainfall. Infant and toddler in household.",
-            ],
-            4: [
-                "House completely destroyed by flooding. Family uninhabitable situation.",
-                "Fully destroyed by floods. Newborn baby in household. No water access.",
-                "Collapsed structure. Household members injured. Totally uninhabitable.",
-            ],
-        },
-        "Strong Winds": {
-            1: [
-                "Minor roof damage. House still habitable with some rooms affected.",
-                "Small section of roof blown. Rooms habitable.",
-                "Light structural damage. House partially damaged but livable.",
-            ],
-            2: [
-                "Roof blown off by strong winds. Two rooms still habitable.",
-                "Roof damaged. Partially damaged structure with some rooms usable.",
-                "Roof destroyed. Child under 5 in household.",
-            ],
-            3: [
-                "Roof blown completely. No roof remaining. Several injured.",
-                "Roof damaged severely. Disabled member in wheelchair needs help.",
-                "Strong winds destroyed roof. Bedridden elderly member in household.",
-            ],
-            4: [
-                "House completely destroyed by winds. Family displaced. Uninhabitable.",
-                "Fully destroyed structure. Collapsed walls. Casualties reported.",
-                "Total loss of property. Uninhabitable. Infant in household injured.",
-            ],
-        },
-        "Drought": {
-            1: [
-                "Crops failed due to drought. No structural damage to house.",
-                "Water supply damaged by drought conditions. House intact.",
-                "Drought affected the area. No access to water for the household.",
-            ],
-            2: [
-                "Severe drought. No water access. Elderly member over 70 years.",
-                "Water cut off. No clean water available. Large household affected.",
-                "Drought destroyed crops. No access to water. Food shortage.",
-            ],
-            3: [
-                "Critical drought. Water supply damaged. Child under 5 in household.",
-                "No water access. Disabled member. Household severely affected.",
-                "Extreme drought. No clean water. Medical attention needed.",
-            ],
-            4: [
-                "Catastrophic drought. No water. Multiple casualties in area.",
-                "Total water supply damaged. Uninhabitable conditions due to drought.",
-                "No water access. Infant in household. Critically affected.",
-            ],
-        },
+    print("Preparing features...")
+
+    le_disaster_type = LabelEncoder()
+    le_severity      = LabelEncoder()
+    le_season        = LabelEncoder()
+
+    # Fit on all known categories — ensures stability at prediction time
+    le_disaster_type.fit(["Heavy Rainfall", "Strong Winds", "Drought"])
+    le_severity.fit(["Low", "Moderate", "Critical"])
+    le_season.fit(["Summer", "Autumn", "Winter", "Spring"])
+
+    df["disaster_type_enc"] = le_disaster_type.transform(df["disaster_type"])
+    df["severity_enc"]      = le_severity.transform(df["severity"])
+    df["season_enc"]        = le_season.transform(df["season"])
+
+    # Feature order must exactly match predict.py
+    feature_columns = [
+        "disaster_type_enc",
+        "severity_enc",
+        "season_enc",
+        "num_households",
+        "avg_damage_level",
+        "pct_elderly",
+        "pct_children_u5",
+        "pct_disabled",
+        "avg_household_size",
+    ]
+
+    X = df[feature_columns].values
+    Y = df["total_funding"].values
+
+    print(f"  Problem type : Regression (continuous target)")
+    print(f"  Model        : Decision Tree Regressor")
+    print(f"  Features ({len(feature_columns)}) : {feature_columns}")
+    print(f"  Target       : total_funding")
+    print(f"  X shape      : {X.shape}")
+    print(f"  Y min        : LSL {Y.min():,.0f}")
+    print(f"  Y max        : LSL {Y.max():,.0f}")
+    print(f"  Y mean       : LSL {Y.mean():,.0f}\n")
+
+    encoders = {
+        "le_disaster_type": le_disaster_type,
+        "le_severity":      le_severity,
+        "le_season":        le_season,
+        "feature_columns":  feature_columns,
     }
 
-    options = descriptions.get(disaster_type, {}).get(damage_level, ["House affected by disaster."])
-    return random.choice(options)
+    return X, Y, encoders
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SECTION 4: ALLOCATION ENGINE
-# This mirrors your AidAllocation.jsx logic exactly
+# SECTION 3: FIND OPTIMAL TREE DEPTH VIA CROSS-VALIDATION
+# Tests depths 3, 5, 7, 10, 15, 20 and picks the one that generalises best.
+# This is the pruning step — preventing the tree from memorising training data.
 # ─────────────────────────────────────────────────────────────────────────────
 
-def detect_keywords(description):
-    desc = description.lower()
-    return {
-        "hasChildrenUnder5":  any(k in desc for k in ["infant", "baby", "toddler", "child under 5", "young child", "newborn"]),
-        "hasDisabledMembers": any(k in desc for k in ["disabled", "wheelchair", "bedridden", "handicapped", "disability"]),
-        "hasNoWaterAccess":   any(k in desc for k in ["no water", "water cut", "no access to water", "water supply damaged", "no clean water"]),
-        "hasInjuries":        any(k in desc for k in ["injured", "hurt", "wound", "hospital", "medical attention", "casualty"]),
-        "isUninhabitable":    any(k in desc for k in ["completely destroyed", "fully destroyed", "uninhabitable", "collapsed", "total loss"]),
-        "hasRoofDamage":      any(k in desc for k in ["roof blown", "roof damaged", "roof destroyed", "roof off", "no roof", "roofless"]),
-    }
-
-
-def process_household(household, disaster_type):
+def find_optimal_depth(X, Y):
     """
-    Runs one household through the allocation engine.
-    Returns total cost of packages assigned to that household.
+    Tests multiple max_depth values using 5-fold cross-validation.
+    Selects the depth with the highest average R² across all 5 folds.
+
+    Why this matters:
+    Without a depth limit, a Decision Tree will keep splitting until it
+    has memorised every training record (overfitting). Cross-validation
+    finds the depth where the tree generalises best to unseen data.
+
+    Depths tested: 3, 5, 7, 10, 15, 20, None (unlimited)
     """
-    age           = household["age"]
-    size          = household["household_size"]
-    income        = household["monthly_income"]
-    damage_level  = household["damage_level"]
-    description   = household["damage_description"]
 
-    keywords = detect_keywords(description)
-    desc     = description.lower()
+    print("=" * 62)
+    print("STEP 1: FINDING OPTIMAL TREE DEPTH")
+    print("Testing multiple depths via 5-fold cross-validation.")
+    print("This determines the pruning level to prevent overfitting.")
+    print("=" * 62)
 
-    # Step 3: Override damage level if uninhabitable keywords found
-    final_damage = damage_level
-    if keywords["isUninhabitable"]:
-        final_damage = 4
+    depths     = [3, 5, 7, 10, 15, 20, None]
+    kf         = KFold(n_splits=5, shuffle=True, random_state=42)
+    cv_results = {}
 
-    is_uninhabitable = final_damage == 4
+    print(f"\n  {'Depth':<10}  {'CV R² Mean':>10}  {'CV R² Std':>10}  {'Note'}")
+    print(f"  {'-'*10}  {'-'*10}  {'-'*10}  {'-'*20}")
 
-    # Step 4: Disqualification check
-    is_habitable = (
-        final_damage <= 2 or
-        "still habitable" in desc or
-        "partially damaged" in desc or
-        "rooms habitable" in desc
+    for depth in depths:
+        model  = DecisionTreeRegressor(max_depth=depth, random_state=42)
+        scores = cross_val_score(model, X, Y, cv=kf, scoring="r2")
+        mean   = scores.mean()
+        std    = scores.std()
+
+        depth_label = str(depth) if depth is not None else "Unlimited"
+        note        = "← overfitting risk" if depth is None else ""
+
+        cv_results[depth] = {"mean_r2": mean, "std_r2": std}
+        print(f"  {depth_label:<10}  {mean:>10.4f}  {std:>10.4f}  {note}")
+
+    # Select depth with highest mean R²
+    # If unlimited wins, we still cap at 20 to avoid overfitting
+    best_depth = max(cv_results, key=lambda d: cv_results[d]["mean_r2"])
+    best_mean  = cv_results[best_depth]["mean_r2"]
+    best_std   = cv_results[best_depth]["std_r2"]
+
+    print(f"\n  Optimal depth : {best_depth if best_depth is not None else 'Unlimited (capped at 20 for safety)'}")
+    print(f"  CV R² mean    : {best_mean:.4f}")
+    print(f"  CV R² std     : {best_std:.4f}\n")
+
+    # Safety cap — if unlimited is selected, use 20 to prevent overfitting
+    if best_depth is None:
+        best_depth = 20
+
+    return best_depth, cv_results
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SECTION 4: TRAIN AND EVALUATE ON HOLDOUT SET
+# Final evaluation on a separate 20% test set
+# ─────────────────────────────────────────────────────────────────────────────
+
+def train_and_evaluate(X, Y, optimal_depth):
+    """
+    Trains the Decision Tree at the optimal depth on 80% of the data.
+    Evaluates on the remaining 20% using R², RMSE, and MAE.
+    """
+
+    print("=" * 62)
+    print("STEP 2: HOLDOUT EVALUATION (80% train / 20% test)")
+    print(f"Training Decision Tree at optimal depth: {optimal_depth}")
+    print("=" * 62)
+
+    X_train, X_test, Y_train, Y_test = train_test_split(
+        X, Y, test_size=0.2, random_state=42
     )
-    is_disqualified = (age < 40 and size <= 4 and income > 10000 and is_habitable)
 
-    if is_disqualified:
-        return 0
+    print(f"\n  Training samples : {len(X_train)}")
+    print(f"  Testing samples  : {len(X_test)}\n")
 
-    # Section: No aid needed check
-    has_habitable_rooms = (
-        "still habitable" in desc or
-        "remaining rooms" in desc or
-        "rooms habitable" in desc
-    )
-    no_aid_needed = (has_habitable_rooms and not keywords["hasInjuries"] and not keywords["hasDisabledMembers"])
-
-    if no_aid_needed:
-        return 0
-
-    # Step 8: Package assignment
-    disaster_lower = disaster_type.lower()
-    is_wind_rain   = "rainfall" in disaster_lower or "wind" in disaster_lower
-    is_drought     = "drought" in disaster_lower
-    is_fully_destroyed = "completely destroyed" in desc or "fully destroyed" in desc
-
-    packages_cost = 0
-
-    # Emergency Tent
-    if is_uninhabitable and final_damage == 4:
-        packages_cost += 6500
-
-    # Reconstruction Grant
-    if is_fully_destroyed and final_damage == 4 and is_wind_rain:
-        packages_cost += 75000
-
-    # Re-roofing Kit
-    if keywords["hasRoofDamage"] and final_damage in [2, 3] and is_wind_rain and not has_habitable_rooms:
-        packages_cost += 18000
-
-    # Tarpaulin Kit
-    if final_damage >= 2 and is_wind_rain and not has_habitable_rooms:
-        packages_cost += 2000
-
-    # Food Parcel
-    if income < 10000 or is_uninhabitable:
-        packages_cost += 1500
-
-    # Water Tank
-    if is_drought and keywords["hasNoWaterAccess"]:
-        packages_cost += 6000
-
-    # Blanket & Clothing
-    if keywords["hasChildrenUnder5"] or age > 65 or keywords["hasDisabledMembers"]:
-        packages_cost += 1500
-
-    # Medical Aid
-    if keywords["hasInjuries"] or keywords["hasDisabledMembers"]:
-        packages_cost += 1000
-
-    return packages_cost
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SECTION 5: HOUSEHOLD GENERATOR
-# Creates one realistic household based on district and disaster type
-# ─────────────────────────────────────────────────────────────────────────────
-
-def generate_household(district, disaster_type):
-    profile = DISTRICT_PROFILES[district]
-
-    # Age
-    age = random.randint(*profile["age_range"])
-
-    # Income category based on district weights
-    income_category = random.choices(
-        ["low", "middle", "high"],
-        weights=profile["income_weights"]
-    )[0]
-    income = random.randint(*INCOME_RANGES[income_category])
-
-    # Household size
-    size = random.randint(*profile["household_size_range"])
-
-    # Damage level based on disaster type
-    damage_level = random.choices(
-        [1, 2, 3, 4],
-        weights=DAMAGE_LEVEL_WEIGHTS[disaster_type]
-    )[0]
-
-    # Damage description
-    description = generate_damage_description(damage_level, disaster_type)
-
-    return {
-        "age":               age,
-        "monthly_income":    income,
-        "household_size":    size,
-        "damage_level":      damage_level,
-        "damage_description": description,
-    }
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SECTION 6: SIMULATE 800 DISASTER EVENTS
-# ─────────────────────────────────────────────────────────────────────────────
-
-def simulate_disasters(n=800):
-    print(f"Simulating {n} disaster events...")
-
-    records = []
-
-    for i in range(n):
-        disaster_type = random.choice(DISASTER_TYPES)
-        district      = random.choice(DISTRICTS)
-        severity      = random.choice(SEVERITIES)
-        season        = random.choice(SEASONS)
-
-        # Number of households based on severity
-        num_households = random.randint(*HOUSEHOLD_COUNT_RANGES[severity])
-
-        # Generate households and run through allocation engine
-        total_cost = 0
-        for _ in range(num_households):
-            household  = generate_household(district, disaster_type)
-            cost       = process_household(household, disaster_type)
-            total_cost += cost
-
-        records.append({
-            "disaster_type":    disaster_type,
-            "district":         district,
-            "severity":         severity,
-            "season":           season,
-            "num_households":   num_households,
-            "total_funding":    total_cost,
-        })
-
-        if (i + 1) % 100 == 0:
-            print(f"  {i + 1} events simulated...")
-
-    print(f"Simulation complete. {n} events generated.\n")
-    return records
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SECTION 7: TRAIN THE MODEL
-# ─────────────────────────────────────────────────────────────────────────────
-
-def train_model(records):
-    print("Training the linear regression model...")
-
-    # Encode text columns into numbers
-    le_type     = LabelEncoder()
-    le_district = LabelEncoder()
-    le_severity = LabelEncoder()
-    le_season   = LabelEncoder()
-
-    disaster_types = [r["disaster_type"] for r in records]
-    districts      = [r["district"]      for r in records]
-    severities     = [r["severity"]      for r in records]
-    seasons        = [r["season"]        for r in records]
-    num_households = [r["num_households"] for r in records]
-    total_funding  = [r["total_funding"]  for r in records]
-
-    le_type.fit(DISASTER_TYPES)
-    le_district.fit(DISTRICTS)
-    le_severity.fit(SEVERITIES)
-    le_season.fit(SEASONS)
-
-    # Build feature matrix X
-    X = np.column_stack([
-        le_type.transform(disaster_types),
-        le_district.transform(districts),
-        le_severity.transform(severities),
-        le_season.transform(seasons),
-        num_households,
-    ])
-
-    Y = np.array(total_funding)
-
-    # Split into training and testing
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
-
-    # Train
-    model = LinearRegression()
+    model = DecisionTreeRegressor(max_depth=optimal_depth, random_state=42)
     model.fit(X_train, Y_train)
 
-    # Evaluate
     Y_pred = model.predict(X_test)
-    r2     = r2_score(Y_test, Y_pred)
-    rmse   = np.sqrt(mean_squared_error(Y_test, Y_pred))
 
-    print(f"  R² Score : {r2:.4f}  (closer to 1.0 is better)")
-    print(f"  RMSE     : M{rmse:,.0f}  (average prediction error)\n")
+    r2   = r2_score(Y_test, Y_pred)
+    rmse = np.sqrt(mean_squared_error(Y_test, Y_pred))
+    mae  = mean_absolute_error(Y_test, Y_pred)
 
-    return model, le_type, le_district, le_severity, le_season
+    print(f"  R²   : {r2:.4f}  — model explains {r2*100:.1f}% of variance in funding")
+    print(f"  RMSE : LSL {rmse:,.0f}")
+    print(f"  MAE  : LSL {mae:,.0f}  — average prediction error\n")
+
+    # Plain English interpretation
+    mean_funding = Y.mean()
+    pct_error    = (mae / mean_funding) * 100
+    print(f"  Interpretation:")
+    print(f"  - On average predictions are within LSL {mae:,.0f} of the true value")
+    print(f"  - That is {pct_error:.1f}% of the mean funding (LSL {mean_funding:,.0f})")
+    print()
+
+    return model, r2, rmse, mae, X_train, X_test, Y_train, Y_test
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SECTION 8: SAVE THE MODEL
+# SECTION 5: FEATURE IMPORTANCE
+# Decision Trees provide clear feature importance scores
+# This is one of the key advantages over more complex models
 # ─────────────────────────────────────────────────────────────────────────────
 
-def save_model(model, le_type, le_district, le_severity, le_season):
+def print_feature_importance(model, feature_columns):
+    print("=" * 62)
+    print("FEATURE IMPORTANCE")
+    print("What drives the prediction most strongly.")
+    print("(Key advantage of Decision Trees — fully transparent)")
+    print("=" * 62)
+
+    importances = model.feature_importances_
+    pairs       = sorted(
+        zip(feature_columns, importances),
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    for feat, imp in pairs:
+        bar = "█" * int(imp * 40)
+        print(f"  {feat:<22}  {bar:<40}  {imp:.4f}")
+
+    print()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SECTION 6: PRINT TREE STRUCTURE (shallow preview)
+# One of the key advantages of Decision Trees — you can read exactly
+# how the model makes every decision. Useful for supervisor demonstration.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def print_tree_structure(model, feature_columns):
+    print("=" * 62)
+    print("DECISION TREE STRUCTURE (first 3 levels)")
+    print("Shows how the model splits data at each node.")
+    print("=" * 62 + "\n")
+
+    # Print only first 3 levels to keep it readable
+    tree_text = export_text(model, feature_names=feature_columns, max_depth=3)
+    print(tree_text)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SECTION 7: RETRAIN ON FULL DATASET
+# After finding optimal depth and validating performance,
+# retrain on all 2000 records for the strongest possible deployment model
+# ─────────────────────────────────────────────────────────────────────────────
+
+def retrain_on_full_data(optimal_depth, X, Y):
+    """
+    Retrains on all 2000 records.
+    Cross-validation already confirmed the model generalises well
+    at this depth, so using all data makes the final model stronger.
+    """
+
+    print("=" * 62)
+    print("STEP 3: RETRAIN ON FULL DATASET")
+    print("Retraining on all 2000 rows for deployment.")
+    print("=" * 62)
+
+    final_model     = DecisionTreeRegressor(max_depth=optimal_depth, random_state=42)
+    final_model.fit(X, Y)
+
+    Y_pred_full = final_model.predict(X)
+    r2_full     = r2_score(Y, Y_pred_full)
+
+    print(f"\n  Depth used     : {optimal_depth}")
+    print(f"  Full dataset R²: {r2_full:.4f}")
+    print(f"  Rows used      : {len(X)}\n")
+
+    return final_model
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SECTION 8: SAVE MODEL AND ENCODERS
+# ─────────────────────────────────────────────────────────────────────────────
+
+def save_model(final_model, encoders):
     with open("disaster_model.pkl", "wb") as f:
-        pickle.dump(model, f)
+        pickle.dump(final_model, f)
 
     with open("disaster_encoders.pkl", "wb") as f:
-        pickle.dump({
-            "le_type":     le_type,
-            "le_district": le_district,
-            "le_severity": le_severity,
-            "le_season":   le_season,
-        }, f)
+        pickle.dump(encoders, f)
 
-    print("Model saved:    disaster_model.pkl")
-    print("Encoders saved: disaster_encoders.pkl")
-    print("\nYou can now use these files in your backend to make predictions.")
+    print("=" * 62)
+    print("FILES SAVED")
+    print("=" * 62)
+    print("  disaster_model.pkl    — trained Decision Tree model")
+    print("  disaster_encoders.pkl — encoders + feature column order")
+    print()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SECTION 9: EXAMPLE PREDICTION
-# Shows how to use the saved model to make one prediction
+# Verifies the saved model works before deploying predict.py
 # ─────────────────────────────────────────────────────────────────────────────
 
-def example_prediction(model, le_type, le_district, le_severity, le_season):
-    print("\n--- Example Prediction ---")
+def example_prediction(final_model, encoders):
+    print("=" * 62)
+    print("EXAMPLE PREDICTION (deployment verification)")
+    print("=" * 62)
 
-    disaster_type  = "Heavy Rainfall"
-    district       = "Maseru"
-    severity       = "Critical"
-    season         = "Winter"
-    num_households = 150
+    le_disaster_type = encoders["le_disaster_type"]
+    le_severity      = encoders["le_severity"]
+    le_season        = encoders["le_season"]
+
+    disaster_type    = "Strong Winds"
+    severity         = "Critical"
+    season           = "Winter"
+    num_households   = 300
+    avg_damage_level = 2.8
+    pct_elderly      = 0.12
+    pct_children_u5  = 0.18
+    pct_disabled     = 0.07
+    avg_hh_size      = 6.0
 
     X_new = np.array([[
-        le_type.transform([disaster_type])[0],
-        le_district.transform([district])[0],
+        le_disaster_type.transform([disaster_type])[0],
         le_severity.transform([severity])[0],
         le_season.transform([season])[0],
         num_households,
+        avg_damage_level,
+        pct_elderly,
+        pct_children_u5,
+        pct_disabled,
+        avg_hh_size,
     ]])
 
-    prediction = model.predict(X_new)[0]
+    prediction = final_model.predict(X_new)[0]
+    prediction = max(0, prediction)
 
-    print(f"  Disaster : {disaster_type}")
-    print(f"  District : {district}")
-    print(f"  Severity : {severity}")
-    print(f"  Season   : {season}")
-    print(f"  Households: {num_households}")
-    print(f"\n  Estimated funding required: M{prediction:,.0f}")
+    print(f"\n  Disaster type    : {disaster_type}")
+    print(f"  Severity         : {severity}")
+    print(f"  Season           : {season}")
+    print(f"  Households       : {num_households}")
+    print(f"  Avg damage level : {avg_damage_level}")
+    print(f"  % Elderly        : {pct_elderly}")
+    print(f"  % Children u5    : {pct_children_u5}")
+    print(f"  % Disabled       : {pct_disabled}")
+    print(f"  Avg HH size      : {avg_hh_size}")
+    print(f"\n  Estimated funding: LSL {prediction:,.0f}")
+    print("=" * 62)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -493,7 +383,24 @@ def example_prediction(model, le_type, le_district, le_severity, le_season):
 # ─────────────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    records                                        = simulate_disasters(800)
-    model, le_type, le_district, le_severity, le_season = train_model(records)
-    save_model(model, le_type, le_district, le_severity, le_season)
-    example_prediction(model, le_type, le_district, le_severity, le_season)
+    print("\n" + "=" * 62)
+    print("DISASTER FUNDING PREDICTION MODEL — TRAINING")
+    print("Model: Decision Tree Regressor")
+    print("Lesotho Disaster Management Authority")
+    print("=" * 62 + "\n")
+
+    df                   = load_data("disaster_dataset.csv")
+    X, Y, encoders       = prepare_features(df)
+    feature_columns      = encoders["feature_columns"]
+
+    optimal_depth, cv_results  = find_optimal_depth(X, Y)
+    model, r2, rmse, mae, X_train, X_test, Y_train, Y_test = train_and_evaluate(X, Y, optimal_depth)
+
+    print_feature_importance(model, feature_columns)
+    print_tree_structure(model, feature_columns)
+
+    final_model = retrain_on_full_data(optimal_depth, X, Y)
+    save_model(final_model, encoders)
+    example_prediction(final_model, encoders)
+
+    print("\nTraining complete. Ready to deploy predict.py.\n")

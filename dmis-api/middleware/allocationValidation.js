@@ -13,14 +13,15 @@ import HouseholdAssessment from '../models/HouseholdAssessment.js';
  */
 export const validateAllocationRequest = async (req, res, next) => {
   try {
-    const { assessmentId, disasterId } = req.body;
+    const assessmentId = req.body.assessmentId || req.body.householdAssessmentId;
+    const { disasterId } = req.body;
 
     // Check required fields
     if (!assessmentId || !disasterId) {
       return res.status(400).json({
         message: 'Assessment ID and Disaster ID are required',
         errors: {
-          assessmentId: !assessmentId ? 'Assessment ID is required' : null,
+          assessmentId: !assessmentId ? 'Assessment ID or householdAssessmentId is required' : null,
           disasterId: !disasterId ? 'Disaster ID is required' : null,
         },
       });
@@ -174,6 +175,40 @@ export const checkAllocationPermissions = (requiredRole) => {
 };
 
 /**
+ * Strict Finance Officer role enforcement middleware
+ * ONLY Finance Officers can approve and disburse allocations
+ */
+export const requireFinanceOfficer = (req, res, next) => {
+  try {
+    const user = req.user || (req.headers.user ? JSON.parse(req.headers.user) : {});
+    
+    if (!user.role) {
+      return res.status(401).json({
+        message: 'User authentication required',
+      });
+    }
+
+    if (user.role !== 'Finance Officer') {
+      return res.status(403).json({
+        message: 'Only Finance Officers can perform this action',
+        requiredRole: 'Finance Officer',
+        userRole: user.role,
+      });
+    }
+
+    // Attach user to request for later use
+    req.financeUser = user;
+    next();
+  } catch (error) {
+    console.error('Finance Officer verification error:', error);
+    res.status(500).json({
+      message: 'Authorization check failed',
+      error: error.message,
+    });
+  }
+};
+
+/**
  * Validate allocation request status transition
  */
 export const validateStatusTransition = async (req, res, next) => {
@@ -281,6 +316,7 @@ export default {
   validateAllocationRequest,
   validateBudgetAvailability,
   checkAllocationPermissions,
+  requireFinanceOfficer,
   validateStatusTransition,
   logAllocationAction,
 };

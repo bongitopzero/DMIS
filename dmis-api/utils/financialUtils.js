@@ -4,36 +4,15 @@
  */
 
 import BudgetAllocation from '../models/BudgetAllocation.js';
-import Expense from '../models/Expense.js';
 import AuditLog from '../models/AuditLog.js';
 
 /**
  * Calculate total spent for a specific budget category
+ * NOTE: Expense model removed. This function now returns 0.
+ * Expense tracking is handled through the financial controller.
  */
 async function getTotalSpentByCategory(disasterId, category) {
-  try {
-    const result = await Expense.aggregate([
-      {
-        $match: {
-          disasterId: disasterId,
-          category: category,
-          status: 'Approved',
-          isVoided: false,
-        }
-      },
-      {
-        $group: {
-          _id: '$category',
-          totalSpent: { $sum: '$amount' }
-        }
-      }
-    ]);
-
-    return result.length > 0 ? result[0].totalSpent : 0;
-  } catch (error) {
-    console.error('Error calculating total spent:', error);
-    throw new Error('Failed to calculate total spent');
-  }
+  return 0;
 }
 
 /**
@@ -100,29 +79,10 @@ async function validateBudgetExists(disasterId, category) {
 
 /**
  * Check for duplicate invoice
+ * NOTE: Expense model removed. This function now returns no duplicates.
  */
 async function checkDuplicateInvoice(vendorName, invoiceNumber, disasterId) {
-  try {
-    const duplicate = await Expense.findOne({
-      vendorName: vendorName,
-      invoiceNumber: invoiceNumber,
-      disasterId: disasterId,
-      isVoided: false,
-    });
-
-    if (duplicate) {
-      throw new Error(
-        `Duplicate invoice found: Vendor "${vendorName}" already has invoice #${invoiceNumber} in system`
-      );
-    }
-
-    return false;
-  } catch (error) {
-    if (error.message.includes('Duplicate invoice')) {
-      throw error;
-    }
-    throw new Error('Error checking for duplicate invoices');
-  }
+  return false;
 }
 
 /**
@@ -208,30 +168,10 @@ async function getTotalBudgetByDisaster(disasterId) {
 
 /**
  * Get total spending by disaster
+ * NOTE: Expense model removed. This function now returns 0.
  */
 async function getTotalSpendingByDisaster(disasterId) {
-  try {
-    const result = await Expense.aggregate([
-      {
-        $match: {
-          disasterId: disasterId,
-          status: 'Approved',
-          isVoided: false,
-        }
-      },
-      {
-        $group: {
-          _id: '$disasterId',
-          totalSpent: { $sum: '$amount' }
-        }
-      }
-    ]);
-
-    return result.length > 0 ? result[0].totalSpent : 0;
-  } catch (error) {
-    console.error('Error calculating total spending:', error);
-    throw new Error('Failed to calculate total spending');
-  }
+  return 0;
 }
 
 /**

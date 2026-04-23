@@ -1,6 +1,14 @@
 /**
  * Allocation Routes
  * Handles household assessments, aid allocation requests, and plan generation
+ * 
+ * WORKFLOW ENFORCEMENT:
+ * - STEP 1: Approval (Finance Officer only)
+ *   POST /requests/{id}/approve → Proposed → Pending Approval → Approved
+ * - STEP 2: Disbursement (Finance Officer only)
+ *   PUT /requests/{id}/disburse → Approved → Disbursed
+ * - AUDIT LOG: View complete workflow history
+ *   GET /requests/{id}/audit-log → All status transitions & approvals
  */
 
 import express from 'express';
@@ -10,6 +18,7 @@ import {
   validateAllocationRequest,
   validateBudgetAvailability,
   checkAllocationPermissions,
+  requireFinanceOfficer,
   validateStatusTransition,
   logAllocationAction,
 } from '../middleware/allocationValidation.js';
@@ -17,13 +26,16 @@ import {
 const router = express.Router();
 
 /**
- * HOUSEHOLD ASSESSMENT ROUTES
+ * GET /api/allocation/packages
+ * Get predefined assistance packages from database
+ * Role: All authenticated users
  */
+router.get('/packages', protect, (req, res) => {
+  allocationController.getAssistancePackages(req, res);
+});
 
 /**
- * POST /api/allocation/assessments
- * Create household assessment
- * Role: Data Clerk, Coordinator
+ * HOUSEHOLD ASSESSMENT ROUTES
  */
 router.post('/assessments', protect, async (req, res) => {
   try {
@@ -170,50 +182,56 @@ router.post('/allocate', protect, validateBudgetAvailability, logAllocationActio
 
 /**
  * PUT /api/allocation/requests/:requestId/approve
- * Approve allocation request
- * Role: Finance Officer, Administrator
+ * STEP 1: Approve allocation request (Finance Officer ONLY)
+ * Strict workflow: Proposed → Pending Approval → Approved
+ * Audit logs BOTH transitions:
+ *   - "Moved to Pending Approval"
+ *   - "Approved by Finance Officer"
+ * 
+ * Role: Finance Officer ONLY
+ * Status: Proposed or Pending Approval required
  */
 router.put(
   '/requests/:requestId/approve',
   protect,
+  requireFinanceOfficer,
   validateStatusTransition,
-  logAllocationAction('APPROVE'),
   (req, res) => {
-    const user = req.headers.user
-      ? JSON.parse(req.headers.user)
-      : req.user || {};
-    if (!['Finance Officer', 'Administrator'].includes(user.role)) {
-      return res.status(403).json({
-        message: 'Insufficient permissions to approve allocations',
-      });
-    }
-
+    // requireFinanceOfficer middleware ensures only Finance Officers reach here
     allocationController.approveAllocationRequest(req, res);
   }
 );
 
 /**
  * PUT /api/allocation/requests/:requestId/disburse
- * Mark allocation disbursed and create expense records
+ * STEP 2: Disburse allocation (Finance Officer ONLY)
+ * Strict workflow: Approved → Disbursed
+ * Audit log: "Funds Disbursed"
+ * 
+ * Role: Finance Officer ONLY
+ * Status: Approved REQUIRED
  */
 router.put(
   '/requests/:requestId/disburse',
   protect,
+  requireFinanceOfficer,
   validateStatusTransition,
-  logAllocationAction('DISBURSE'),
   (req, res) => {
-    const user = req.headers.user
-      ? JSON.parse(req.headers.user)
-      : req.user || {};
-    if (!['Finance Officer', 'Administrator'].includes(user.role)) {
-      return res.status(403).json({
-        message: 'Insufficient permissions to disburse allocations',
-      });
-    }
-
+    // requireFinanceOfficer middleware ensures only Finance Officers reach here
     allocationController.disburseAllocationRequest(req, res);
   }
 );
+
+/**
+ * GET /api/allocation/requests/:requestId/audit-log
+ * Retrieve complete audit log for allocation request
+ * Shows workflow history: creation, approval steps, disbursement
+ * 
+ * Role: Finance Officer, Coordinator, Administrator (all can view)
+ */
+router.get('/requests/:requestId/audit-log', protect, (req, res) => {
+  allocationController.getAuditLogForRequest(req, res);
+});
 
 /**
  * ALLOCATION PLAN ROUTES
@@ -266,6 +284,34 @@ router.get('/requests/:disasterId', protect, (req, res) => {
  */
 router.get('/dashboard-stats/:disasterId', protect, (req, res) => {
   allocationController.getDashboardStats(req, res);
+});
+
+/**
+ * POST /api/allocation/approve-ineligible-disaster
+ * Approve a disaster assessment when NO households are eligible for aid
+ * Creates marker record so disaster appears as "processed" in summary dashboard
+ * Allows disasters with no eligible households to move to summary after assessment
+ * 
+ * Role: Finance Officer, Coordinator, Administrator
+ */
+router.post(
+  '/approve-ineligible-disaster',
+  protect,
+  checkAllocationPermissions(['Finance Officer', 'Coordinator', 'Administrator']),
+  (req, res) => {
+    allocationController.approveDisasterAssessmentNoAllocation(req, res);
+  }
+);
+
+/**
+ * GET /api/allocation/disaster-summary
+ * Get summary of disbursed allocations grouped by disaster type
+ * Shows total amounts and disaster details for each type
+ * 
+ * Role: All authenticated users
+ */
+router.get('/disaster-summary', protect, (req, res) => {
+  allocationController.getDisasterSummary(req, res);
 });
 
 export default router;

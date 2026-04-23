@@ -10,10 +10,6 @@ const DisasterSchema = new mongoose.Schema(
       type: String,
       default: null
     },
-    financialYear: {
-      type: String,
-      default: null
-    },
     occurrenceDate: {
       type: Date,
       default: null
@@ -98,14 +94,6 @@ const DisasterSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    malePopulation: {
-      type: Number,
-      default: 0
-    },
-    femalePopulation: {
-      type: Number,
-      default: 0
-    },
     childrenCount: {
       type: Number,
       default: 0
@@ -161,35 +149,7 @@ const DisasterSchema = new mongoose.Schema(
         needsCategory: [{ type: String }]
       }
     ],
-    schoolsDamaged: {
-      type: Number,
-      default: 0
-    },
-    clinicsDamaged: {
-      type: Number,
-      default: 0
-    },
     roadsDamagedKm: {
-      type: Number,
-      default: 0
-    },
-    bridgesDamaged: {
-      type: Number,
-      default: 0
-    },
-    waterSystemsAffected: {
-      type: Number,
-      default: 0
-    },
-    electricityDamage: {
-      type: Number,
-      default: 0
-    },
-    publicBuildingsDamaged: {
-      type: Number,
-      default: 0
-    },
-    infrastructureRepairCost: {
       type: Number,
       default: 0
     },
@@ -205,26 +165,9 @@ const DisasterSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    reliefAssistanceCost: {
-      type: Number,
-      default: 0
-    },
-    logisticsCost: {
-      type: Number,
-      default: 0
-    },
-    contingencyCost: {
-      type: Number,
-      default: 0
-    },
     totalEstimatedRequirement: {
       type: Number,
       default: 0
-    },
-    linkedDisasterPoolId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "DisasterBudgetEnvelope",
-      default: null
     },
     photosUrls: [{ type: String }],
     needs: {

@@ -1,6 +1,5 @@
 import express from "express";
 import Disaster from "../models/Disaster.js";
-import Expense from "../models/Expense.js";
 import { protect } from "../middleware/auth.js";
 import allocationController from "../controllers/allocationController.js";
 
@@ -40,6 +39,29 @@ const getCoordinates = (village, district) => {
   }
   const districtKey = district?.toLowerCase();
   return districtCoordinates[districtKey] || [-29.6, 27.5];
+};
+
+const removedDisasterFields = [
+  "financialYear",
+  "malePopulation",
+  "femalePopulation",
+  "schoolsDamaged",
+  "clinicsDamaged",
+  "bridgesDamaged",
+  "waterSystemsAffected",
+  "electricityDamage",
+  "publicBuildingsDamaged",
+  "infrastructureRepairCost",
+  "reliefAssistanceCost",
+  "logisticsCost",
+  "contingencyCost",
+  "linkedDisasterPoolId"
+];
+
+const sanitizeDisasterPayload = (payload) => {
+  const sanitized = { ...payload };
+  removedDisasterFields.forEach((field) => delete sanitized[field]);
+  return sanitized;
 };
 
 router.get("/dashboard/by-type", protect, async (req, res) => {
@@ -99,27 +121,14 @@ router.get("/dashboard/by-month", protect, async (req, res) => {
 
 router.get("/dashboard/financial-summary", protect, async (req, res) => {
   try {
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-
-    const expenses = await Expense.find({
-      createdAt: { $gte: sixMonthsAgo }
-    });
-
-    const byMonth = {};
-    const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-    expenses.forEach(e => {
-      const date = new Date(e.createdAt);
-      const monthYear = `${monthLabels[date.getMonth()]}-${date.getFullYear()}`;
-      byMonth[monthYear] = (byMonth[monthYear] || 0) + (e.amount || 0);
-    });
-
+    // Financial summary endpoint placeholder - Expense model removed
+    // Use /api/financial/expenses/:disasterId instead
     res.json({
       success: true,
-      data: byMonth,
-      totalExpenses: expenses.length,
-      totalAmount: expenses.reduce((sum, e) => sum + (e.amount || 0), 0)
+      data: {},
+      totalExpenses: 0,
+      totalAmount: 0,
+      note: "Use financial API endpoint for expense data"
     });
   } catch (err) {
     console.error("Dashboard financial stats error:", err);
@@ -160,7 +169,7 @@ router.post("/", protect, async (req, res) => {
 
     // Explicitly handle status field - default to "reported" if not provided
     const disasterData = {
-      ...req.body,
+      ...sanitizeDisasterPayload(req.body),
       latitude: coords[0],
       longitude: coords[1],
       village: req.body.location,
@@ -244,7 +253,7 @@ router.put("/:id", protect, async (req, res) => {
   try {
     console.log("📝 Updating disaster:", req.params.id, "with data:", req.body);
 
-    let updateData = { ...req.body };
+    let updateData = sanitizeDisasterPayload(req.body);
 
     // Fetch current disaster BEFORE update to check status change
     const previousDisaster = await Disaster.findById(req.params.id);

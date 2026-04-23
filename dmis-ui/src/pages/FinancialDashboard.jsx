@@ -58,94 +58,81 @@ export default function FinancialDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDisaster, disasters]);
 
-  const fetchFinancialData = async () => {
-    try {
-      setIsLoading(true);
-      let budgetsAcc = [];
-      let expensesAcc = [];
+ const fetchFinancialData = async () => {
+  try {
+    setIsLoading(true);
 
-      if (!selectedDisaster) {
-        // aggregate across all disasters
-        const ids = disasters.map(d => d._id || d.id).filter(Boolean);
-        // fetch in sequence to avoid overwhelming the API
-        for (const id of ids) {
-          try {
-            const bRes = await API.get(`/financial/budgets/${id}`);
-            const eRes = await API.get(`/financial/expenses/${id}`);
-            const bData = bRes.data?.budgets || bRes.data || [];
-            const eData = eRes.data?.expenses || eRes.data || [];
-            budgetsAcc = budgetsAcc.concat(bData);
-            expensesAcc = expensesAcc.concat(eData);
-          } catch (err) {
-            console.warn('Failed to fetch financial data for disaster', id, err?.message || err);
-          }
-        }
-      } else {
-        const bRes = await API.get(`/financial/budgets/${selectedDisaster}`);
-        const eRes = await API.get(`/financial/expenses/${selectedDisaster}`);
-        budgetsAcc = bRes.data?.budgets || bRes.data || [];
-        expensesAcc = eRes.data?.expenses || eRes.data || [];
-      }
+    // Use the same formula as BudgetAllocation.jsx
+    const nationalExpenditure = 82648374;
+    const perDisaster = nationalExpenditure / 3;
+    const reserveContribution = perDisaster * 0.1;
+    const finalDisasterAmount = perDisaster - reserveContribution;
+    const budgetByType = {
+      "heavy_rainfall": finalDisasterAmount,
+      "strong_winds":   finalDisasterAmount,
+      "drought":        finalDisasterAmount,
+    };
 
-      setBudgets(budgetsAcc || []);
-      setExpenses(expensesAcc || []);
+    const summaryRes = await API.get("/allocation/disaster-summary");
+    const disasterSummary = summaryRes.data || [];
 
-      // Calculate stats
-      const totalBudget = (budgetsAcc || []).reduce(
-        (sum, b) => sum + (b.approvalStatus === "Approved" ? (b.allocatedAmount || 0) : 0),
-        0
-      );
-      const totalSpent = (expensesAcc || []).reduce(
-        (sum, e) => sum + (e.status === "Approved" ? (e.amount || 0) : 0),
-        0
-      );
-      const pendingApproval = (budgetsAcc || []).filter(
-        (b) => b.approvalStatus === "Pending"
-      ).length;
+    // Map disaster summary to normalize keys
+    const spentByType = {};
+    disasterSummary.forEach(d => {
+      const key = d.type?.toLowerCase().replace(/\s+/g, "_");
+      spentByType[key] = (spentByType[key] || 0) + (d.totalAmount || 0);
+    });
 
-      setStats({
-        totalBudget,
-        totalSpent,
-        remaining: totalBudget - totalSpent,
-        pendingApproval,
-      });
-    } catch (err) {
-      console.error("Error fetching financial data:", err);
-      ToastManager.error("Failed to load financial data");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // Build budgets for charts
+    const budgetsAcc = Object.entries(budgetByType).map(([key, total]) => ({
+      category: key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()),
+      allocatedAmount: total,
+      approvalStatus: "Approved",
+      spent: spentByType[key] || 0,
+    }));
 
+    // Build expenses for pie chart
+    const expensesAcc = disasterSummary.map(d => ({
+      category: d.type,
+      amount: d.totalAmount || 0,
+      status: "Approved",
+      vendorName: d.type,
+    }));
+
+    setBudgets(budgetsAcc);
+    setExpenses(expensesAcc);
+
+    const totalBudget = Object.values(budgetByType).reduce((s, v) => s + v, 0);
+    const totalSpent  = disasterSummary.reduce((s, d) => s + (d.totalAmount || 0), 0);
+
+    setStats({
+      totalBudget,
+      totalSpent,
+      remaining: totalBudget - totalSpent,
+      pendingApproval: disasterSummary.reduce((s, d) => s + (d.totalHouseholds || 0), 0),
+    });
+
+  } catch (err) {
+    console.error("Error fetching financial data:", err);
+    ToastManager.error("Failed to load financial data");
+  } finally {
+    setIsLoading(false);
+  }
+};
   // Prepare chart data
   const getCategoryChartData = () => {
-    const categories = [...new Set(budgets.map(b => b.category))];
-    return categories.map(cat => {
-      const allocated = budgets
-        .filter((b) => b.category === cat && b.approvalStatus === "Approved")
-        .reduce((sum, b) => sum + b.allocatedAmount, 0);
-      const spent = expenses
-        .filter((e) => e.category === cat && e.status === "Approved")
-        .reduce((sum, e) => sum + e.amount, 0);
-      return {
-        category: cat,
-        "Allocated": allocated,
-        "Spent": spent,
-      };
-    });
+    return budgets.map(b => ({
+      category: b.category,
+      "Allocated": b.allocatedAmount || 0,
+      "Spent": b.spent || 0,
+    }));
   };
 
   const getSpendingDistributionData = () => {
-    const categories = [...new Set(expenses.map(e => e.category))];
-    return categories.map(cat => {
-      const amount = expenses
-        .filter((e) => e.category === cat && e.status === "Approved")
-        .reduce((sum, e) => sum + e.amount, 0);
-      return {
-        name: cat,
-        value: amount,
-      };
-    });
+    return expenses.map(e => ({
+      name: e.category,
+      value: e.amount || 0,
+    }));
   };
 
   const getTopVendorsData = () => {

@@ -16,14 +16,14 @@ const ASSISTANCE_PACKAGES = {
     packageId: 'PKG_RECON_001',
     name: 'Reconstruction Grant',
     description: 'Comprehensive grant for house reconstruction',
-    unitCost: 75000,
+    unitCost: 130000,
     category: 'Reconstruction',
   },
   REROOFING_KIT: {
     packageId: 'PKG_REROOF_001',
     name: 'Re-roofing Kit',
     description: 'Roofing materials for house repair (corrugated iron sheets, nails, etc.)',
-    unitCost: 18000,
+    unitCost: 35000,
     category: 'Reconstruction',
   },
   TARPAULIN_KIT: {

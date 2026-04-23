@@ -12,7 +12,10 @@ module.exports = {
         critical: "#B94A48",
         moderate: "#C9A227",
         low: "#4E8A64",
-      },
+},
+ fontFamily: {
+      sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+    },
     },
   },
   plugins: [],

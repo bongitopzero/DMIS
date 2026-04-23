@@ -1,0 +1,2001 @@
+district,disaster_type,severity,season,num_households,avg_damage_level,pct_elderly,pct_children_u5,pct_disabled,avg_household_size,total_funding
+Berea,Drought,Low,Winter,25,1.56,0.1,0.15,0.06,5.5,146000
+Butha-Buthe,Strong Winds,Low,Summer,33,2.52,0.14,0.19,0.08,6.5,1430000
+Mohale's Hoek,Drought,Low,Spring,45,1.76,0.13,0.19,0.07,6.0,320000
+Mafeteng,Strong Winds,Critical,Summer,221,2.58,0.12,0.18,0.07,6.0,8064000
+Quthing,Heavy Rainfall,Critical,Winter,440,2.84,0.14,0.2,0.08,7.0,17940500
+Quthing,Drought,Critical,Autumn,300,1.61,0.14,0.2,0.08,7.0,2023500
+Thaba-Tseka,Heavy Rainfall,Critical,Autumn,306,2.7,0.16,0.23,0.09,7.5,11047500
+Mafeteng,Strong Winds,Critical,Autumn,454,2.55,0.12,0.18,0.07,6.0,16738500
+Quthing,Strong Winds,Low,Winter,41,2.44,0.14,0.2,0.08,7.0,1269000
+Butha-Buthe,Drought,Low,Summer,19,1.68,0.14,0.19,0.08,6.5,140000
+Leribe,Strong Winds,Low,Summer,37,2.73,0.11,0.16,0.06,5.5,1557500
+Qacha's Nek,Heavy Rainfall,Low,Spring,50,2.66,0.15,0.22,0.09,7.0,2254000
+Mohale's Hoek,Strong Winds,Low,Summer,32,2.22,0.13,0.19,0.07,6.0,817500
+Mohale's Hoek,Heavy Rainfall,Low,Winter,28,2.82,0.13,0.19,0.07,6.0,1159000
+Qacha's Nek,Strong Winds,Moderate,Autumn,58,2.48,0.15,0.22,0.09,7.0,2538500
+Mokhotlong,Drought,Moderate,Spring,65,1.62,0.17,0.24,0.1,8.0,481500
+Leribe,Drought,Low,Spring,26,1.46,0.11,0.16,0.06,5.5,175500
+Butha-Buthe,Drought,Moderate,Winter,160,1.61,0.14,0.19,0.08,6.5,1133000
+Mafeteng,Strong Winds,Low,Autumn,47,2.57,0.12,0.18,0.07,6.0,1733000
+Quthing,Drought,Moderate,Spring,105,1.67,0.14,0.2,0.08,7.0,755000
+Mohale's Hoek,Heavy Rainfall,Critical,Summer,366,2.83,0.13,0.19,0.07,6.0,15777500
+Leribe,Strong Winds,Moderate,Winter,104,2.73,0.11,0.16,0.06,5.5,3834000
+Berea,Drought,Critical,Summer,412,1.61,0.1,0.15,0.06,5.5,2597000
+Berea,Heavy Rainfall,Low,Autumn,48,2.96,0.1,0.15,0.06,5.5,2386500
+Mohale's Hoek,Strong Winds,Moderate,Spring,64,2.48,0.13,0.19,0.07,6.0,1966500
+Maseru,Drought,Critical,Winter,317,1.65,0.08,0.12,0.05,4.5,1894500
+Maseru,Heavy Rainfall,Low,Winter,22,3.09,0.08,0.12,0.05,4.5,1161500
+Qacha's Nek,Drought,Critical,Spring,288,1.64,0.15,0.22,0.09,7.0,2005000
+Leribe,Strong Winds,Moderate,Spring,82,2.39,0.11,0.16,0.06,5.5,2137000
+Berea,Drought,Low,Winter,24,1.62,0.1,0.15,0.06,5.5,155500
+Mokhotlong,Heavy Rainfall,Moderate,Spring,100,2.67,0.17,0.24,0.1,8.0,3019500
+Mafeteng,Strong Winds,Critical,Winter,342,2.49,0.12,0.18,0.07,6.0,11549500
+Thaba-Tseka,Heavy Rainfall,Low,Winter,27,2.81,0.16,0.23,0.09,7.5,1480000
+Leribe,Strong Winds,Low,Autumn,43,2.77,0.11,0.16,0.06,5.5,2205000
+Quthing,Heavy Rainfall,Moderate,Autumn,93,2.76,0.14,0.2,0.08,7.0,3795000
+Maseru,Drought,Critical,Winter,363,1.62,0.08,0.12,0.05,4.5,2259500
+Berea,Drought,Low,Summer,25,1.52,0.1,0.15,0.06,5.5,148000
+Thaba-Tseka,Drought,Moderate,Autumn,81,1.63,0.16,0.23,0.09,7.5,568500
+Leribe,Drought,Moderate,Autumn,63,1.6,0.11,0.16,0.06,5.5,405500
+Berea,Heavy Rainfall,Moderate,Autumn,133,2.89,0.1,0.15,0.06,5.5,4999000
+Mohale's Hoek,Heavy Rainfall,Moderate,Spring,63,2.76,0.13,0.19,0.07,6.0,2832500
+Maseru,Strong Winds,Moderate,Autumn,58,2.62,0.08,0.12,0.05,4.5,2237500
+Mohale's Hoek,Strong Winds,Critical,Spring,202,2.61,0.13,0.19,0.07,6.0,8372500
+Leribe,Drought,Low,Spring,22,1.64,0.11,0.16,0.06,5.5,144500
+Butha-Buthe,Drought,Low,Summer,40,1.6,0.14,0.19,0.08,6.5,288000
+Butha-Buthe,Drought,Low,Summer,26,1.73,0.14,0.19,0.08,6.5,179500
+Thaba-Tseka,Drought,Moderate,Spring,200,1.63,0.16,0.23,0.09,7.5,1432500
+Mohale's Hoek,Heavy Rainfall,Low,Spring,34,2.79,0.13,0.19,0.07,6.0,1000000
+Thaba-Tseka,Drought,Low,Autumn,31,1.61,0.16,0.23,0.09,7.5,228500
+Qacha's Nek,Heavy Rainfall,Low,Autumn,17,2.76,0.15,0.22,0.09,7.0,518500
+Thaba-Tseka,Drought,Moderate,Spring,154,1.66,0.16,0.23,0.09,7.5,1146000
+Mohale's Hoek,Strong Winds,Low,Autumn,11,2.64,0.13,0.19,0.07,6.0,528500
+Leribe,Strong Winds,Critical,Autumn,464,2.6,0.11,0.16,0.06,5.5,17130000
+Quthing,Strong Winds,Moderate,Spring,174,2.6,0.14,0.2,0.08,7.0,6798500
+Maseru,Strong Winds,Moderate,Winter,67,2.49,0.08,0.12,0.05,4.5,2012500
+Leribe,Strong Winds,Critical,Winter,340,2.63,0.11,0.16,0.06,5.5,12567000
+Maseru,Drought,Moderate,Summer,91,1.58,0.08,0.12,0.05,4.5,514500
+Leribe,Drought,Low,Summer,15,1.73,0.11,0.16,0.06,5.5,97500
+Quthing,Drought,Low,Autumn,50,1.6,0.14,0.2,0.08,7.0,351000
+Mafeteng,Heavy Rainfall,Critical,Winter,301,2.74,0.12,0.18,0.07,6.0,9745000
+Berea,Heavy Rainfall,Low,Autumn,13,2.85,0.1,0.15,0.06,5.5,358500
+Mohale's Hoek,Strong Winds,Critical,Spring,319,2.66,0.13,0.19,0.07,6.0,12290000
+Butha-Buthe,Heavy Rainfall,Low,Autumn,26,2.96,0.14,0.19,0.08,6.5,1210500
+Quthing,Drought,Moderate,Winter,80,1.7,0.14,0.2,0.08,7.0,574000
+Butha-Buthe,Strong Winds,Low,Summer,14,2.36,0.14,0.19,0.08,6.5,368500
+Qacha's Nek,Drought,Critical,Summer,350,1.57,0.15,0.22,0.09,7.0,2386000
+Leribe,Strong Winds,Critical,Autumn,429,2.53,0.11,0.16,0.06,5.5,15749500
+Mohale's Hoek,Heavy Rainfall,Critical,Autumn,414,2.88,0.13,0.19,0.07,6.0,17565000
+Quthing,Strong Winds,Low,Autumn,37,2.54,0.14,0.2,0.08,7.0,1553000
+Quthing,Heavy Rainfall,Critical,Summer,345,2.79,0.14,0.2,0.08,7.0,13607000
+Qacha's Nek,Drought,Critical,Winter,275,1.59,0.15,0.22,0.09,7.0,1890000
+Mafeteng,Drought,Moderate,Winter,103,1.61,0.12,0.18,0.07,6.0,704000
+Maseru,Drought,Low,Summer,21,1.52,0.08,0.12,0.05,4.5,120000
+Mafeteng,Heavy Rainfall,Low,Spring,34,2.85,0.12,0.18,0.07,6.0,1350000
+Butha-Buthe,Drought,Low,Summer,49,1.73,0.14,0.19,0.08,6.5,340000
+Mohale's Hoek,Drought,Moderate,Winter,186,1.58,0.13,0.19,0.07,6.0,1268500
+Mokhotlong,Drought,Low,Summer,20,1.75,0.17,0.24,0.1,8.0,145500
+Berea,Strong Winds,Critical,Summer,443,2.54,0.1,0.15,0.06,5.5,16189000
+Berea,Drought,Moderate,Winter,100,1.53,0.1,0.15,0.06,5.5,649500
+Butha-Buthe,Drought,Low,Winter,40,1.7,0.14,0.19,0.08,6.5,259500
+Leribe,Heavy Rainfall,Low,Spring,40,3.02,0.11,0.16,0.06,5.5,1582000
+Qacha's Nek,Strong Winds,Low,Winter,46,2.54,0.15,0.22,0.09,7.0,1509500
+Qacha's Nek,Heavy Rainfall,Low,Autumn,18,2.61,0.15,0.22,0.09,7.0,606500
+Maseru,Strong Winds,Critical,Winter,365,2.57,0.08,0.12,0.05,4.5,13164500
+Berea,Strong Winds,Moderate,Winter,170,2.44,0.1,0.15,0.06,5.5,4761500
+Mafeteng,Strong Winds,Moderate,Winter,71,2.38,0.12,0.18,0.07,6.0,2337500
+Qacha's Nek,Drought,Moderate,Summer,102,1.69,0.15,0.22,0.09,7.0,719000
+Mohale's Hoek,Heavy Rainfall,Critical,Autumn,222,2.8,0.13,0.19,0.07,6.0,9637000
+Quthing,Strong Winds,Critical,Spring,224,2.58,0.14,0.2,0.08,7.0,8459000
+Mafeteng,Strong Winds,Low,Winter,23,2.61,0.12,0.18,0.07,6.0,785500
+Mohale's Hoek,Drought,Critical,Autumn,304,1.61,0.13,0.19,0.07,6.0,2040000
+Mokhotlong,Strong Winds,Moderate,Autumn,197,2.63,0.17,0.24,0.1,8.0,7107000
+Butha-Buthe,Strong Winds,Moderate,Autumn,126,2.67,0.14,0.19,0.08,6.5,5511500
+Thaba-Tseka,Strong Winds,Low,Autumn,37,2.65,0.16,0.23,0.09,7.5,1790500
+Leribe,Drought,Moderate,Spring,78,1.53,0.11,0.16,0.06,5.5,509500
+Berea,Heavy Rainfall,Low,Summer,50,2.98,0.1,0.15,0.06,5.5,2811000
+Qacha's Nek,Drought,Critical,Spring,390,1.59,0.15,0.22,0.09,7.0,2672000
+Qacha's Nek,Strong Winds,Low,Spring,22,2.32,0.15,0.22,0.09,7.0,849000
+Qacha's Nek,Heavy Rainfall,Critical,Spring,219,2.89,0.15,0.22,0.09,7.0,8970000
+Mohale's Hoek,Heavy Rainfall,Moderate,Spring,79,2.76,0.13,0.19,0.07,6.0,3423500
+Leribe,Strong Winds,Low,Autumn,11,3.09,0.11,0.16,0.06,5.5,858500
+Mohale's Hoek,Heavy Rainfall,Low,Summer,25,2.64,0.13,0.19,0.07,6.0,712500
+Berea,Heavy Rainfall,Low,Spring,28,2.68,0.1,0.15,0.06,5.5,1043000
+Berea,Strong Winds,Low,Autumn,26,2.54,0.1,0.15,0.06,5.5,1065000
+Mohale's Hoek,Heavy Rainfall,Critical,Spring,246,2.75,0.13,0.19,0.07,6.0,8619000
+Leribe,Strong Winds,Moderate,Winter,92,2.54,0.11,0.16,0.06,5.5,3430500
+Butha-Buthe,Strong Winds,Critical,Autumn,203,2.51,0.14,0.19,0.08,6.5,6769500
+Thaba-Tseka,Drought,Moderate,Winter,168,1.57,0.16,0.23,0.09,7.5,1175000
+Mokhotlong,Drought,Low,Summer,29,1.66,0.17,0.24,0.1,8.0,211500
+Mokhotlong,Heavy Rainfall,Critical,Spring,445,2.83,0.17,0.24,0.1,8.0,17753500
+Leribe,Drought,Critical,Spring,358,1.59,0.11,0.16,0.06,5.5,2310500
+Qacha's Nek,Heavy Rainfall,Moderate,Summer,139,2.86,0.15,0.22,0.09,7.0,5279500
+Berea,Strong Winds,Critical,Summer,277,2.49,0.1,0.15,0.06,5.5,9886500
+Berea,Strong Winds,Moderate,Winter,183,2.73,0.1,0.15,0.06,5.5,7540000
+Qacha's Nek,Heavy Rainfall,Critical,Autumn,255,2.94,0.15,0.22,0.09,7.0,10532500
+Qacha's Nek,Strong Winds,Moderate,Autumn,86,2.66,0.15,0.22,0.09,7.0,3431500
+Thaba-Tseka,Strong Winds,Critical,Summer,293,2.65,0.16,0.23,0.09,7.5,12064500
+Quthing,Strong Winds,Low,Summer,16,2.44,0.14,0.2,0.08,7.0,522500
+Butha-Buthe,Drought,Critical,Spring,361,1.61,0.14,0.19,0.08,6.5,2503000
+Mohale's Hoek,Drought,Moderate,Spring,78,1.54,0.13,0.19,0.07,6.0,548000
+Berea,Heavy Rainfall,Moderate,Autumn,65,2.72,0.1,0.15,0.06,5.5,2458000
+Quthing,Heavy Rainfall,Moderate,Winter,91,2.78,0.14,0.2,0.08,7.0,3250500
+Quthing,Strong Winds,Low,Summer,17,2.82,0.14,0.2,0.08,7.0,806500
+Quthing,Heavy Rainfall,Moderate,Spring,147,2.67,0.14,0.2,0.08,7.0,6096500
+Berea,Heavy Rainfall,Low,Spring,22,3.0,0.1,0.15,0.06,5.5,889500
+Qacha's Nek,Heavy Rainfall,Low,Summer,31,2.84,0.15,0.22,0.09,7.0,895500
+Thaba-Tseka,Heavy Rainfall,Moderate,Autumn,196,2.88,0.16,0.23,0.09,7.5,6781000
+Berea,Heavy Rainfall,Moderate,Spring,116,2.75,0.1,0.15,0.06,5.5,4000000
+Mafeteng,Heavy Rainfall,Moderate,Spring,139,2.73,0.12,0.18,0.07,6.0,4378000
+Berea,Heavy Rainfall,Critical,Summer,365,2.77,0.1,0.15,0.06,5.5,13897500
+Mafeteng,Heavy Rainfall,Moderate,Winter,159,2.75,0.12,0.18,0.07,6.0,6473500
+Mohale's Hoek,Heavy Rainfall,Low,Spring,26,2.77,0.13,0.19,0.07,6.0,855500
+Qacha's Nek,Strong Winds,Moderate,Summer,168,2.51,0.15,0.22,0.09,7.0,5800500
+Maseru,Drought,Moderate,Summer,55,1.76,0.08,0.12,0.05,4.5,350000
+Maseru,Strong Winds,Critical,Summer,287,2.63,0.08,0.12,0.05,4.5,10989500
+Leribe,Heavy Rainfall,Moderate,Autumn,191,2.82,0.11,0.16,0.06,5.5,7692000
+Maseru,Drought,Moderate,Winter,83,1.6,0.08,0.12,0.05,4.5,485000
+Berea,Strong Winds,Moderate,Winter,170,2.54,0.1,0.15,0.06,5.5,5271000
+Qacha's Nek,Strong Winds,Moderate,Winter,140,2.66,0.15,0.22,0.09,7.0,5538500
+Thaba-Tseka,Heavy Rainfall,Low,Winter,36,2.47,0.16,0.23,0.09,7.5,1106000
+Qacha's Nek,Heavy Rainfall,Moderate,Winter,88,3.02,0.15,0.22,0.09,7.0,3503000
+Mafeteng,Heavy Rainfall,Critical,Spring,433,2.81,0.12,0.18,0.07,6.0,17132000
+Mafeteng,Strong Winds,Critical,Winter,267,2.61,0.12,0.18,0.07,6.0,10975500
+Mafeteng,Strong Winds,Critical,Summer,346,2.55,0.12,0.18,0.07,6.0,13051500
+Mokhotlong,Heavy Rainfall,Critical,Autumn,255,2.84,0.17,0.24,0.1,8.0,8455500
+Mokhotlong,Strong Winds,Critical,Summer,325,2.59,0.17,0.24,0.1,8.0,12347000
+Berea,Heavy Rainfall,Critical,Spring,237,2.75,0.1,0.15,0.06,5.5,9529500
+Qacha's Nek,Strong Winds,Low,Autumn,43,2.56,0.15,0.22,0.09,7.0,1582000
+Qacha's Nek,Drought,Critical,Winter,371,1.59,0.15,0.22,0.09,7.0,2618500
+Berea,Drought,Moderate,Summer,154,1.55,0.1,0.15,0.06,5.5,1002500
+Leribe,Drought,Moderate,Winter,108,1.61,0.11,0.16,0.06,5.5,718500
+Thaba-Tseka,Drought,Moderate,Summer,147,1.56,0.16,0.23,0.09,7.5,1069000
+Thaba-Tseka,Heavy Rainfall,Low,Winter,32,2.75,0.16,0.23,0.09,7.5,1389500
+Thaba-Tseka,Heavy Rainfall,Moderate,Winter,152,2.73,0.16,0.23,0.09,7.5,5730000
+Mokhotlong,Drought,Critical,Spring,304,1.62,0.17,0.24,0.1,8.0,2161500
+Mafeteng,Heavy Rainfall,Low,Spring,22,2.95,0.12,0.18,0.07,6.0,952000
+Butha-Buthe,Heavy Rainfall,Moderate,Autumn,58,2.64,0.14,0.19,0.08,6.5,1501000
+Butha-Buthe,Heavy Rainfall,Moderate,Summer,148,2.76,0.14,0.19,0.08,6.5,5575000
+Mafeteng,Drought,Low,Winter,50,1.72,0.12,0.18,0.07,6.0,346500
+Quthing,Heavy Rainfall,Critical,Summer,431,2.82,0.14,0.2,0.08,7.0,15244000
+Thaba-Tseka,Strong Winds,Moderate,Summer,179,2.72,0.16,0.23,0.09,7.5,7661500
+Mohale's Hoek,Strong Winds,Moderate,Autumn,69,2.72,0.13,0.19,0.07,6.0,2719000
+Quthing,Heavy Rainfall,Low,Winter,28,2.86,0.14,0.2,0.08,7.0,1139000
+Qacha's Nek,Heavy Rainfall,Low,Autumn,19,2.79,0.15,0.22,0.09,7.0,691000
+Maseru,Strong Winds,Moderate,Autumn,64,2.34,0.08,0.12,0.05,4.5,2164500
+Thaba-Tseka,Heavy Rainfall,Low,Summer,25,2.8,0.16,0.23,0.09,7.5,1503000
+Quthing,Strong Winds,Low,Autumn,32,3.06,0.14,0.2,0.08,7.0,1737500
+Mafeteng,Heavy Rainfall,Critical,Spring,286,2.77,0.12,0.18,0.07,6.0,10303500
+Maseru,Strong Winds,Moderate,Spring,171,2.51,0.08,0.12,0.05,4.5,6140500
+Thaba-Tseka,Drought,Low,Winter,19,1.63,0.16,0.23,0.09,7.5,130000
+Mafeteng,Heavy Rainfall,Moderate,Autumn,73,2.77,0.12,0.18,0.07,6.0,2513500
+Butha-Buthe,Heavy Rainfall,Critical,Autumn,431,2.75,0.14,0.19,0.08,6.5,16251000
+Mokhotlong,Drought,Critical,Winter,223,1.61,0.17,0.24,0.1,8.0,1608500
+Mokhotlong,Strong Winds,Critical,Winter,285,2.69,0.17,0.24,0.1,8.0,10875500
+Mohale's Hoek,Drought,Low,Summer,16,1.62,0.13,0.19,0.07,6.0,106500
+Butha-Buthe,Strong Winds,Moderate,Spring,112,2.61,0.14,0.19,0.08,6.5,4247500
+Quthing,Drought,Low,Winter,24,1.54,0.14,0.2,0.08,7.0,157500
+Leribe,Drought,Moderate,Autumn,57,1.65,0.11,0.16,0.06,5.5,346500
+Butha-Buthe,Strong Winds,Low,Autumn,47,2.4,0.14,0.19,0.08,6.5,1582000
+Butha-Buthe,Strong Winds,Moderate,Summer,139,2.42,0.14,0.19,0.08,6.5,4112000
+Mokhotlong,Strong Winds,Moderate,Spring,141,2.63,0.17,0.24,0.1,8.0,5440000
+Qacha's Nek,Drought,Moderate,Summer,83,1.49,0.15,0.22,0.09,7.0,613500
+Mokhotlong,Drought,Critical,Winter,314,1.58,0.17,0.24,0.1,8.0,2115000
+Maseru,Strong Winds,Low,Summer,33,2.88,0.08,0.12,0.05,4.5,1364000
+Mohale's Hoek,Drought,Critical,Spring,268,1.66,0.13,0.19,0.07,6.0,1856500
+Quthing,Heavy Rainfall,Moderate,Spring,63,2.7,0.14,0.2,0.08,7.0,2001000
+Quthing,Strong Winds,Moderate,Summer,197,2.75,0.14,0.2,0.08,7.0,7388000
+Qacha's Nek,Drought,Critical,Autumn,344,1.59,0.15,0.22,0.09,7.0,2356000
+Mohale's Hoek,Heavy Rainfall,Low,Winter,17,3.47,0.13,0.19,0.07,6.0,1136500
+Thaba-Tseka,Strong Winds,Critical,Summer,304,2.64,0.16,0.23,0.09,7.5,12101000
+Maseru,Heavy Rainfall,Moderate,Autumn,97,2.87,0.08,0.12,0.05,4.5,4375500
+Mafeteng,Heavy Rainfall,Critical,Summer,296,2.77,0.12,0.18,0.07,6.0,11897000
+Mafeteng,Heavy Rainfall,Critical,Summer,306,2.76,0.12,0.18,0.07,6.0,11014000
+Maseru,Drought,Moderate,Winter,95,1.55,0.08,0.12,0.05,4.5,513500
+Thaba-Tseka,Strong Winds,Critical,Autumn,458,2.58,0.16,0.23,0.09,7.5,16360500
+Mokhotlong,Heavy Rainfall,Critical,Autumn,320,2.78,0.17,0.24,0.1,8.0,12560000
+Berea,Strong Winds,Critical,Autumn,484,2.61,0.1,0.15,0.06,5.5,19035000
+Mohale's Hoek,Heavy Rainfall,Critical,Autumn,447,2.88,0.13,0.19,0.07,6.0,18799000
+Maseru,Drought,Moderate,Spring,151,1.7,0.08,0.12,0.05,4.5,915000
+Mafeteng,Drought,Low,Summer,35,1.63,0.12,0.18,0.07,6.0,245000
+Mafeteng,Drought,Critical,Spring,226,1.61,0.12,0.18,0.07,6.0,1575500
+Quthing,Drought,Critical,Autumn,314,1.62,0.14,0.2,0.08,7.0,2188000
+Mohale's Hoek,Strong Winds,Critical,Winter,315,2.57,0.13,0.19,0.07,6.0,11849500
+Leribe,Drought,Moderate,Summer,171,1.63,0.11,0.16,0.06,5.5,1201500
+Mokhotlong,Strong Winds,Low,Winter,50,2.56,0.17,0.24,0.1,8.0,1704000
+Mokhotlong,Heavy Rainfall,Critical,Autumn,279,2.67,0.17,0.24,0.1,8.0,9559500
+Quthing,Heavy Rainfall,Low,Spring,41,2.66,0.14,0.2,0.08,7.0,1352500
+Maseru,Strong Winds,Moderate,Summer,81,2.65,0.08,0.12,0.05,4.5,2911500
+Quthing,Heavy Rainfall,Low,Winter,46,2.89,0.14,0.2,0.08,7.0,2032500
+Quthing,Strong Winds,Critical,Summer,446,2.67,0.14,0.2,0.08,7.0,16208500
+Thaba-Tseka,Drought,Moderate,Spring,175,1.7,0.16,0.23,0.09,7.5,1254500
+Mokhotlong,Drought,Critical,Autumn,321,1.64,0.17,0.24,0.1,8.0,2253000
+Berea,Strong Winds,Moderate,Autumn,175,2.5,0.1,0.15,0.06,5.5,6030000
+Maseru,Heavy Rainfall,Moderate,Winter,162,2.74,0.08,0.12,0.05,4.5,5889000
+Thaba-Tseka,Strong Winds,Moderate,Summer,92,2.75,0.16,0.23,0.09,7.5,3912000
+Thaba-Tseka,Drought,Moderate,Spring,167,1.62,0.16,0.23,0.09,7.5,1141000
+Thaba-Tseka,Drought,Critical,Summer,339,1.61,0.16,0.23,0.09,7.5,2352000
+Thaba-Tseka,Heavy Rainfall,Critical,Spring,217,2.78,0.16,0.23,0.09,7.5,8671500
+Mafeteng,Heavy Rainfall,Critical,Winter,369,2.79,0.12,0.18,0.07,6.0,14693000
+Leribe,Drought,Critical,Summer,308,1.68,0.11,0.16,0.06,5.5,2009000
+Mafeteng,Drought,Low,Spring,32,1.66,0.12,0.18,0.07,6.0,235000
+Quthing,Heavy Rainfall,Moderate,Winter,141,2.84,0.14,0.2,0.08,7.0,5138500
+Maseru,Drought,Critical,Autumn,224,1.59,0.08,0.12,0.05,4.5,1288500
+Mokhotlong,Drought,Critical,Autumn,300,1.62,0.17,0.24,0.1,8.0,2072000
+Quthing,Heavy Rainfall,Critical,Spring,256,2.75,0.14,0.2,0.08,7.0,9240500
+Qacha's Nek,Heavy Rainfall,Moderate,Spring,91,2.6,0.15,0.22,0.09,7.0,2572000
+Mafeteng,Strong Winds,Moderate,Summer,63,2.67,0.12,0.18,0.07,6.0,2855000
+Butha-Buthe,Strong Winds,Critical,Spring,339,2.6,0.14,0.19,0.08,6.5,12119000
+Maseru,Strong Winds,Critical,Winter,275,2.67,0.08,0.12,0.05,4.5,9662500
+Mohale's Hoek,Strong Winds,Moderate,Autumn,135,2.78,0.13,0.19,0.07,6.0,5087500
+Mokhotlong,Heavy Rainfall,Critical,Spring,219,2.76,0.17,0.24,0.1,8.0,8235000
+Leribe,Strong Winds,Low,Summer,15,2.47,0.11,0.16,0.06,5.5,628500
+Maseru,Heavy Rainfall,Moderate,Autumn,134,2.78,0.08,0.12,0.05,4.5,4286500
+Mafeteng,Strong Winds,Critical,Summer,274,2.57,0.12,0.18,0.07,6.0,10239500
+Berea,Heavy Rainfall,Moderate,Summer,170,2.76,0.1,0.15,0.06,5.5,6156500
+Qacha's Nek,Strong Winds,Critical,Summer,228,2.75,0.15,0.22,0.09,7.0,8944500
+Thaba-Tseka,Drought,Low,Winter,30,1.67,0.16,0.23,0.09,7.5,206000
+Leribe,Strong Winds,Low,Autumn,15,2.93,0.11,0.16,0.06,5.5,522500
+Qacha's Nek,Drought,Moderate,Autumn,93,1.57,0.15,0.22,0.09,7.0,640500
+Mohale's Hoek,Drought,Critical,Spring,236,1.63,0.13,0.19,0.07,6.0,1592500
+Mafeteng,Strong Winds,Low,Spring,37,2.7,0.12,0.18,0.07,6.0,1406500
+Qacha's Nek,Strong Winds,Moderate,Summer,72,2.69,0.15,0.22,0.09,7.0,3246000
+Butha-Buthe,Strong Winds,Critical,Autumn,388,2.62,0.14,0.19,0.08,6.5,15748500
+Berea,Strong Winds,Critical,Winter,215,2.55,0.1,0.15,0.06,5.5,8105500
+Maseru,Heavy Rainfall,Critical,Autumn,366,2.74,0.08,0.12,0.05,4.5,13463000
+Leribe,Drought,Critical,Spring,345,1.54,0.11,0.16,0.06,5.5,2244000
+Leribe,Heavy Rainfall,Critical,Summer,420,2.73,0.11,0.16,0.06,5.5,16223500
+Berea,Strong Winds,Moderate,Spring,151,2.65,0.1,0.15,0.06,5.5,4847500
+Berea,Strong Winds,Critical,Autumn,262,2.6,0.1,0.15,0.06,5.5,9053000
+Mohale's Hoek,Heavy Rainfall,Critical,Autumn,348,2.81,0.13,0.19,0.07,6.0,13319000
+Leribe,Heavy Rainfall,Low,Summer,43,2.65,0.11,0.16,0.06,5.5,1386500
+Mafeteng,Strong Winds,Low,Winter,10,2.4,0.12,0.18,0.07,6.0,420000
+Berea,Strong Winds,Low,Spring,39,2.77,0.1,0.15,0.06,5.5,1303000
+Mafeteng,Heavy Rainfall,Low,Summer,50,2.76,0.12,0.18,0.07,6.0,1660500
+Thaba-Tseka,Strong Winds,Moderate,Spring,107,2.77,0.16,0.23,0.09,7.5,4863000
+Maseru,Strong Winds,Critical,Spring,489,2.66,0.08,0.12,0.05,4.5,19635500
+Berea,Heavy Rainfall,Moderate,Summer,162,2.86,0.1,0.15,0.06,5.5,5822000
+Berea,Heavy Rainfall,Critical,Winter,208,2.8,0.1,0.15,0.06,5.5,7438500
+Thaba-Tseka,Drought,Critical,Winter,218,1.58,0.16,0.23,0.09,7.5,1523500
+Maseru,Drought,Critical,Spring,279,1.58,0.08,0.12,0.05,4.5,1615500
+Berea,Heavy Rainfall,Critical,Summer,234,2.88,0.1,0.15,0.06,5.5,9454500
+Qacha's Nek,Strong Winds,Moderate,Winter,77,2.69,0.15,0.22,0.09,7.0,3234500
+Berea,Heavy Rainfall,Low,Summer,43,2.72,0.1,0.15,0.06,5.5,1577000
+Mohale's Hoek,Heavy Rainfall,Critical,Summer,471,2.83,0.13,0.19,0.07,6.0,19571000
+Mohale's Hoek,Heavy Rainfall,Moderate,Winter,114,2.72,0.13,0.19,0.07,6.0,4730500
+Qacha's Nek,Drought,Low,Winter,23,1.65,0.15,0.22,0.09,7.0,154000
+Thaba-Tseka,Drought,Critical,Winter,318,1.62,0.16,0.23,0.09,7.5,2224500
+Berea,Strong Winds,Critical,Spring,405,2.62,0.1,0.15,0.06,5.5,15463000
+Thaba-Tseka,Drought,Moderate,Winter,144,1.69,0.16,0.23,0.09,7.5,1026500
+Qacha's Nek,Drought,Critical,Winter,496,1.58,0.15,0.22,0.09,7.0,3405500
+Leribe,Heavy Rainfall,Critical,Spring,352,2.79,0.11,0.16,0.06,5.5,13508500
+Thaba-Tseka,Strong Winds,Critical,Autumn,333,2.54,0.16,0.23,0.09,7.5,11955500
+Mokhotlong,Heavy Rainfall,Low,Summer,13,2.62,0.17,0.24,0.1,8.0,426500
+Mohale's Hoek,Strong Winds,Moderate,Spring,109,2.5,0.13,0.19,0.07,6.0,3521000
+Butha-Buthe,Strong Winds,Critical,Winter,453,2.55,0.14,0.19,0.08,6.5,17458000
+Berea,Drought,Moderate,Summer,60,1.58,0.1,0.15,0.06,5.5,398000
+Butha-Buthe,Drought,Low,Spring,22,1.5,0.14,0.19,0.08,6.5,137500
+Quthing,Heavy Rainfall,Low,Winter,35,3.03,0.14,0.2,0.08,7.0,1518500
+Mafeteng,Heavy Rainfall,Moderate,Summer,154,2.86,0.12,0.18,0.07,6.0,6550500
+Mohale's Hoek,Drought,Low,Spring,16,1.75,0.13,0.19,0.07,6.0,117000
+Butha-Buthe,Heavy Rainfall,Moderate,Autumn,111,2.76,0.14,0.19,0.08,6.5,4369000
+Butha-Buthe,Heavy Rainfall,Critical,Summer,301,2.78,0.14,0.19,0.08,6.5,11024000
+Qacha's Nek,Heavy Rainfall,Low,Summer,17,2.71,0.15,0.22,0.09,7.0,472000
+Butha-Buthe,Drought,Critical,Summer,351,1.62,0.14,0.19,0.08,6.5,2464000
+Thaba-Tseka,Heavy Rainfall,Moderate,Autumn,111,2.79,0.16,0.23,0.09,7.5,4051000
+Thaba-Tseka,Drought,Low,Summer,12,2.0,0.16,0.23,0.09,7.5,96500
+Qacha's Nek,Heavy Rainfall,Critical,Winter,213,2.93,0.15,0.22,0.09,7.0,9600000
+Qacha's Nek,Drought,Moderate,Spring,58,1.5,0.15,0.22,0.09,7.0,377500
+Berea,Heavy Rainfall,Critical,Winter,391,2.8,0.1,0.15,0.06,5.5,14750500
+Quthing,Strong Winds,Critical,Spring,308,2.56,0.14,0.2,0.08,7.0,11616500
+Mokhotlong,Heavy Rainfall,Moderate,Winter,103,2.79,0.17,0.24,0.1,8.0,3992500
+Mafeteng,Drought,Low,Winter,15,1.53,0.12,0.18,0.07,6.0,78000
+Butha-Buthe,Strong Winds,Critical,Summer,447,2.68,0.14,0.19,0.08,6.5,18034500
+Leribe,Strong Winds,Critical,Spring,309,2.63,0.11,0.16,0.06,5.5,10516500
+Qacha's Nek,Drought,Moderate,Summer,97,1.65,0.15,0.22,0.09,7.0,686000
+Leribe,Strong Winds,Low,Spring,50,2.6,0.11,0.16,0.06,5.5,2194000
+Quthing,Strong Winds,Moderate,Autumn,109,2.51,0.14,0.2,0.08,7.0,4053000
+Butha-Buthe,Heavy Rainfall,Low,Autumn,37,3.05,0.14,0.19,0.08,6.5,1972000
+Mafeteng,Strong Winds,Low,Spring,21,3.05,0.12,0.18,0.07,6.0,1202000
+Mafeteng,Drought,Critical,Spring,385,1.56,0.12,0.18,0.07,6.0,2602500
+Thaba-Tseka,Heavy Rainfall,Low,Summer,11,2.82,0.16,0.23,0.09,7.5,249000
+Mohale's Hoek,Heavy Rainfall,Moderate,Summer,152,2.8,0.13,0.19,0.07,6.0,6387500
+Leribe,Heavy Rainfall,Low,Winter,12,2.92,0.11,0.16,0.06,5.5,729500
+Thaba-Tseka,Strong Winds,Critical,Summer,435,2.58,0.16,0.23,0.09,7.5,17606500
+Mohale's Hoek,Strong Winds,Low,Winter,39,2.82,0.13,0.19,0.07,6.0,1558000
+Mafeteng,Heavy Rainfall,Low,Winter,14,2.57,0.12,0.18,0.07,6.0,529500
+Quthing,Strong Winds,Low,Autumn,25,2.72,0.14,0.2,0.08,7.0,1040000
+Mohale's Hoek,Heavy Rainfall,Moderate,Autumn,88,2.85,0.13,0.19,0.07,6.0,3869500
+Thaba-Tseka,Drought,Low,Spring,33,1.76,0.16,0.23,0.09,7.5,237500
+Butha-Buthe,Drought,Moderate,Spring,184,1.64,0.14,0.19,0.08,6.5,1362000
+Mafeteng,Drought,Critical,Autumn,405,1.63,0.12,0.18,0.07,6.0,2727500
+Leribe,Heavy Rainfall,Critical,Winter,271,2.85,0.11,0.16,0.06,5.5,10426500
+Butha-Buthe,Drought,Low,Winter,47,1.57,0.14,0.19,0.08,6.5,335000
+Berea,Strong Winds,Moderate,Spring,135,2.61,0.1,0.15,0.06,5.5,5556500
+Leribe,Drought,Critical,Autumn,286,1.69,0.11,0.16,0.06,5.5,1815500
+Mokhotlong,Drought,Moderate,Spring,148,1.66,0.17,0.24,0.1,8.0,1086000
+Mokhotlong,Heavy Rainfall,Moderate,Autumn,126,2.8,0.17,0.24,0.1,8.0,4004500
+Berea,Heavy Rainfall,Moderate,Winter,113,2.65,0.1,0.15,0.06,5.5,4293000
+Maseru,Drought,Low,Autumn,11,1.55,0.08,0.12,0.05,4.5,50000
+Qacha's Nek,Drought,Critical,Winter,297,1.63,0.15,0.22,0.09,7.0,2061500
+Thaba-Tseka,Strong Winds,Moderate,Spring,63,2.48,0.16,0.23,0.09,7.5,2158000
+Mokhotlong,Heavy Rainfall,Low,Winter,48,2.48,0.17,0.24,0.1,8.0,1792500
+Mafeteng,Strong Winds,Critical,Autumn,320,2.66,0.12,0.18,0.07,6.0,12035500
+Butha-Buthe,Strong Winds,Low,Winter,30,2.43,0.14,0.19,0.08,6.5,987500
+Berea,Strong Winds,Moderate,Summer,89,2.45,0.1,0.15,0.06,5.5,2750500
+Thaba-Tseka,Strong Winds,Low,Winter,20,2.45,0.16,0.23,0.09,7.5,493000
+Leribe,Heavy Rainfall,Moderate,Summer,110,2.71,0.11,0.16,0.06,5.5,4390500
+Thaba-Tseka,Drought,Moderate,Spring,125,1.58,0.16,0.23,0.09,7.5,832000
+Qacha's Nek,Heavy Rainfall,Moderate,Autumn,148,2.76,0.15,0.22,0.09,7.0,5116500
+Mokhotlong,Strong Winds,Critical,Spring,250,2.59,0.17,0.24,0.1,8.0,10638500
+Maseru,Drought,Low,Winter,14,1.43,0.08,0.12,0.05,4.5,85500
+Mokhotlong,Drought,Low,Summer,46,1.5,0.17,0.24,0.1,8.0,318000
+Mafeteng,Drought,Low,Winter,36,1.58,0.12,0.18,0.07,6.0,251000
+Maseru,Strong Winds,Moderate,Autumn,116,2.55,0.08,0.12,0.05,4.5,4340500
+Leribe,Heavy Rainfall,Low,Summer,45,2.96,0.11,0.16,0.06,5.5,1875500
+Leribe,Drought,Critical,Spring,405,1.59,0.11,0.16,0.06,5.5,2604500
+Quthing,Drought,Critical,Winter,366,1.59,0.14,0.2,0.08,7.0,2593500
+Qacha's Nek,Strong Winds,Critical,Winter,445,2.56,0.15,0.22,0.09,7.0,16007500
+Maseru,Drought,Critical,Spring,231,1.58,0.08,0.12,0.05,4.5,1401500
+Thaba-Tseka,Strong Winds,Low,Autumn,24,2.75,0.16,0.23,0.09,7.5,902500
+Maseru,Strong Winds,Critical,Autumn,475,2.55,0.08,0.12,0.05,4.5,16555000
+Leribe,Strong Winds,Critical,Spring,369,2.56,0.11,0.16,0.06,5.5,13084500
+Thaba-Tseka,Drought,Critical,Spring,358,1.56,0.16,0.23,0.09,7.5,2501500
+Quthing,Strong Winds,Critical,Winter,392,2.57,0.14,0.2,0.08,7.0,15007500
+Mohale's Hoek,Strong Winds,Critical,Summer,236,2.71,0.13,0.19,0.07,6.0,9925500
+Maseru,Drought,Low,Autumn,17,1.53,0.08,0.12,0.05,4.5,103500
+Mohale's Hoek,Heavy Rainfall,Critical,Autumn,221,2.86,0.13,0.19,0.07,6.0,7897500
+Quthing,Heavy Rainfall,Low,Autumn,20,2.65,0.14,0.2,0.08,7.0,452000
+Leribe,Strong Winds,Low,Winter,19,2.79,0.11,0.16,0.06,5.5,819500
+Mafeteng,Heavy Rainfall,Moderate,Summer,174,2.92,0.12,0.18,0.07,6.0,7794000
+Quthing,Drought,Low,Spring,44,1.52,0.14,0.2,0.08,7.0,299000
+Berea,Drought,Low,Autumn,35,1.63,0.1,0.15,0.06,5.5,229500
+Berea,Drought,Low,Autumn,23,1.7,0.1,0.15,0.06,5.5,169000
+Mohale's Hoek,Heavy Rainfall,Low,Summer,37,2.73,0.13,0.19,0.07,6.0,1316000
+Mokhotlong,Drought,Low,Winter,26,1.62,0.17,0.24,0.1,8.0,174000
+Maseru,Drought,Low,Summer,50,1.54,0.08,0.12,0.05,4.5,297000
+Berea,Drought,Moderate,Winter,129,1.65,0.1,0.15,0.06,5.5,835500
+Quthing,Drought,Critical,Winter,408,1.63,0.14,0.2,0.08,7.0,2834500
+Leribe,Heavy Rainfall,Low,Spring,32,2.75,0.11,0.16,0.06,5.5,1436500
+Mohale's Hoek,Heavy Rainfall,Critical,Autumn,408,2.81,0.13,0.19,0.07,6.0,16198500
+Thaba-Tseka,Drought,Critical,Autumn,488,1.6,0.16,0.23,0.09,7.5,3376000
+Mohale's Hoek,Strong Winds,Critical,Summer,414,2.69,0.13,0.19,0.07,6.0,17782500
+Berea,Drought,Moderate,Autumn,178,1.58,0.1,0.15,0.06,5.5,1192000
+Mokhotlong,Heavy Rainfall,Moderate,Summer,183,2.75,0.17,0.24,0.1,8.0,6646000
+Quthing,Heavy Rainfall,Critical,Autumn,347,2.76,0.14,0.2,0.08,7.0,12169500
+Mohale's Hoek,Heavy Rainfall,Critical,Spring,453,2.85,0.13,0.19,0.07,6.0,18704000
+Quthing,Drought,Low,Winter,44,1.55,0.14,0.2,0.08,7.0,316000
+Mohale's Hoek,Heavy Rainfall,Critical,Summer,413,2.65,0.13,0.19,0.07,6.0,13145500
+Maseru,Heavy Rainfall,Critical,Winter,274,2.73,0.08,0.12,0.05,4.5,9871000
+Qacha's Nek,Drought,Low,Winter,42,1.5,0.15,0.22,0.09,7.0,279500
+Leribe,Drought,Moderate,Summer,178,1.67,0.11,0.16,0.06,5.5,1206500
+Qacha's Nek,Strong Winds,Moderate,Autumn,172,2.61,0.15,0.22,0.09,7.0,6632000
+Maseru,Drought,Low,Spring,22,1.41,0.08,0.12,0.05,4.5,133000
+Mohale's Hoek,Drought,Critical,Spring,496,1.68,0.13,0.19,0.07,6.0,3412500
+Mafeteng,Heavy Rainfall,Moderate,Autumn,198,2.85,0.12,0.18,0.07,6.0,7744500
+Qacha's Nek,Heavy Rainfall,Moderate,Spring,199,2.78,0.15,0.22,0.09,7.0,8100000
+Berea,Drought,Low,Winter,28,1.75,0.1,0.15,0.06,5.5,196500
+Leribe,Drought,Critical,Autumn,385,1.58,0.11,0.16,0.06,5.5,2437500
+Leribe,Strong Winds,Low,Winter,50,2.6,0.11,0.16,0.06,5.5,1593500
+Quthing,Heavy Rainfall,Critical,Winter,332,2.78,0.14,0.2,0.08,7.0,12768500
+Quthing,Drought,Critical,Summer,288,1.57,0.14,0.2,0.08,7.0,1900000
+Quthing,Strong Winds,Moderate,Winter,128,2.58,0.14,0.2,0.08,7.0,4018000
+Thaba-Tseka,Strong Winds,Low,Autumn,11,2.45,0.16,0.23,0.09,7.5,334000
+Mohale's Hoek,Strong Winds,Critical,Spring,233,2.58,0.13,0.19,0.07,6.0,9379500
+Butha-Buthe,Strong Winds,Critical,Winter,484,2.62,0.14,0.19,0.08,6.5,18660500
+Berea,Strong Winds,Critical,Winter,236,2.54,0.1,0.15,0.06,5.5,8416000
+Leribe,Strong Winds,Low,Winter,13,2.0,0.11,0.16,0.06,5.5,348500
+Mokhotlong,Heavy Rainfall,Low,Summer,33,2.79,0.17,0.24,0.1,8.0,1213500
+Mafeteng,Drought,Low,Winter,32,1.72,0.12,0.18,0.07,6.0,223000
+Mohale's Hoek,Strong Winds,Moderate,Autumn,171,2.61,0.13,0.19,0.07,6.0,6998000
+Quthing,Drought,Critical,Summer,479,1.59,0.14,0.2,0.08,7.0,3331000
+Qacha's Nek,Drought,Low,Autumn,45,1.49,0.15,0.22,0.09,7.0,289500
+Qacha's Nek,Drought,Moderate,Spring,94,1.67,0.15,0.22,0.09,7.0,668000
+Mafeteng,Strong Winds,Critical,Summer,291,2.65,0.12,0.18,0.07,6.0,10651000
+Mokhotlong,Drought,Low,Summer,40,1.45,0.17,0.24,0.1,8.0,287500
+Qacha's Nek,Heavy Rainfall,Low,Autumn,31,3.0,0.15,0.22,0.09,7.0,1506500
+Maseru,Drought,Low,Winter,24,1.58,0.08,0.12,0.05,4.5,153000
+Mohale's Hoek,Strong Winds,Low,Summer,10,2.2,0.13,0.19,0.07,6.0,377000
+Quthing,Strong Winds,Moderate,Winter,141,2.77,0.14,0.2,0.08,7.0,6556500
+Butha-Buthe,Heavy Rainfall,Low,Winter,38,2.68,0.14,0.19,0.08,6.5,1096000
+Qacha's Nek,Strong Winds,Low,Spring,34,2.56,0.15,0.22,0.09,7.0,1272000
+Thaba-Tseka,Drought,Critical,Summer,232,1.64,0.16,0.23,0.09,7.5,1665500
+Qacha's Nek,Drought,Moderate,Winter,85,1.66,0.15,0.22,0.09,7.0,590500
+Mohale's Hoek,Strong Winds,Critical,Spring,315,2.51,0.13,0.19,0.07,6.0,11172500
+Maseru,Strong Winds,Low,Spring,35,2.63,0.08,0.12,0.05,4.5,1610000
+Butha-Buthe,Heavy Rainfall,Moderate,Autumn,57,2.82,0.14,0.19,0.08,6.5,2169500
+Berea,Drought,Low,Winter,10,1.7,0.1,0.15,0.06,5.5,73500
+Mokhotlong,Strong Winds,Moderate,Spring,78,2.65,0.17,0.24,0.1,8.0,3252500
+Berea,Heavy Rainfall,Moderate,Autumn,197,2.87,0.1,0.15,0.06,5.5,9002000
+Maseru,Drought,Critical,Autumn,228,1.59,0.08,0.12,0.05,4.5,1333000
+Mafeteng,Heavy Rainfall,Moderate,Spring,169,2.77,0.12,0.18,0.07,6.0,7036500
+Mohale's Hoek,Heavy Rainfall,Moderate,Winter,198,2.82,0.13,0.19,0.07,6.0,8803000
+Berea,Heavy Rainfall,Moderate,Winter,75,2.96,0.1,0.15,0.06,5.5,3285500
+Quthing,Heavy Rainfall,Moderate,Summer,104,2.81,0.14,0.2,0.08,7.0,4227500
+Mokhotlong,Strong Winds,Critical,Summer,364,2.62,0.17,0.24,0.1,8.0,13528000
+Butha-Buthe,Strong Winds,Low,Spring,30,2.67,0.14,0.19,0.08,6.5,1120000
+Quthing,Heavy Rainfall,Low,Spring,49,2.88,0.14,0.2,0.08,7.0,2298000
+Butha-Buthe,Strong Winds,Low,Spring,30,2.77,0.14,0.19,0.08,6.5,1563000
+Thaba-Tseka,Strong Winds,Moderate,Autumn,200,2.69,0.16,0.23,0.09,7.5,6918000
+Leribe,Drought,Critical,Summer,223,1.53,0.11,0.16,0.06,5.5,1391000
+Mokhotlong,Heavy Rainfall,Moderate,Summer,117,2.75,0.17,0.24,0.1,8.0,3268000
+Qacha's Nek,Drought,Moderate,Autumn,52,1.88,0.15,0.22,0.09,7.0,390000
+Quthing,Strong Winds,Critical,Autumn,379,2.59,0.14,0.2,0.08,7.0,13837500
+Mafeteng,Strong Winds,Moderate,Spring,102,2.73,0.12,0.18,0.07,6.0,4271000
+Quthing,Strong Winds,Critical,Autumn,464,2.58,0.14,0.2,0.08,7.0,18460000
+Maseru,Drought,Moderate,Autumn,74,1.69,0.08,0.12,0.05,4.5,421500
+Mafeteng,Strong Winds,Critical,Winter,342,2.65,0.12,0.18,0.07,6.0,12551500
+Mohale's Hoek,Drought,Moderate,Winter,144,1.64,0.13,0.19,0.07,6.0,1042500
+Berea,Drought,Critical,Summer,436,1.58,0.1,0.15,0.06,5.5,2855000
+Qacha's Nek,Drought,Low,Spring,11,1.55,0.15,0.22,0.09,7.0,67500
+Butha-Buthe,Heavy Rainfall,Moderate,Winter,163,2.75,0.14,0.19,0.08,6.5,6124500
+Mohale's Hoek,Drought,Moderate,Spring,130,1.62,0.13,0.19,0.07,6.0,871500
+Quthing,Strong Winds,Moderate,Autumn,57,2.54,0.14,0.2,0.08,7.0,1921000
+Qacha's Nek,Drought,Low,Summer,45,1.64,0.15,0.22,0.09,7.0,312500
+Maseru,Drought,Moderate,Summer,94,1.57,0.08,0.12,0.05,4.5,536000
+Mafeteng,Drought,Critical,Winter,452,1.61,0.12,0.18,0.07,6.0,3042500
+Leribe,Drought,Moderate,Autumn,89,1.62,0.11,0.16,0.06,5.5,606500
+Mohale's Hoek,Strong Winds,Low,Summer,28,2.46,0.13,0.19,0.07,6.0,1012500
+Mohale's Hoek,Strong Winds,Critical,Autumn,428,2.61,0.13,0.19,0.07,6.0,16532500
+Mafeteng,Strong Winds,Moderate,Winter,102,2.63,0.12,0.18,0.07,6.0,4131500
+Leribe,Drought,Moderate,Spring,117,1.63,0.11,0.16,0.06,5.5,783500
+Berea,Strong Winds,Critical,Autumn,399,2.58,0.1,0.15,0.06,5.5,15103000
+Butha-Buthe,Strong Winds,Critical,Spring,265,2.48,0.14,0.19,0.08,6.5,9165000
+Mokhotlong,Strong Winds,Moderate,Winter,185,2.6,0.17,0.24,0.1,8.0,6940000
+Maseru,Drought,Critical,Summer,403,1.59,0.08,0.12,0.05,4.5,2408000
+Mohale's Hoek,Heavy Rainfall,Moderate,Spring,131,2.93,0.13,0.19,0.07,6.0,5950500
+Leribe,Drought,Low,Autumn,38,1.53,0.11,0.16,0.06,5.5,242500
+Mohale's Hoek,Strong Winds,Moderate,Winter,151,2.61,0.13,0.19,0.07,6.0,6056000
+Butha-Buthe,Heavy Rainfall,Low,Summer,16,3.0,0.14,0.19,0.08,6.5,512000
+Butha-Buthe,Drought,Moderate,Winter,105,1.5,0.14,0.19,0.08,6.5,695500
+Mafeteng,Strong Winds,Low,Winter,48,2.5,0.12,0.18,0.07,6.0,1660000
+Mafeteng,Heavy Rainfall,Moderate,Summer,61,2.74,0.12,0.18,0.07,6.0,1881000
+Mohale's Hoek,Strong Winds,Low,Spring,13,2.92,0.13,0.19,0.07,6.0,746500
+Mafeteng,Heavy Rainfall,Critical,Autumn,473,2.85,0.12,0.18,0.07,6.0,20174500
+Qacha's Nek,Strong Winds,Critical,Autumn,262,2.52,0.15,0.22,0.09,7.0,9026500
+Mohale's Hoek,Strong Winds,Moderate,Spring,179,2.65,0.13,0.19,0.07,6.0,6030000
+Butha-Buthe,Drought,Moderate,Summer,84,1.64,0.14,0.19,0.08,6.5,583500
+Qacha's Nek,Drought,Low,Summer,43,1.53,0.15,0.22,0.09,7.0,277000
+Quthing,Strong Winds,Critical,Autumn,304,2.65,0.14,0.2,0.08,7.0,10620000
+Mohale's Hoek,Heavy Rainfall,Critical,Winter,406,2.83,0.13,0.19,0.07,6.0,14878500
+Butha-Buthe,Drought,Critical,Winter,409,1.62,0.14,0.19,0.08,6.5,2868000
+Qacha's Nek,Strong Winds,Low,Autumn,42,2.48,0.15,0.22,0.09,7.0,1492500
+Butha-Buthe,Heavy Rainfall,Moderate,Winter,171,2.85,0.14,0.19,0.08,6.5,7233500
+Butha-Buthe,Drought,Moderate,Winter,139,1.62,0.14,0.19,0.08,6.5,976000
+Leribe,Strong Winds,Moderate,Spring,66,2.61,0.11,0.16,0.06,5.5,2171500
+Thaba-Tseka,Heavy Rainfall,Moderate,Winter,72,2.96,0.16,0.23,0.09,7.5,3162500
+Mafeteng,Heavy Rainfall,Low,Winter,21,2.33,0.12,0.18,0.07,6.0,440500
+Berea,Drought,Low,Summer,15,1.47,0.1,0.15,0.06,5.5,94500
+Mokhotlong,Heavy Rainfall,Critical,Summer,244,2.83,0.17,0.24,0.1,8.0,10114000
+Mafeteng,Heavy Rainfall,Critical,Summer,416,2.82,0.12,0.18,0.07,6.0,17026500
+Mohale's Hoek,Heavy Rainfall,Critical,Summer,394,2.78,0.13,0.19,0.07,6.0,13852500
+Berea,Strong Winds,Low,Spring,39,2.62,0.1,0.15,0.06,5.5,1482000
+Butha-Buthe,Drought,Low,Summer,21,1.86,0.14,0.19,0.08,6.5,151000
+Berea,Strong Winds,Moderate,Summer,52,2.63,0.1,0.15,0.06,5.5,2075000
+Maseru,Strong Winds,Critical,Summer,378,2.65,0.08,0.12,0.05,4.5,14869000
+Qacha's Nek,Strong Winds,Critical,Autumn,371,2.65,0.15,0.22,0.09,7.0,14060000
+Leribe,Heavy Rainfall,Critical,Spring,304,2.79,0.11,0.16,0.06,5.5,10868500
+Leribe,Heavy Rainfall,Critical,Summer,282,2.77,0.11,0.16,0.06,5.5,10791500
+Butha-Buthe,Drought,Critical,Winter,228,1.61,0.14,0.19,0.08,6.5,1534000
+Leribe,Heavy Rainfall,Critical,Autumn,289,2.81,0.11,0.16,0.06,5.5,10806000
+Maseru,Heavy Rainfall,Low,Spring,22,3.23,0.08,0.12,0.05,4.5,1175000
+Mohale's Hoek,Heavy Rainfall,Moderate,Autumn,75,2.96,0.13,0.19,0.07,6.0,3108500
+Qacha's Nek,Drought,Critical,Summer,438,1.57,0.15,0.22,0.09,7.0,2988500
+Butha-Buthe,Drought,Moderate,Winter,52,1.63,0.14,0.19,0.08,6.5,351000
+Butha-Buthe,Drought,Moderate,Summer,97,1.47,0.14,0.19,0.08,6.5,621000
+Maseru,Strong Winds,Moderate,Autumn,104,2.53,0.08,0.12,0.05,4.5,3919000
+Leribe,Heavy Rainfall,Critical,Spring,398,2.82,0.11,0.16,0.06,5.5,16151000
+Thaba-Tseka,Heavy Rainfall,Moderate,Autumn,117,2.82,0.16,0.23,0.09,7.5,4676500
+Leribe,Drought,Critical,Winter,298,1.58,0.11,0.16,0.06,5.5,1969500
+Mohale's Hoek,Drought,Moderate,Spring,67,1.64,0.13,0.19,0.07,6.0,439500
+Mafeteng,Strong Winds,Low,Spring,49,2.47,0.12,0.18,0.07,6.0,1604000
+Leribe,Strong Winds,Critical,Summer,244,2.57,0.11,0.16,0.06,5.5,9260000
+Leribe,Drought,Critical,Winter,284,1.65,0.11,0.16,0.06,5.5,1908500
+Leribe,Drought,Moderate,Winter,140,1.58,0.11,0.16,0.06,5.5,942000
+Maseru,Drought,Moderate,Spring,91,1.67,0.08,0.12,0.05,4.5,564000
+Mohale's Hoek,Strong Winds,Critical,Spring,351,2.51,0.13,0.19,0.07,6.0,12533500
+Maseru,Heavy Rainfall,Critical,Winter,489,2.82,0.08,0.12,0.05,4.5,18705500
+Maseru,Strong Winds,Low,Winter,16,2.44,0.08,0.12,0.05,4.5,536000
+Maseru,Drought,Low,Summer,33,1.58,0.08,0.12,0.05,4.5,216500
+Qacha's Nek,Strong Winds,Critical,Autumn,402,2.49,0.15,0.22,0.09,7.0,13857500
+Mokhotlong,Strong Winds,Critical,Spring,307,2.53,0.17,0.24,0.1,8.0,10118000
+Qacha's Nek,Strong Winds,Critical,Autumn,348,2.57,0.15,0.22,0.09,7.0,13259500
+Quthing,Heavy Rainfall,Critical,Spring,275,2.8,0.14,0.2,0.08,7.0,9872500
+Mokhotlong,Heavy Rainfall,Moderate,Autumn,138,2.76,0.17,0.24,0.1,8.0,5323500
+Mafeteng,Heavy Rainfall,Low,Winter,19,2.79,0.12,0.18,0.07,6.0,731000
+Mokhotlong,Drought,Critical,Winter,486,1.65,0.17,0.24,0.1,8.0,3454000
+Berea,Drought,Critical,Autumn,227,1.59,0.1,0.15,0.06,5.5,1528000
+Qacha's Nek,Drought,Moderate,Winter,114,1.61,0.15,0.22,0.09,7.0,791000
+Thaba-Tseka,Strong Winds,Critical,Spring,306,2.56,0.16,0.23,0.09,7.5,10430000
+Leribe,Strong Winds,Moderate,Winter,81,2.59,0.11,0.16,0.06,5.5,2797000
+Mafeteng,Strong Winds,Critical,Summer,472,2.54,0.12,0.18,0.07,6.0,17476500
+Thaba-Tseka,Strong Winds,Moderate,Spring,115,2.72,0.16,0.23,0.09,7.5,5100000
+Butha-Buthe,Drought,Critical,Summer,469,1.57,0.14,0.19,0.08,6.5,3194500
+Leribe,Strong Winds,Low,Summer,24,2.5,0.11,0.16,0.06,5.5,917000
+Butha-Buthe,Strong Winds,Low,Autumn,33,2.79,0.14,0.19,0.08,6.5,1564500
+Quthing,Drought,Low,Winter,48,1.54,0.14,0.2,0.08,7.0,329500
+Berea,Strong Winds,Moderate,Spring,200,2.62,0.1,0.15,0.06,5.5,7869000
+Mafeteng,Drought,Moderate,Autumn,182,1.57,0.12,0.18,0.07,6.0,1201000
+Leribe,Drought,Critical,Spring,495,1.59,0.11,0.16,0.06,5.5,3269500
+Qacha's Nek,Heavy Rainfall,Critical,Winter,410,2.84,0.15,0.22,0.09,7.0,16347000
+Mokhotlong,Strong Winds,Moderate,Autumn,184,2.5,0.17,0.24,0.1,8.0,7130500
+Mafeteng,Heavy Rainfall,Critical,Winter,489,2.79,0.12,0.18,0.07,6.0,18183500
+Mokhotlong,Strong Winds,Critical,Spring,274,2.62,0.17,0.24,0.1,8.0,9651500
+Quthing,Heavy Rainfall,Critical,Winter,361,2.8,0.14,0.2,0.08,7.0,13851000
+Maseru,Heavy Rainfall,Critical,Spring,337,2.78,0.08,0.12,0.05,4.5,12124500
+Mohale's Hoek,Heavy Rainfall,Low,Winter,43,2.72,0.13,0.19,0.07,6.0,1326500
+Mohale's Hoek,Strong Winds,Critical,Winter,246,2.58,0.13,0.19,0.07,6.0,9229500
+Thaba-Tseka,Drought,Moderate,Summer,148,1.59,0.16,0.23,0.09,7.5,988500
+Berea,Strong Winds,Low,Spring,46,2.87,0.1,0.15,0.06,5.5,2077000
+Maseru,Strong Winds,Moderate,Spring,58,2.52,0.08,0.12,0.05,4.5,1842500
+Quthing,Heavy Rainfall,Moderate,Spring,163,2.82,0.14,0.2,0.08,7.0,6615000
+Mohale's Hoek,Drought,Moderate,Summer,115,1.68,0.13,0.19,0.07,6.0,804500
+Mokhotlong,Heavy Rainfall,Moderate,Summer,73,2.6,0.17,0.24,0.1,8.0,2112500
+Quthing,Strong Winds,Low,Autumn,19,2.74,0.14,0.2,0.08,7.0,738000
+Mokhotlong,Heavy Rainfall,Moderate,Autumn,143,2.8,0.17,0.24,0.1,8.0,5521000
+Mokhotlong,Drought,Moderate,Autumn,83,1.54,0.17,0.24,0.1,8.0,565000
+Thaba-Tseka,Heavy Rainfall,Moderate,Autumn,196,2.74,0.16,0.23,0.09,7.5,7605000
+Mokhotlong,Strong Winds,Critical,Winter,336,2.59,0.17,0.24,0.1,8.0,13693000
+Maseru,Heavy Rainfall,Low,Winter,32,2.81,0.08,0.12,0.05,4.5,1231500
+Quthing,Heavy Rainfall,Low,Summer,42,2.74,0.14,0.2,0.08,7.0,2190500
+Berea,Drought,Critical,Summer,303,1.59,0.1,0.15,0.06,5.5,1982000
+Thaba-Tseka,Strong Winds,Critical,Autumn,296,2.56,0.16,0.23,0.09,7.5,11229500
+Thaba-Tseka,Heavy Rainfall,Moderate,Autumn,145,2.87,0.16,0.23,0.09,7.5,6389500
+Thaba-Tseka,Drought,Moderate,Summer,72,1.68,0.16,0.23,0.09,7.5,526500
+Mafeteng,Heavy Rainfall,Critical,Spring,357,2.72,0.12,0.18,0.07,6.0,12807000
+Quthing,Drought,Critical,Summer,324,1.64,0.14,0.2,0.08,7.0,2316000
+Leribe,Heavy Rainfall,Critical,Spring,393,2.83,0.11,0.16,0.06,5.5,15919500
+Maseru,Drought,Critical,Autumn,493,1.58,0.08,0.12,0.05,4.5,2849500
+Leribe,Drought,Moderate,Summer,99,1.61,0.11,0.16,0.06,5.5,666000
+Butha-Buthe,Drought,Critical,Winter,458,1.65,0.14,0.19,0.08,6.5,3217000
+Mafeteng,Heavy Rainfall,Low,Winter,36,2.75,0.12,0.18,0.07,6.0,1337000
+Maseru,Drought,Moderate,Summer,187,1.53,0.08,0.12,0.05,4.5,1127500
+Thaba-Tseka,Heavy Rainfall,Moderate,Autumn,74,2.96,0.16,0.23,0.09,7.5,2896500
+Mafeteng,Heavy Rainfall,Critical,Winter,470,2.81,0.12,0.18,0.07,6.0,19338500
+Maseru,Strong Winds,Low,Summer,39,2.74,0.08,0.12,0.05,4.5,1653500
+Qacha's Nek,Drought,Moderate,Spring,134,1.53,0.15,0.22,0.09,7.0,947500
+Leribe,Heavy Rainfall,Moderate,Spring,97,2.8,0.11,0.16,0.06,5.5,3745000
+Qacha's Nek,Heavy Rainfall,Critical,Summer,377,2.84,0.15,0.22,0.09,7.0,16241500
+Maseru,Heavy Rainfall,Low,Spring,20,2.85,0.08,0.12,0.05,4.5,787500
+Quthing,Strong Winds,Critical,Summer,358,2.62,0.14,0.2,0.08,7.0,13357000
+Mafeteng,Strong Winds,Low,Spring,31,2.52,0.12,0.18,0.07,6.0,933000
+Quthing,Drought,Low,Summer,17,1.53,0.14,0.2,0.08,7.0,124000
+Qacha's Nek,Strong Winds,Critical,Summer,373,2.59,0.15,0.22,0.09,7.0,15399000
+Mafeteng,Heavy Rainfall,Low,Autumn,40,2.85,0.12,0.18,0.07,6.0,1866000
+Quthing,Strong Winds,Moderate,Winter,169,2.56,0.14,0.2,0.08,7.0,6117500
+Butha-Buthe,Strong Winds,Critical,Spring,451,2.65,0.14,0.19,0.08,6.5,16257500
+Mokhotlong,Strong Winds,Low,Autumn,20,2.55,0.17,0.24,0.1,8.0,671500
+Berea,Drought,Moderate,Summer,106,1.47,0.1,0.15,0.06,5.5,725000
+Mohale's Hoek,Strong Winds,Low,Autumn,37,2.78,0.13,0.19,0.07,6.0,1167500
+Qacha's Nek,Strong Winds,Critical,Summer,239,2.6,0.15,0.22,0.09,7.0,9304000
+Maseru,Drought,Critical,Autumn,296,1.65,0.08,0.12,0.05,4.5,1715000
+Thaba-Tseka,Drought,Moderate,Summer,90,1.58,0.16,0.23,0.09,7.5,626500
+Quthing,Heavy Rainfall,Moderate,Winter,185,2.78,0.14,0.2,0.08,7.0,6961500
+Mohale's Hoek,Drought,Critical,Winter,379,1.63,0.13,0.19,0.07,6.0,2682500
+Qacha's Nek,Strong Winds,Low,Spring,35,2.46,0.15,0.22,0.09,7.0,949000
+Qacha's Nek,Drought,Critical,Spring,387,1.58,0.15,0.22,0.09,7.0,2690500
+Qacha's Nek,Heavy Rainfall,Moderate,Winter,163,2.77,0.15,0.22,0.09,7.0,6126500
+Mokhotlong,Heavy Rainfall,Moderate,Winter,107,2.7,0.17,0.24,0.1,8.0,3537000
+Maseru,Drought,Low,Autumn,40,1.73,0.08,0.12,0.05,4.5,259500
+Mohale's Hoek,Strong Winds,Low,Summer,23,2.65,0.13,0.19,0.07,6.0,796500
+Mohale's Hoek,Heavy Rainfall,Critical,Autumn,222,2.8,0.13,0.19,0.07,6.0,8233000
+Thaba-Tseka,Heavy Rainfall,Moderate,Spring,135,2.93,0.16,0.23,0.09,7.5,6763500
+Butha-Buthe,Heavy Rainfall,Critical,Winter,201,2.74,0.14,0.19,0.08,6.5,7384500
+Berea,Strong Winds,Low,Winter,43,2.67,0.1,0.15,0.06,5.5,1753000
+Leribe,Heavy Rainfall,Low,Winter,34,2.74,0.11,0.16,0.06,5.5,1189500
+Mokhotlong,Strong Winds,Low,Summer,19,2.79,0.17,0.24,0.1,8.0,571500
+Leribe,Drought,Low,Summer,25,1.8,0.11,0.16,0.06,5.5,175500
+Berea,Drought,Critical,Summer,362,1.64,0.1,0.15,0.06,5.5,2402000
+Quthing,Strong Winds,Moderate,Summer,93,2.74,0.14,0.2,0.08,7.0,3802000
+Butha-Buthe,Strong Winds,Moderate,Spring,83,2.51,0.14,0.19,0.08,6.5,2592500
+Berea,Drought,Low,Winter,37,1.76,0.1,0.15,0.06,5.5,237000
+Mohale's Hoek,Heavy Rainfall,Critical,Summer,210,2.8,0.13,0.19,0.07,6.0,8598000
+Maseru,Drought,Critical,Spring,399,1.6,0.08,0.12,0.05,4.5,2334500
+Mafeteng,Strong Winds,Moderate,Autumn,164,2.6,0.12,0.18,0.07,6.0,5951000
+Mokhotlong,Drought,Critical,Summer,250,1.62,0.17,0.24,0.1,8.0,1776000
+Thaba-Tseka,Strong Winds,Moderate,Spring,143,2.45,0.16,0.23,0.09,7.5,4753500
+Mohale's Hoek,Heavy Rainfall,Low,Winter,49,2.84,0.13,0.19,0.07,6.0,1928500
+Mohale's Hoek,Heavy Rainfall,Critical,Summer,440,2.71,0.13,0.19,0.07,6.0,14411000
+Thaba-Tseka,Drought,Moderate,Spring,152,1.68,0.16,0.23,0.09,7.5,1122500
+Berea,Strong Winds,Moderate,Autumn,161,2.57,0.1,0.15,0.06,5.5,6304000
+Mohale's Hoek,Strong Winds,Critical,Autumn,241,2.56,0.13,0.19,0.07,6.0,7878000
+Mohale's Hoek,Heavy Rainfall,Low,Autumn,37,3.05,0.13,0.19,0.07,6.0,1448500
+Thaba-Tseka,Heavy Rainfall,Low,Spring,29,2.76,0.16,0.23,0.09,7.5,878000
+Berea,Drought,Low,Autumn,40,1.65,0.1,0.15,0.06,5.5,259500
+Quthing,Heavy Rainfall,Moderate,Autumn,176,2.67,0.14,0.2,0.08,7.0,6467000
+Mafeteng,Strong Winds,Moderate,Winter,55,2.84,0.12,0.18,0.07,6.0,2586000
+Thaba-Tseka,Strong Winds,Low,Winter,20,2.65,0.16,0.23,0.09,7.5,655500
+Mokhotlong,Heavy Rainfall,Critical,Spring,393,2.8,0.17,0.24,0.1,8.0,14861000
+Quthing,Strong Winds,Moderate,Autumn,127,2.67,0.14,0.2,0.08,7.0,5151000
+Mohale's Hoek,Heavy Rainfall,Low,Spring,38,2.74,0.13,0.19,0.07,6.0,1177000
+Berea,Heavy Rainfall,Low,Summer,30,2.9,0.1,0.15,0.06,5.5,1358500
+Leribe,Drought,Low,Winter,28,1.64,0.11,0.16,0.06,5.5,188000
+Qacha's Nek,Heavy Rainfall,Low,Winter,12,2.92,0.15,0.22,0.09,7.0,677000
+Berea,Heavy Rainfall,Critical,Winter,402,2.77,0.1,0.15,0.06,5.5,15277500
+Thaba-Tseka,Heavy Rainfall,Critical,Spring,478,2.79,0.16,0.23,0.09,7.5,19592000
+Mohale's Hoek,Strong Winds,Moderate,Summer,165,2.58,0.13,0.19,0.07,6.0,6023000
+Quthing,Drought,Critical,Summer,436,1.56,0.14,0.2,0.08,7.0,2961000
+Mafeteng,Heavy Rainfall,Critical,Spring,319,2.88,0.12,0.18,0.07,6.0,12794000
+Maseru,Strong Winds,Moderate,Summer,89,2.65,0.08,0.12,0.05,4.5,3680000
+Berea,Strong Winds,Critical,Winter,400,2.56,0.1,0.15,0.06,5.5,15361500
+Thaba-Tseka,Strong Winds,Critical,Spring,435,2.66,0.16,0.23,0.09,7.5,16970000
+Berea,Heavy Rainfall,Critical,Autumn,293,2.81,0.1,0.15,0.06,5.5,11901500
+Thaba-Tseka,Drought,Moderate,Spring,159,1.69,0.16,0.23,0.09,7.5,1140000
+Maseru,Heavy Rainfall,Moderate,Winter,142,2.87,0.08,0.12,0.05,4.5,6213000
+Maseru,Strong Winds,Critical,Autumn,319,2.62,0.08,0.12,0.05,4.5,12135000
+Quthing,Heavy Rainfall,Low,Winter,28,2.68,0.14,0.2,0.08,7.0,768000
+Thaba-Tseka,Heavy Rainfall,Low,Winter,32,2.94,0.16,0.23,0.09,7.5,1539500
+Leribe,Strong Winds,Low,Winter,46,2.48,0.11,0.16,0.06,5.5,1538000
+Berea,Strong Winds,Low,Autumn,50,2.78,0.1,0.15,0.06,5.5,2034000
+Mokhotlong,Strong Winds,Low,Spring,18,2.72,0.17,0.24,0.1,8.0,973000
+Maseru,Heavy Rainfall,Critical,Autumn,249,2.71,0.08,0.12,0.05,4.5,9521000
+Qacha's Nek,Heavy Rainfall,Critical,Spring,333,2.83,0.15,0.22,0.09,7.0,13103500
+Qacha's Nek,Strong Winds,Moderate,Spring,167,2.59,0.15,0.22,0.09,7.0,6592000
+Thaba-Tseka,Drought,Critical,Autumn,445,1.61,0.16,0.23,0.09,7.5,3081500
+Mokhotlong,Heavy Rainfall,Moderate,Summer,154,2.78,0.17,0.24,0.1,8.0,5833500
+Qacha's Nek,Strong Winds,Critical,Spring,311,2.61,0.15,0.22,0.09,7.0,11674500
+Berea,Heavy Rainfall,Critical,Autumn,392,2.8,0.1,0.15,0.06,5.5,13679000
+Thaba-Tseka,Drought,Low,Winter,33,1.52,0.16,0.23,0.09,7.5,205500
+Thaba-Tseka,Drought,Moderate,Winter,80,1.6,0.16,0.23,0.09,7.5,575000
+Qacha's Nek,Heavy Rainfall,Low,Summer,20,2.85,0.15,0.22,0.09,7.0,846500
+Thaba-Tseka,Drought,Moderate,Autumn,112,1.61,0.16,0.23,0.09,7.5,804000
+Qacha's Nek,Heavy Rainfall,Low,Autumn,37,2.86,0.15,0.22,0.09,7.0,1307000
+Mokhotlong,Heavy Rainfall,Moderate,Winter,146,2.84,0.17,0.24,0.1,8.0,5581500
+Qacha's Nek,Heavy Rainfall,Low,Autumn,24,2.79,0.15,0.22,0.09,7.0,759000
+Mohale's Hoek,Heavy Rainfall,Critical,Summer,455,2.77,0.13,0.19,0.07,6.0,17397500
+Quthing,Drought,Moderate,Winter,53,1.58,0.14,0.2,0.08,7.0,364000
+Quthing,Drought,Moderate,Spring,111,1.6,0.14,0.2,0.08,7.0,790500
+Berea,Drought,Low,Spring,37,1.73,0.1,0.15,0.06,5.5,241000
+Mohale's Hoek,Strong Winds,Moderate,Autumn,154,2.6,0.13,0.19,0.07,6.0,5348000
+Mafeteng,Heavy Rainfall,Moderate,Autumn,117,2.8,0.12,0.18,0.07,6.0,4358000
+Thaba-Tseka,Drought,Moderate,Autumn,75,1.65,0.16,0.23,0.09,7.5,547000
+Butha-Buthe,Drought,Low,Autumn,47,1.74,0.14,0.19,0.08,6.5,337500
+Quthing,Drought,Moderate,Spring,65,1.6,0.14,0.2,0.08,7.0,452500
+Thaba-Tseka,Drought,Critical,Summer,342,1.57,0.16,0.23,0.09,7.5,2385500
+Maseru,Drought,Low,Autumn,21,1.52,0.08,0.12,0.05,4.5,131000
+Maseru,Heavy Rainfall,Critical,Summer,314,2.8,0.08,0.12,0.05,4.5,11796500
+Maseru,Drought,Moderate,Autumn,81,1.62,0.08,0.12,0.05,4.5,475000
+Leribe,Heavy Rainfall,Moderate,Spring,185,2.88,0.11,0.16,0.06,5.5,7975000
+Qacha's Nek,Strong Winds,Critical,Spring,389,2.67,0.15,0.22,0.09,7.0,14702000
+Maseru,Strong Winds,Critical,Summer,399,2.7,0.08,0.12,0.05,4.5,16474000
+Qacha's Nek,Drought,Moderate,Winter,135,1.61,0.15,0.22,0.09,7.0,941000
+Butha-Buthe,Strong Winds,Moderate,Summer,62,2.71,0.14,0.19,0.08,6.5,2659000
+Mokhotlong,Drought,Low,Summer,33,1.7,0.17,0.24,0.1,8.0,250000
+Mohale's Hoek,Strong Winds,Moderate,Spring,91,2.54,0.13,0.19,0.07,6.0,3386500
+Berea,Strong Winds,Critical,Spring,377,2.63,0.1,0.15,0.06,5.5,13296500
+Leribe,Drought,Critical,Winter,476,1.58,0.11,0.16,0.06,5.5,3097500
+Quthing,Strong Winds,Moderate,Winter,98,2.58,0.14,0.2,0.08,7.0,3376000
+Qacha's Nek,Drought,Low,Winter,39,1.72,0.15,0.22,0.09,7.0,290500
+Qacha's Nek,Strong Winds,Critical,Spring,331,2.64,0.15,0.22,0.09,7.0,12371500
+Maseru,Heavy Rainfall,Moderate,Spring,158,2.75,0.08,0.12,0.05,4.5,5734000
+Berea,Strong Winds,Moderate,Summer,83,2.66,0.1,0.15,0.06,5.5,3415000
+Berea,Heavy Rainfall,Moderate,Summer,185,2.82,0.1,0.15,0.06,5.5,6898000
+Qacha's Nek,Drought,Critical,Spring,404,1.65,0.15,0.22,0.09,7.0,2865500
+Butha-Buthe,Drought,Low,Summer,42,1.76,0.14,0.19,0.08,6.5,307500
+Qacha's Nek,Heavy Rainfall,Critical,Winter,494,2.79,0.15,0.22,0.09,7.0,18516000
+Quthing,Heavy Rainfall,Critical,Spring,436,2.77,0.14,0.2,0.08,7.0,17214000
+Quthing,Strong Winds,Critical,Summer,473,2.56,0.14,0.2,0.08,7.0,17446000
+Thaba-Tseka,Drought,Low,Autumn,33,1.58,0.16,0.23,0.09,7.5,235000
+Berea,Strong Winds,Critical,Winter,480,2.55,0.1,0.15,0.06,5.5,17154500
+Leribe,Drought,Critical,Summer,281,1.63,0.11,0.16,0.06,5.5,1794500
+Thaba-Tseka,Heavy Rainfall,Low,Winter,31,2.9,0.16,0.23,0.09,7.5,1005000
+Berea,Drought,Moderate,Summer,178,1.54,0.1,0.15,0.06,5.5,1203500
+Quthing,Strong Winds,Moderate,Winter,142,2.65,0.14,0.2,0.08,7.0,6185000
+Thaba-Tseka,Heavy Rainfall,Low,Spring,28,2.75,0.16,0.23,0.09,7.5,1139500
+Quthing,Strong Winds,Critical,Autumn,396,2.55,0.14,0.2,0.08,7.0,14864500
+Leribe,Heavy Rainfall,Moderate,Autumn,64,2.75,0.11,0.16,0.06,5.5,2512500
+Maseru,Heavy Rainfall,Critical,Winter,208,2.69,0.08,0.12,0.05,4.5,7311000
+Mokhotlong,Heavy Rainfall,Low,Winter,15,2.6,0.17,0.24,0.1,8.0,397000
+Maseru,Heavy Rainfall,Low,Spring,49,2.78,0.08,0.12,0.05,4.5,1882000
+Leribe,Strong Winds,Moderate,Summer,196,2.48,0.11,0.16,0.06,5.5,6599000
+Qacha's Nek,Heavy Rainfall,Critical,Spring,264,2.86,0.15,0.22,0.09,7.0,11333000
+Qacha's Nek,Strong Winds,Moderate,Winter,96,2.65,0.15,0.22,0.09,7.0,3869500
+Maseru,Strong Winds,Critical,Summer,397,2.61,0.08,0.12,0.05,4.5,14516500
+Mokhotlong,Heavy Rainfall,Critical,Summer,353,2.72,0.17,0.24,0.1,8.0,11573000
+Quthing,Heavy Rainfall,Low,Autumn,41,2.73,0.14,0.2,0.08,7.0,1692000
+Leribe,Heavy Rainfall,Low,Autumn,21,2.95,0.11,0.16,0.06,5.5,766500
+Mafeteng,Heavy Rainfall,Moderate,Autumn,81,2.88,0.12,0.18,0.07,6.0,3920000
+Maseru,Strong Winds,Low,Spring,47,2.51,0.08,0.12,0.05,4.5,1807500
+Mokhotlong,Drought,Moderate,Winter,97,1.52,0.17,0.24,0.1,8.0,679500
+Leribe,Strong Winds,Critical,Spring,317,2.62,0.11,0.16,0.06,5.5,12494500
+Mafeteng,Drought,Critical,Spring,358,1.58,0.12,0.18,0.07,6.0,2396500
+Mokhotlong,Strong Winds,Low,Spring,18,2.39,0.17,0.24,0.1,8.0,581000
+Mafeteng,Drought,Critical,Summer,301,1.61,0.12,0.18,0.07,6.0,2023500
+Mohale's Hoek,Strong Winds,Moderate,Autumn,79,2.77,0.13,0.19,0.07,6.0,3488000
+Maseru,Heavy Rainfall,Moderate,Summer,137,2.78,0.08,0.12,0.05,4.5,5240000
+Thaba-Tseka,Heavy Rainfall,Critical,Winter,372,2.74,0.16,0.23,0.09,7.5,14505500
+Berea,Heavy Rainfall,Low,Spring,43,2.84,0.1,0.15,0.06,5.5,1155500
+Maseru,Heavy Rainfall,Critical,Winter,231,2.89,0.08,0.12,0.05,4.5,9009000
+Berea,Drought,Critical,Spring,362,1.58,0.1,0.15,0.06,5.5,2399500
+Maseru,Strong Winds,Moderate,Autumn,64,2.52,0.08,0.12,0.05,4.5,2444000
+Mokhotlong,Strong Winds,Moderate,Spring,185,2.58,0.17,0.24,0.1,8.0,6863500
+Qacha's Nek,Strong Winds,Critical,Spring,473,2.54,0.15,0.22,0.09,7.0,16735000
+Qacha's Nek,Strong Winds,Critical,Spring,298,2.67,0.15,0.22,0.09,7.0,12597500
+Mafeteng,Heavy Rainfall,Critical,Winter,306,2.76,0.12,0.18,0.07,6.0,11518000
+Qacha's Nek,Heavy Rainfall,Critical,Winter,415,2.83,0.15,0.22,0.09,7.0,15048000
+Leribe,Heavy Rainfall,Low,Spring,26,2.96,0.11,0.16,0.06,5.5,1141500
+Mokhotlong,Heavy Rainfall,Moderate,Autumn,164,2.77,0.17,0.24,0.1,8.0,6217000
+Thaba-Tseka,Heavy Rainfall,Critical,Spring,417,2.77,0.16,0.23,0.09,7.5,16678000
+Maseru,Drought,Critical,Winter,350,1.59,0.08,0.12,0.05,4.5,2103500
+Butha-Buthe,Strong Winds,Low,Winter,34,2.47,0.14,0.19,0.08,6.5,1005000
+Qacha's Nek,Drought,Moderate,Winter,123,1.63,0.15,0.22,0.09,7.0,863000
+Mokhotlong,Drought,Low,Autumn,40,1.6,0.17,0.24,0.1,8.0,287000
+Butha-Buthe,Heavy Rainfall,Critical,Autumn,484,2.77,0.14,0.19,0.08,6.5,18198500
+Qacha's Nek,Drought,Moderate,Autumn,130,1.59,0.15,0.22,0.09,7.0,947500
+Maseru,Drought,Moderate,Winter,91,1.7,0.08,0.12,0.05,4.5,557000
+Mohale's Hoek,Drought,Critical,Autumn,417,1.63,0.13,0.19,0.07,6.0,2869500
+Butha-Buthe,Strong Winds,Moderate,Autumn,98,2.53,0.14,0.19,0.08,6.5,3111500
+Quthing,Drought,Critical,Spring,487,1.57,0.14,0.2,0.08,7.0,3310500
+Butha-Buthe,Heavy Rainfall,Moderate,Autumn,56,2.84,0.14,0.19,0.08,6.5,2202000
+Quthing,Drought,Low,Winter,38,1.45,0.14,0.2,0.08,7.0,224500
+Maseru,Heavy Rainfall,Low,Summer,19,2.89,0.08,0.12,0.05,4.5,992000
+Maseru,Heavy Rainfall,Low,Winter,49,2.55,0.08,0.12,0.05,4.5,1941000
+Maseru,Strong Winds,Moderate,Winter,83,2.54,0.08,0.12,0.05,4.5,2907000
+Leribe,Drought,Critical,Spring,233,1.61,0.11,0.16,0.06,5.5,1458500
+Qacha's Nek,Heavy Rainfall,Moderate,Winter,133,2.77,0.15,0.22,0.09,7.0,4504500
+Qacha's Nek,Drought,Critical,Summer,480,1.61,0.15,0.22,0.09,7.0,3311000
+Leribe,Strong Winds,Critical,Winter,498,2.62,0.11,0.16,0.06,5.5,19379500
+Butha-Buthe,Drought,Critical,Summer,482,1.6,0.14,0.19,0.08,6.5,3343500
+Mafeteng,Heavy Rainfall,Low,Autumn,44,2.8,0.12,0.18,0.07,6.0,1736500
+Qacha's Nek,Heavy Rainfall,Moderate,Spring,192,2.82,0.15,0.22,0.09,7.0,8460500
+Berea,Heavy Rainfall,Moderate,Autumn,111,2.92,0.1,0.15,0.06,5.5,4716500
+Qacha's Nek,Heavy Rainfall,Low,Autumn,14,2.79,0.15,0.22,0.09,7.0,864500
+Qacha's Nek,Heavy Rainfall,Low,Summer,27,2.96,0.15,0.22,0.09,7.0,1272500
+Maseru,Heavy Rainfall,Moderate,Winter,102,2.75,0.08,0.12,0.05,4.5,2751000
+Thaba-Tseka,Heavy Rainfall,Low,Spring,40,2.88,0.16,0.23,0.09,7.5,1998000
+Quthing,Heavy Rainfall,Critical,Autumn,320,2.83,0.14,0.2,0.08,7.0,13136500
+Mohale's Hoek,Drought,Critical,Winter,312,1.55,0.13,0.19,0.07,6.0,2163000
+Leribe,Drought,Moderate,Summer,134,1.59,0.11,0.16,0.06,5.5,866000
+Thaba-Tseka,Heavy Rainfall,Critical,Winter,382,2.9,0.16,0.23,0.09,7.5,16786500
+Qacha's Nek,Strong Winds,Low,Winter,14,2.5,0.15,0.22,0.09,7.0,409000
+Thaba-Tseka,Drought,Critical,Winter,323,1.57,0.16,0.23,0.09,7.5,2258000
+Thaba-Tseka,Strong Winds,Moderate,Autumn,159,2.49,0.16,0.23,0.09,7.5,5388000
+Mafeteng,Strong Winds,Moderate,Autumn,131,2.63,0.12,0.18,0.07,6.0,4553000
+Berea,Strong Winds,Low,Summer,21,2.62,0.1,0.15,0.06,5.5,713500
+Maseru,Drought,Critical,Winter,343,1.64,0.08,0.12,0.05,4.5,2090500
+Mokhotlong,Heavy Rainfall,Moderate,Spring,88,2.97,0.17,0.24,0.1,8.0,4079000
+Mohale's Hoek,Strong Winds,Low,Autumn,27,3.04,0.13,0.19,0.07,6.0,1477000
+Quthing,Heavy Rainfall,Low,Winter,49,2.78,0.14,0.2,0.08,7.0,1772500
+Butha-Buthe,Heavy Rainfall,Low,Spring,25,2.96,0.14,0.19,0.08,6.5,1174000
+Butha-Buthe,Drought,Low,Autumn,21,1.67,0.14,0.19,0.08,6.5,149000
+Mohale's Hoek,Heavy Rainfall,Critical,Winter,339,2.81,0.13,0.19,0.07,6.0,13191500
+Maseru,Strong Winds,Moderate,Winter,198,2.61,0.08,0.12,0.05,4.5,6901500
+Mokhotlong,Strong Winds,Low,Summer,46,2.33,0.17,0.24,0.1,8.0,1400000
+Thaba-Tseka,Drought,Low,Winter,48,1.81,0.16,0.23,0.09,7.5,342000
+Thaba-Tseka,Heavy Rainfall,Critical,Autumn,339,2.79,0.16,0.23,0.09,7.5,14460000
+Mafeteng,Strong Winds,Low,Spring,34,2.53,0.12,0.18,0.07,6.0,1426500
+Berea,Heavy Rainfall,Moderate,Winter,72,2.9,0.1,0.15,0.06,5.5,2925000
+Maseru,Drought,Low,Autumn,42,1.64,0.08,0.12,0.05,4.5,262000
+Mohale's Hoek,Drought,Moderate,Spring,176,1.68,0.13,0.19,0.07,6.0,1195500
+Butha-Buthe,Strong Winds,Critical,Winter,439,2.64,0.14,0.19,0.08,6.5,16495000
+Leribe,Strong Winds,Low,Winter,23,2.43,0.11,0.16,0.06,5.5,680000
+Mokhotlong,Drought,Low,Winter,48,1.65,0.17,0.24,0.1,8.0,330500
+Mafeteng,Strong Winds,Moderate,Spring,154,2.75,0.12,0.18,0.07,6.0,6298000
+Thaba-Tseka,Heavy Rainfall,Low,Summer,39,3.03,0.16,0.23,0.09,7.5,2013500
+Leribe,Heavy Rainfall,Moderate,Winter,63,2.92,0.11,0.16,0.06,5.5,2440000
+Quthing,Strong Winds,Moderate,Autumn,95,2.51,0.14,0.2,0.08,7.0,3400000
+Mohale's Hoek,Heavy Rainfall,Critical,Spring,389,2.77,0.13,0.19,0.07,6.0,14403000
+Mohale's Hoek,Heavy Rainfall,Moderate,Summer,110,2.75,0.13,0.19,0.07,6.0,4584000
+Mokhotlong,Heavy Rainfall,Low,Summer,39,2.72,0.17,0.24,0.1,8.0,1606000
+Thaba-Tseka,Heavy Rainfall,Critical,Autumn,250,2.81,0.16,0.23,0.09,7.5,10077500
+Leribe,Strong Winds,Critical,Spring,298,2.65,0.11,0.16,0.06,5.5,11401500
+Butha-Buthe,Drought,Moderate,Summer,127,1.71,0.14,0.19,0.08,6.5,867500
+Mafeteng,Heavy Rainfall,Moderate,Winter,61,2.79,0.12,0.18,0.07,6.0,2231000
+Mohale's Hoek,Drought,Low,Winter,31,1.68,0.13,0.19,0.07,6.0,207500
+Thaba-Tseka,Strong Winds,Critical,Winter,313,2.62,0.16,0.23,0.09,7.5,12254000
+Mohale's Hoek,Heavy Rainfall,Critical,Spring,323,2.84,0.13,0.19,0.07,6.0,13340500
+Mokhotlong,Drought,Critical,Autumn,405,1.62,0.17,0.24,0.1,8.0,2843500
+Leribe,Heavy Rainfall,Moderate,Autumn,129,2.71,0.11,0.16,0.06,5.5,4452500
+Thaba-Tseka,Strong Winds,Moderate,Spring,115,2.65,0.16,0.23,0.09,7.5,4308000
+Leribe,Drought,Low,Autumn,18,1.5,0.11,0.16,0.06,5.5,101500
+Berea,Drought,Moderate,Winter,172,1.56,0.1,0.15,0.06,5.5,1082500
+Thaba-Tseka,Drought,Low,Autumn,48,1.48,0.16,0.23,0.09,7.5,338000
+Thaba-Tseka,Heavy Rainfall,Critical,Autumn,206,2.84,0.16,0.23,0.09,7.5,8488500
+Maseru,Strong Winds,Low,Autumn,33,2.64,0.08,0.12,0.05,4.5,1209500
+Maseru,Heavy Rainfall,Moderate,Autumn,92,2.67,0.08,0.12,0.05,4.5,3521000
+Mafeteng,Drought,Moderate,Spring,142,1.61,0.12,0.18,0.07,6.0,966500
+Mafeteng,Strong Winds,Moderate,Autumn,150,2.69,0.12,0.18,0.07,6.0,5191500
+Leribe,Drought,Low,Autumn,50,1.74,0.11,0.16,0.06,5.5,343000
+Quthing,Heavy Rainfall,Low,Spring,30,2.57,0.14,0.2,0.08,7.0,985500
+Maseru,Heavy Rainfall,Moderate,Autumn,164,2.83,0.08,0.12,0.05,4.5,6182000
+Butha-Buthe,Heavy Rainfall,Critical,Winter,486,2.74,0.14,0.19,0.08,6.5,16655000
+Maseru,Drought,Low,Summer,11,1.55,0.08,0.12,0.05,4.5,61000
+Qacha's Nek,Heavy Rainfall,Critical,Summer,241,2.81,0.15,0.22,0.09,7.0,9899000
+Maseru,Heavy Rainfall,Low,Autumn,34,2.71,0.08,0.12,0.05,4.5,922500
+Leribe,Strong Winds,Moderate,Spring,86,2.66,0.11,0.16,0.06,5.5,3685000
+Maseru,Strong Winds,Critical,Summer,495,2.6,0.08,0.12,0.05,4.5,18459000
+Berea,Drought,Critical,Spring,358,1.62,0.1,0.15,0.06,5.5,2325500
+Leribe,Drought,Moderate,Winter,168,1.68,0.11,0.16,0.06,5.5,1134000
+Thaba-Tseka,Heavy Rainfall,Low,Spring,30,2.6,0.16,0.23,0.09,7.5,1026500
+Mokhotlong,Heavy Rainfall,Low,Autumn,43,2.65,0.17,0.24,0.1,8.0,1325000
+Mohale's Hoek,Heavy Rainfall,Critical,Winter,433,2.8,0.13,0.19,0.07,6.0,16345500
+Qacha's Nek,Strong Winds,Low,Winter,12,2.75,0.15,0.22,0.09,7.0,502000
+Berea,Heavy Rainfall,Low,Autumn,38,2.89,0.1,0.15,0.06,5.5,1662000
+Mokhotlong,Strong Winds,Low,Autumn,10,2.9,0.17,0.24,0.1,8.0,524500
+Maseru,Strong Winds,Low,Autumn,19,2.79,0.08,0.12,0.05,4.5,862500
+Leribe,Drought,Low,Winter,16,1.56,0.11,0.16,0.06,5.5,95500
+Leribe,Strong Winds,Critical,Autumn,422,2.6,0.11,0.16,0.06,5.5,15487000
+Butha-Buthe,Strong Winds,Low,Spring,10,2.4,0.14,0.19,0.08,6.5,484000
+Butha-Buthe,Strong Winds,Moderate,Summer,171,2.65,0.14,0.19,0.08,6.5,7471500
+Quthing,Heavy Rainfall,Moderate,Autumn,153,2.69,0.14,0.2,0.08,7.0,6259500
+Maseru,Drought,Moderate,Winter,71,1.63,0.08,0.12,0.05,4.5,433000
+Thaba-Tseka,Strong Winds,Moderate,Spring,69,2.57,0.16,0.23,0.09,7.5,2297000
+Butha-Buthe,Strong Winds,Low,Autumn,29,2.41,0.14,0.19,0.08,6.5,719500
+Mokhotlong,Strong Winds,Low,Winter,37,2.65,0.17,0.24,0.1,8.0,1460000
+Leribe,Strong Winds,Moderate,Spring,95,2.66,0.11,0.16,0.06,5.5,4019500
+Maseru,Strong Winds,Low,Winter,27,2.52,0.08,0.12,0.05,4.5,998500
+Berea,Heavy Rainfall,Low,Winter,42,2.79,0.1,0.15,0.06,5.5,1541000
+Maseru,Drought,Low,Winter,34,1.85,0.08,0.12,0.05,4.5,226500
+Leribe,Drought,Low,Spring,48,1.54,0.11,0.16,0.06,5.5,303500
+Thaba-Tseka,Heavy Rainfall,Moderate,Autumn,81,2.72,0.16,0.23,0.09,7.5,3193000
+Mafeteng,Strong Winds,Moderate,Summer,93,2.59,0.12,0.18,0.07,6.0,3589500
+Mafeteng,Drought,Low,Autumn,30,1.7,0.12,0.18,0.07,6.0,211000
+Mokhotlong,Strong Winds,Low,Summer,48,2.62,0.17,0.24,0.1,8.0,2229500
+Quthing,Drought,Moderate,Autumn,132,1.67,0.14,0.2,0.08,7.0,920000
+Berea,Strong Winds,Moderate,Summer,179,2.56,0.1,0.15,0.06,5.5,7016000
+Maseru,Strong Winds,Low,Winter,36,2.5,0.08,0.12,0.05,4.5,1419000
+Mafeteng,Strong Winds,Low,Summer,23,2.39,0.12,0.18,0.07,6.0,713000
+Qacha's Nek,Strong Winds,Moderate,Winter,136,2.57,0.15,0.22,0.09,7.0,4843000
+Mohale's Hoek,Drought,Low,Spring,10,2.0,0.13,0.19,0.07,6.0,77000
+Mafeteng,Heavy Rainfall,Critical,Winter,325,2.75,0.12,0.18,0.07,6.0,11931000
+Qacha's Nek,Drought,Low,Spring,21,1.67,0.15,0.22,0.09,7.0,126500
+Berea,Strong Winds,Critical,Autumn,248,2.62,0.1,0.15,0.06,5.5,9222500
+Qacha's Nek,Strong Winds,Critical,Winter,371,2.53,0.15,0.22,0.09,7.0,12277500
+Qacha's Nek,Drought,Moderate,Autumn,123,1.63,0.15,0.22,0.09,7.0,844000
+Maseru,Strong Winds,Low,Autumn,40,2.65,0.08,0.12,0.05,4.5,1536000
+Quthing,Heavy Rainfall,Critical,Winter,248,2.85,0.14,0.2,0.08,7.0,11315500
+Butha-Buthe,Drought,Low,Spring,35,1.66,0.14,0.19,0.08,6.5,230500
+Mohale's Hoek,Strong Winds,Critical,Autumn,487,2.59,0.13,0.19,0.07,6.0,17538000
+Thaba-Tseka,Strong Winds,Moderate,Autumn,132,2.48,0.16,0.23,0.09,7.5,4461500
+Leribe,Heavy Rainfall,Low,Summer,33,3.06,0.11,0.16,0.06,5.5,1320500
+Leribe,Drought,Low,Autumn,19,1.63,0.11,0.16,0.06,5.5,123500
+Berea,Strong Winds,Critical,Autumn,286,2.73,0.1,0.15,0.06,5.5,11866500
+Quthing,Strong Winds,Critical,Summer,437,2.64,0.14,0.2,0.08,7.0,16616000
+Thaba-Tseka,Heavy Rainfall,Low,Autumn,30,2.63,0.16,0.23,0.09,7.5,634500
+Mohale's Hoek,Drought,Moderate,Autumn,141,1.56,0.13,0.19,0.07,6.0,978500
+Maseru,Drought,Low,Winter,17,1.71,0.08,0.12,0.05,4.5,91500
+Thaba-Tseka,Heavy Rainfall,Low,Winter,10,3.2,0.16,0.23,0.09,7.5,364500
+Mohale's Hoek,Heavy Rainfall,Low,Summer,11,3.0,0.13,0.19,0.07,6.0,468000
+Quthing,Drought,Low,Autumn,38,1.58,0.14,0.2,0.08,7.0,255000
+Berea,Strong Winds,Critical,Spring,275,2.63,0.1,0.15,0.06,5.5,10721500
+Mokhotlong,Heavy Rainfall,Low,Summer,22,2.91,0.17,0.24,0.1,8.0,909500
+Qacha's Nek,Heavy Rainfall,Low,Autumn,28,2.86,0.15,0.22,0.09,7.0,1072500
+Quthing,Drought,Moderate,Spring,171,1.56,0.14,0.2,0.08,7.0,1196500
+Mohale's Hoek,Strong Winds,Low,Winter,19,2.53,0.13,0.19,0.07,6.0,626500
+Thaba-Tseka,Strong Winds,Moderate,Autumn,111,2.62,0.16,0.23,0.09,7.5,3846500
+Maseru,Strong Winds,Low,Spring,35,2.37,0.08,0.12,0.05,4.5,921000
+Mokhotlong,Strong Winds,Critical,Spring,305,2.55,0.17,0.24,0.1,8.0,11978500
+Quthing,Drought,Moderate,Summer,80,1.66,0.14,0.2,0.08,7.0,546000
+Maseru,Strong Winds,Low,Winter,25,2.4,0.08,0.12,0.05,4.5,645500
+Berea,Heavy Rainfall,Moderate,Spring,172,2.81,0.1,0.15,0.06,5.5,6967500
+Thaba-Tseka,Drought,Low,Spring,20,1.45,0.16,0.23,0.09,7.5,141000
+Mafeteng,Strong Winds,Moderate,Spring,176,2.62,0.12,0.18,0.07,6.0,6813000
+Mokhotlong,Drought,Critical,Winter,302,1.58,0.17,0.24,0.1,8.0,2031500
+Maseru,Strong Winds,Low,Winter,34,2.62,0.08,0.12,0.05,4.5,1281000
+Mafeteng,Strong Winds,Critical,Summer,414,2.6,0.12,0.18,0.07,6.0,14808500
+Quthing,Heavy Rainfall,Low,Spring,15,2.53,0.14,0.2,0.08,7.0,558500
+Quthing,Strong Winds,Moderate,Summer,55,2.44,0.14,0.2,0.08,7.0,2256000
+Mafeteng,Heavy Rainfall,Critical,Summer,447,2.74,0.12,0.18,0.07,6.0,16123500
+Qacha's Nek,Strong Winds,Moderate,Winter,125,2.54,0.15,0.22,0.09,7.0,4244000
+Berea,Strong Winds,Moderate,Spring,170,2.59,0.1,0.15,0.06,5.5,6430500
+Quthing,Heavy Rainfall,Low,Summer,22,3.0,0.14,0.2,0.08,7.0,1375500
+Qacha's Nek,Drought,Moderate,Winter,94,1.54,0.15,0.22,0.09,7.0,615500
+Leribe,Drought,Low,Spring,17,1.24,0.11,0.16,0.06,5.5,97500
+Mohale's Hoek,Heavy Rainfall,Critical,Spring,459,2.79,0.13,0.19,0.07,6.0,17392500
+Mokhotlong,Drought,Low,Autumn,30,1.7,0.17,0.24,0.1,8.0,204000
+Qacha's Nek,Heavy Rainfall,Low,Summer,46,2.85,0.15,0.22,0.09,7.0,1734000
+Mohale's Hoek,Drought,Low,Autumn,22,1.82,0.13,0.19,0.07,6.0,157500
+Berea,Drought,Moderate,Spring,91,1.59,0.1,0.15,0.06,5.5,618500
+Mohale's Hoek,Heavy Rainfall,Critical,Winter,447,2.81,0.13,0.19,0.07,6.0,18199500
+Maseru,Drought,Moderate,Spring,145,1.59,0.08,0.12,0.05,4.5,865500
+Mohale's Hoek,Strong Winds,Moderate,Autumn,156,2.52,0.13,0.19,0.07,6.0,5607000
+Mafeteng,Heavy Rainfall,Low,Summer,34,2.82,0.12,0.18,0.07,6.0,1314000
+Thaba-Tseka,Drought,Critical,Summer,338,1.58,0.16,0.23,0.09,7.5,2379000
+Quthing,Drought,Moderate,Autumn,184,1.56,0.14,0.2,0.08,7.0,1287000
+Mokhotlong,Drought,Moderate,Winter,55,1.47,0.17,0.24,0.1,8.0,363500
+Quthing,Heavy Rainfall,Critical,Spring,349,2.79,0.14,0.2,0.08,7.0,13516500
+Quthing,Drought,Low,Winter,10,1.4,0.14,0.2,0.08,7.0,69000
+Quthing,Strong Winds,Critical,Autumn,476,2.65,0.14,0.2,0.08,7.0,19718000
+Mohale's Hoek,Heavy Rainfall,Critical,Winter,335,2.73,0.13,0.19,0.07,6.0,12354500
+Mokhotlong,Drought,Low,Winter,13,1.31,0.17,0.24,0.1,8.0,80500
+Quthing,Drought,Critical,Spring,482,1.61,0.14,0.2,0.08,7.0,3397500
+Butha-Buthe,Heavy Rainfall,Low,Spring,23,2.87,0.14,0.19,0.08,6.5,1141500
+Qacha's Nek,Drought,Critical,Spring,446,1.61,0.15,0.22,0.09,7.0,3145500
+Quthing,Strong Winds,Critical,Spring,469,2.74,0.14,0.2,0.08,7.0,19533000
+Qacha's Nek,Drought,Moderate,Summer,167,1.65,0.15,0.22,0.09,7.0,1155000
+Thaba-Tseka,Heavy Rainfall,Low,Summer,25,2.68,0.16,0.23,0.09,7.5,679500
+Butha-Buthe,Heavy Rainfall,Moderate,Autumn,93,2.7,0.14,0.19,0.08,6.5,2754500
+Butha-Buthe,Heavy Rainfall,Low,Spring,40,2.55,0.14,0.19,0.08,6.5,1030500
+Mohale's Hoek,Strong Winds,Low,Winter,15,2.27,0.13,0.19,0.07,6.0,428000
+Berea,Heavy Rainfall,Critical,Winter,386,2.8,0.1,0.15,0.06,5.5,14033500
+Mafeteng,Strong Winds,Critical,Winter,212,2.69,0.12,0.18,0.07,6.0,7805500
+Mohale's Hoek,Drought,Moderate,Autumn,140,1.62,0.13,0.19,0.07,6.0,962500
+Leribe,Strong Winds,Critical,Winter,377,2.66,0.11,0.16,0.06,5.5,14419500
+Qacha's Nek,Drought,Critical,Autumn,465,1.6,0.15,0.22,0.09,7.0,3198500
+Qacha's Nek,Drought,Critical,Autumn,416,1.62,0.15,0.22,0.09,7.0,2933000
+Quthing,Heavy Rainfall,Critical,Winter,411,2.79,0.14,0.2,0.08,7.0,17723500
+Thaba-Tseka,Strong Winds,Low,Winter,18,2.39,0.16,0.23,0.09,7.5,827000
+Qacha's Nek,Heavy Rainfall,Moderate,Winter,89,2.66,0.15,0.22,0.09,7.0,2799500
+Mohale's Hoek,Drought,Critical,Winter,291,1.6,0.13,0.19,0.07,6.0,1969500
+Mohale's Hoek,Heavy Rainfall,Moderate,Spring,183,2.84,0.13,0.19,0.07,6.0,7065000
+Butha-Buthe,Heavy Rainfall,Critical,Autumn,353,2.8,0.14,0.19,0.08,6.5,13346500
+Mokhotlong,Strong Winds,Low,Spring,10,2.1,0.17,0.24,0.1,8.0,104500
+Mafeteng,Heavy Rainfall,Moderate,Autumn,73,2.79,0.12,0.18,0.07,6.0,2334000
+Mokhotlong,Heavy Rainfall,Critical,Spring,444,2.83,0.17,0.24,0.1,8.0,17843500
+Mohale's Hoek,Strong Winds,Moderate,Spring,83,2.76,0.13,0.19,0.07,6.0,3175500
+Butha-Buthe,Drought,Critical,Autumn,210,1.64,0.14,0.19,0.08,6.5,1482000
+Mafeteng,Strong Winds,Moderate,Autumn,136,2.64,0.12,0.18,0.07,6.0,4593000
+Leribe,Strong Winds,Moderate,Winter,87,2.57,0.11,0.16,0.06,5.5,3391000
+Qacha's Nek,Strong Winds,Moderate,Spring,87,2.82,0.15,0.22,0.09,7.0,4218500
+Mokhotlong,Strong Winds,Moderate,Winter,192,2.59,0.17,0.24,0.1,8.0,7681500
+Qacha's Nek,Strong Winds,Moderate,Autumn,105,2.61,0.15,0.22,0.09,7.0,4213000
+Mafeteng,Heavy Rainfall,Critical,Autumn,264,2.81,0.12,0.18,0.07,6.0,10028500
+Mafeteng,Heavy Rainfall,Critical,Winter,348,2.73,0.12,0.18,0.07,6.0,13364500
+Leribe,Strong Winds,Low,Spring,47,2.6,0.11,0.16,0.06,5.5,2279000
+Qacha's Nek,Heavy Rainfall,Critical,Winter,363,2.81,0.15,0.22,0.09,7.0,13547000
+Qacha's Nek,Strong Winds,Low,Autumn,43,2.77,0.15,0.22,0.09,7.0,1771000
+Quthing,Drought,Low,Spring,42,1.6,0.14,0.2,0.08,7.0,286000
+Quthing,Strong Winds,Low,Summer,43,2.63,0.14,0.2,0.08,7.0,1570500
+Qacha's Nek,Drought,Critical,Spring,326,1.52,0.15,0.22,0.09,7.0,2184500
+Leribe,Heavy Rainfall,Moderate,Summer,105,2.85,0.11,0.16,0.06,5.5,4668000
+Qacha's Nek,Strong Winds,Low,Autumn,49,2.33,0.15,0.22,0.09,7.0,1674500
+Mohale's Hoek,Heavy Rainfall,Low,Autumn,33,2.94,0.13,0.19,0.07,6.0,1612500
+Thaba-Tseka,Heavy Rainfall,Critical,Winter,476,2.8,0.16,0.23,0.09,7.5,17397000
+Mohale's Hoek,Heavy Rainfall,Moderate,Autumn,189,2.87,0.13,0.19,0.07,6.0,8612000
+Butha-Buthe,Heavy Rainfall,Critical,Winter,403,2.72,0.14,0.19,0.08,6.5,13705500
+Mohale's Hoek,Heavy Rainfall,Moderate,Spring,164,2.82,0.13,0.19,0.07,6.0,6931500
+Berea,Heavy Rainfall,Moderate,Autumn,193,2.88,0.1,0.15,0.06,5.5,8309000
+Mokhotlong,Drought,Low,Spring,29,1.72,0.17,0.24,0.1,8.0,223000
+Butha-Buthe,Drought,Moderate,Autumn,127,1.69,0.14,0.19,0.08,6.5,862500
+Mohale's Hoek,Drought,Critical,Autumn,322,1.65,0.13,0.19,0.07,6.0,2239500
+Mokhotlong,Drought,Critical,Autumn,276,1.62,0.17,0.24,0.1,8.0,1951500
+Leribe,Drought,Critical,Spring,459,1.57,0.11,0.16,0.06,5.5,2957500
+Mokhotlong,Heavy Rainfall,Moderate,Autumn,95,2.82,0.17,0.24,0.1,8.0,3892500
+Maseru,Strong Winds,Low,Winter,40,2.52,0.08,0.12,0.05,4.5,1777500
+Mohale's Hoek,Heavy Rainfall,Low,Summer,48,2.88,0.13,0.19,0.07,6.0,1964000
+Qacha's Nek,Drought,Low,Summer,42,1.67,0.15,0.22,0.09,7.0,313000
+Berea,Drought,Moderate,Winter,56,1.41,0.1,0.15,0.06,5.5,352000
+Berea,Drought,Moderate,Winter,138,1.57,0.1,0.15,0.06,5.5,860000
+Leribe,Drought,Low,Summer,22,1.59,0.11,0.16,0.06,5.5,169000
+Mokhotlong,Drought,Moderate,Winter,170,1.59,0.17,0.24,0.1,8.0,1150500
+Mokhotlong,Strong Winds,Moderate,Spring,119,2.54,0.17,0.24,0.1,8.0,3572000
+Quthing,Drought,Critical,Autumn,266,1.56,0.14,0.2,0.08,7.0,1841500
+Quthing,Drought,Critical,Summer,295,1.58,0.14,0.2,0.08,7.0,2023500
+Berea,Heavy Rainfall,Critical,Spring,400,2.77,0.1,0.15,0.06,5.5,14769000
+Mokhotlong,Strong Winds,Moderate,Summer,137,2.67,0.17,0.24,0.1,8.0,5199000
+Berea,Heavy Rainfall,Low,Autumn,15,3.07,0.1,0.15,0.06,5.5,707500
+Butha-Buthe,Drought,Critical,Spring,448,1.55,0.14,0.19,0.08,6.5,3058000
+Leribe,Strong Winds,Critical,Autumn,282,2.54,0.11,0.16,0.06,5.5,10324000
+Qacha's Nek,Strong Winds,Moderate,Spring,66,2.48,0.15,0.22,0.09,7.0,2521000
+Mokhotlong,Strong Winds,Moderate,Winter,163,2.66,0.17,0.24,0.1,8.0,7075500
+Mohale's Hoek,Strong Winds,Low,Autumn,20,2.75,0.13,0.19,0.07,6.0,632000
+Mokhotlong,Drought,Low,Autumn,50,1.62,0.17,0.24,0.1,8.0,364000
+Mafeteng,Drought,Moderate,Spring,88,1.61,0.12,0.18,0.07,6.0,573500
+Berea,Drought,Moderate,Spring,171,1.61,0.1,0.15,0.06,5.5,1115500
+Quthing,Drought,Low,Winter,14,1.71,0.14,0.2,0.08,7.0,97000
+Mohale's Hoek,Strong Winds,Low,Autumn,41,2.56,0.13,0.19,0.07,6.0,1283000
+Mohale's Hoek,Heavy Rainfall,Critical,Summer,339,2.76,0.13,0.19,0.07,6.0,12724500
+Thaba-Tseka,Heavy Rainfall,Critical,Summer,484,2.74,0.16,0.23,0.09,7.5,17310000
+Leribe,Drought,Moderate,Summer,158,1.54,0.11,0.16,0.06,5.5,1021500
+Mohale's Hoek,Heavy Rainfall,Low,Winter,24,2.54,0.13,0.19,0.07,6.0,816500
+Quthing,Drought,Moderate,Winter,55,1.64,0.14,0.2,0.08,7.0,366000
+Mafeteng,Heavy Rainfall,Moderate,Autumn,199,2.83,0.12,0.18,0.07,6.0,8456000
+Qacha's Nek,Heavy Rainfall,Low,Autumn,21,2.95,0.15,0.22,0.09,7.0,981500
+Mafeteng,Strong Winds,Low,Winter,41,2.44,0.12,0.18,0.07,6.0,1067000
+Berea,Heavy Rainfall,Moderate,Spring,145,2.7,0.1,0.15,0.06,5.5,5435500
+Mafeteng,Strong Winds,Low,Summer,46,2.78,0.12,0.18,0.07,6.0,1715500
+Mokhotlong,Drought,Low,Summer,29,1.93,0.17,0.24,0.1,8.0,213000
+Butha-Buthe,Drought,Moderate,Spring,149,1.76,0.14,0.19,0.08,6.5,1089500
+Leribe,Heavy Rainfall,Low,Spring,41,2.85,0.11,0.16,0.06,5.5,989000
+Mafeteng,Strong Winds,Moderate,Spring,141,2.59,0.12,0.18,0.07,6.0,5042500
+Mokhotlong,Heavy Rainfall,Critical,Summer,237,2.85,0.17,0.24,0.1,8.0,8633000
+Berea,Drought,Critical,Spring,486,1.55,0.1,0.15,0.06,5.5,3116500
+Qacha's Nek,Drought,Moderate,Winter,101,1.64,0.15,0.22,0.09,7.0,713500
+Maseru,Strong Winds,Critical,Spring,293,2.55,0.08,0.12,0.05,4.5,9105000
+Qacha's Nek,Strong Winds,Moderate,Spring,62,2.71,0.15,0.22,0.09,7.0,2173000
+Mokhotlong,Strong Winds,Low,Winter,15,2.47,0.17,0.24,0.1,8.0,645500
+Thaba-Tseka,Drought,Low,Spring,40,1.52,0.16,0.23,0.09,7.5,276000
+Thaba-Tseka,Heavy Rainfall,Critical,Winter,454,2.85,0.16,0.23,0.09,7.5,18935000
+Mohale's Hoek,Strong Winds,Critical,Autumn,380,2.74,0.13,0.19,0.07,6.0,14870000
+Qacha's Nek,Drought,Critical,Spring,310,1.6,0.15,0.22,0.09,7.0,2085500
+Mohale's Hoek,Drought,Moderate,Spring,109,1.48,0.13,0.19,0.07,6.0,733000
+Thaba-Tseka,Heavy Rainfall,Critical,Summer,488,2.81,0.16,0.23,0.09,7.5,19282000
+Thaba-Tseka,Drought,Moderate,Autumn,61,1.59,0.16,0.23,0.09,7.5,455500
+Berea,Strong Winds,Low,Winter,40,2.65,0.1,0.15,0.06,5.5,1446000
+Mafeteng,Heavy Rainfall,Low,Spring,38,2.79,0.12,0.18,0.07,6.0,1273500
+Mohale's Hoek,Drought,Low,Winter,27,1.44,0.13,0.19,0.07,6.0,181500
+Maseru,Strong Winds,Moderate,Spring,180,2.7,0.08,0.12,0.05,4.5,7476500
+Mafeteng,Heavy Rainfall,Low,Winter,13,2.69,0.12,0.18,0.07,6.0,297500
+Mohale's Hoek,Heavy Rainfall,Moderate,Summer,88,2.76,0.13,0.19,0.07,6.0,3240500
+Mokhotlong,Strong Winds,Low,Winter,48,2.42,0.17,0.24,0.1,8.0,1717000
+Berea,Heavy Rainfall,Critical,Spring,268,2.76,0.1,0.15,0.06,5.5,10081500
+Thaba-Tseka,Strong Winds,Moderate,Spring,157,2.66,0.16,0.23,0.09,7.5,6071500
+Leribe,Strong Winds,Low,Winter,14,2.57,0.11,0.16,0.06,5.5,253000
+Mafeteng,Drought,Moderate,Autumn,110,1.62,0.12,0.18,0.07,6.0,715000
+Mafeteng,Strong Winds,Critical,Summer,402,2.54,0.12,0.18,0.07,6.0,14490000
+Quthing,Drought,Low,Summer,13,1.38,0.14,0.2,0.08,7.0,82500
+Butha-Buthe,Heavy Rainfall,Low,Autumn,13,3.38,0.14,0.19,0.08,6.5,1020000
+Leribe,Drought,Low,Winter,40,1.73,0.11,0.16,0.06,5.5,278000
+Berea,Strong Winds,Low,Autumn,45,2.73,0.1,0.15,0.06,5.5,2111500
+Qacha's Nek,Strong Winds,Moderate,Summer,195,2.62,0.15,0.22,0.09,7.0,6994500
+Berea,Drought,Moderate,Summer,59,1.63,0.1,0.15,0.06,5.5,402500
+Mafeteng,Strong Winds,Low,Summer,34,2.65,0.12,0.18,0.07,6.0,1094000
+Butha-Buthe,Drought,Moderate,Autumn,174,1.62,0.14,0.19,0.08,6.5,1210000
+Butha-Buthe,Drought,Moderate,Winter,96,1.64,0.14,0.19,0.08,6.5,671000
+Quthing,Heavy Rainfall,Low,Spring,47,3.06,0.14,0.2,0.08,7.0,2736500
+Qacha's Nek,Strong Winds,Critical,Summer,280,2.52,0.15,0.22,0.09,7.0,11319500
+Qacha's Nek,Strong Winds,Low,Winter,17,2.41,0.15,0.22,0.09,7.0,883500
+Qacha's Nek,Heavy Rainfall,Low,Spring,29,2.59,0.15,0.22,0.09,7.0,731000
+Mafeteng,Drought,Critical,Spring,393,1.61,0.12,0.18,0.07,6.0,2678000
+Butha-Buthe,Drought,Moderate,Winter,140,1.57,0.14,0.19,0.08,6.5,982000
+Maseru,Drought,Low,Spring,22,1.73,0.08,0.12,0.05,4.5,138500
+Berea,Heavy Rainfall,Low,Winter,26,3.15,0.1,0.15,0.06,5.5,1483500
+Berea,Drought,Moderate,Autumn,78,1.59,0.1,0.15,0.06,5.5,489500
+Mohale's Hoek,Drought,Critical,Autumn,467,1.57,0.13,0.19,0.07,6.0,3155500
+Leribe,Strong Winds,Moderate,Winter,171,2.44,0.11,0.16,0.06,5.5,4974000
+Qacha's Nek,Heavy Rainfall,Low,Summer,47,2.72,0.15,0.22,0.09,7.0,1424000
+Mokhotlong,Heavy Rainfall,Low,Summer,21,2.86,0.17,0.24,0.1,8.0,738500
+Mohale's Hoek,Strong Winds,Critical,Spring,376,2.71,0.13,0.19,0.07,6.0,15263500
+Mohale's Hoek,Strong Winds,Moderate,Summer,157,2.66,0.13,0.19,0.07,6.0,5584000
+Berea,Heavy Rainfall,Low,Winter,43,3.0,0.1,0.15,0.06,5.5,2236000
+Butha-Buthe,Strong Winds,Low,Summer,38,2.84,0.14,0.19,0.08,6.5,1716500
+Mokhotlong,Strong Winds,Low,Spring,40,2.8,0.17,0.24,0.1,8.0,1916000
+Mafeteng,Drought,Moderate,Autumn,84,1.6,0.12,0.18,0.07,6.0,563500
+Leribe,Drought,Critical,Winter,470,1.59,0.11,0.16,0.06,5.5,3012000
+Berea,Heavy Rainfall,Critical,Autumn,221,2.9,0.1,0.15,0.06,5.5,9361500
+Leribe,Heavy Rainfall,Moderate,Summer,192,2.77,0.11,0.16,0.06,5.5,8300000
+Quthing,Drought,Low,Spring,40,1.5,0.14,0.2,0.08,7.0,285000
+Mokhotlong,Heavy Rainfall,Low,Autumn,32,2.59,0.17,0.24,0.1,8.0,929000
+Berea,Strong Winds,Critical,Summer,494,2.63,0.1,0.15,0.06,5.5,19262000
+Leribe,Strong Winds,Moderate,Winter,78,2.5,0.11,0.16,0.06,5.5,2442500
+Qacha's Nek,Drought,Critical,Winter,484,1.6,0.15,0.22,0.09,7.0,3390500
+Berea,Heavy Rainfall,Low,Winter,43,2.65,0.1,0.15,0.06,5.5,1311000
+Berea,Strong Winds,Moderate,Spring,83,2.54,0.1,0.15,0.06,5.5,2816000
+Thaba-Tseka,Drought,Low,Winter,39,1.77,0.16,0.23,0.09,7.5,296000
+Qacha's Nek,Strong Winds,Critical,Winter,341,2.62,0.15,0.22,0.09,7.0,12361000
+Qacha's Nek,Heavy Rainfall,Low,Spring,45,3.09,0.15,0.22,0.09,7.0,2313000
+Qacha's Nek,Drought,Moderate,Summer,200,1.65,0.15,0.22,0.09,7.0,1422000
+Quthing,Drought,Low,Spring,47,1.77,0.14,0.2,0.08,7.0,319500
+Butha-Buthe,Strong Winds,Low,Spring,25,2.6,0.14,0.19,0.08,6.5,1240500
+Mafeteng,Strong Winds,Moderate,Spring,126,2.67,0.12,0.18,0.07,6.0,5038500
+Thaba-Tseka,Drought,Low,Spring,33,1.55,0.16,0.23,0.09,7.5,211000
+Thaba-Tseka,Drought,Critical,Spring,253,1.58,0.16,0.23,0.09,7.5,1734500
+Mohale's Hoek,Drought,Moderate,Spring,61,1.59,0.13,0.19,0.07,6.0,427500
+Mokhotlong,Heavy Rainfall,Low,Autumn,25,3.0,0.17,0.24,0.1,8.0,1239000
+Berea,Heavy Rainfall,Critical,Summer,484,2.76,0.1,0.15,0.06,5.5,18054500
+Quthing,Heavy Rainfall,Critical,Summer,492,2.71,0.14,0.2,0.08,7.0,18356500
+Qacha's Nek,Drought,Low,Summer,35,1.57,0.15,0.22,0.09,7.0,247500
+Quthing,Drought,Moderate,Spring,87,1.52,0.14,0.2,0.08,7.0,590500
+Quthing,Heavy Rainfall,Moderate,Winter,117,2.71,0.14,0.2,0.08,7.0,4349500
+Butha-Buthe,Strong Winds,Moderate,Winter,119,2.64,0.14,0.19,0.08,6.5,4523500
+Maseru,Heavy Rainfall,Critical,Spring,406,2.76,0.08,0.12,0.05,4.5,13962500
+Mokhotlong,Drought,Critical,Summer,304,1.6,0.17,0.24,0.1,8.0,2077000
+Mokhotlong,Drought,Moderate,Spring,197,1.61,0.17,0.24,0.1,8.0,1378000
+Mohale's Hoek,Drought,Critical,Autumn,362,1.6,0.13,0.19,0.07,6.0,2544500
+Mokhotlong,Heavy Rainfall,Low,Spring,12,2.75,0.17,0.24,0.1,8.0,558000
+Mokhotlong,Strong Winds,Moderate,Autumn,91,2.63,0.17,0.24,0.1,8.0,3384000
+Mohale's Hoek,Strong Winds,Critical,Winter,229,2.59,0.13,0.19,0.07,6.0,8602500
+Maseru,Heavy Rainfall,Moderate,Winter,59,2.61,0.08,0.12,0.05,4.5,1781000
+Butha-Buthe,Drought,Moderate,Autumn,67,1.57,0.14,0.19,0.08,6.5,471000
+Leribe,Heavy Rainfall,Moderate,Winter,66,2.91,0.11,0.16,0.06,5.5,2299500
+Thaba-Tseka,Strong Winds,Low,Autumn,10,2.7,0.16,0.23,0.09,7.5,461500
+Butha-Buthe,Drought,Low,Winter,35,1.66,0.14,0.19,0.08,6.5,250500
+Mohale's Hoek,Drought,Low,Summer,50,1.68,0.13,0.19,0.07,6.0,333000
+Butha-Buthe,Heavy Rainfall,Critical,Autumn,384,2.86,0.14,0.19,0.08,6.5,15812500
+Maseru,Drought,Critical,Summer,320,1.61,0.08,0.12,0.05,4.5,1936500
+Thaba-Tseka,Strong Winds,Critical,Winter,280,2.69,0.16,0.23,0.09,7.5,10881000
+Mafeteng,Heavy Rainfall,Low,Summer,46,2.89,0.12,0.18,0.07,6.0,2257500
+Mafeteng,Drought,Low,Summer,22,1.59,0.12,0.18,0.07,6.0,160000
+Leribe,Drought,Low,Autumn,18,1.33,0.11,0.16,0.06,5.5,105000
+Mafeteng,Drought,Low,Winter,18,1.61,0.12,0.18,0.07,6.0,124500
+Mokhotlong,Drought,Low,Summer,19,1.42,0.17,0.24,0.1,8.0,139500
+Leribe,Drought,Critical,Spring,256,1.6,0.11,0.16,0.06,5.5,1686000
+Qacha's Nek,Drought,Critical,Spring,345,1.55,0.15,0.22,0.09,7.0,2407000
+Berea,Strong Winds,Moderate,Winter,184,2.58,0.1,0.15,0.06,5.5,7444500
+Quthing,Drought,Low,Summer,14,2.0,0.14,0.2,0.08,7.0,89500
+Mafeteng,Drought,Low,Autumn,37,1.49,0.12,0.18,0.07,6.0,249500
+Mafeteng,Heavy Rainfall,Moderate,Autumn,63,2.75,0.12,0.18,0.07,6.0,2204000
+Leribe,Strong Winds,Critical,Winter,428,2.65,0.11,0.16,0.06,5.5,16466000
+Butha-Buthe,Heavy Rainfall,Moderate,Autumn,135,2.87,0.14,0.19,0.08,6.5,5111000
+Berea,Drought,Moderate,Summer,158,1.58,0.1,0.15,0.06,5.5,1057500
+Thaba-Tseka,Strong Winds,Low,Winter,44,2.52,0.16,0.23,0.09,7.5,1953500
+Berea,Drought,Moderate,Summer,163,1.61,0.1,0.15,0.06,5.5,1058000
+Qacha's Nek,Heavy Rainfall,Low,Autumn,38,2.74,0.15,0.22,0.09,7.0,1529000
+Butha-Buthe,Strong Winds,Low,Winter,47,2.49,0.14,0.19,0.08,6.5,1709500
+Leribe,Drought,Moderate,Summer,196,1.71,0.11,0.16,0.06,5.5,1326500
+Mafeteng,Drought,Critical,Autumn,338,1.61,0.12,0.18,0.07,6.0,2303000
+Mokhotlong,Drought,Critical,Autumn,267,1.61,0.17,0.24,0.1,8.0,1903500
+Mokhotlong,Drought,Moderate,Winter,184,1.66,0.17,0.24,0.1,8.0,1327500
+Maseru,Heavy Rainfall,Moderate,Winter,160,2.86,0.08,0.12,0.05,4.5,6135000
+Qacha's Nek,Heavy Rainfall,Low,Summer,36,2.86,0.15,0.22,0.09,7.0,1222000
+Leribe,Strong Winds,Moderate,Summer,140,2.68,0.11,0.16,0.06,5.5,5283500
+Qacha's Nek,Heavy Rainfall,Low,Spring,25,2.88,0.15,0.22,0.09,7.0,700500
+Mohale's Hoek,Heavy Rainfall,Moderate,Autumn,57,2.74,0.13,0.19,0.07,6.0,1951500
+Butha-Buthe,Strong Winds,Low,Summer,45,2.62,0.14,0.19,0.08,6.5,1492500
+Berea,Drought,Moderate,Summer,180,1.58,0.1,0.15,0.06,5.5,1175500
+Berea,Heavy Rainfall,Moderate,Autumn,51,2.78,0.1,0.15,0.06,5.5,2588000
+Thaba-Tseka,Heavy Rainfall,Critical,Summer,265,2.77,0.16,0.23,0.09,7.5,10850500
+Quthing,Heavy Rainfall,Critical,Autumn,248,2.88,0.14,0.2,0.08,7.0,10254500
+Maseru,Strong Winds,Critical,Summer,355,2.56,0.08,0.12,0.05,4.5,12507000
+Mokhotlong,Drought,Critical,Winter,326,1.6,0.17,0.24,0.1,8.0,2256500
+Leribe,Heavy Rainfall,Moderate,Autumn,184,2.8,0.11,0.16,0.06,5.5,6343500
+Mokhotlong,Heavy Rainfall,Moderate,Autumn,133,2.8,0.17,0.24,0.1,8.0,4740000
+Mohale's Hoek,Strong Winds,Low,Autumn,13,2.54,0.13,0.19,0.07,6.0,502500
+Thaba-Tseka,Strong Winds,Critical,Summer,500,2.55,0.16,0.23,0.09,7.5,19177000
+Mafeteng,Drought,Moderate,Summer,197,1.66,0.12,0.18,0.07,6.0,1384500
+Mafeteng,Strong Winds,Moderate,Summer,107,2.67,0.12,0.18,0.07,6.0,4365000
+Quthing,Strong Winds,Moderate,Spring,150,2.57,0.14,0.2,0.08,7.0,5838500
+Mokhotlong,Drought,Low,Winter,11,1.45,0.17,0.24,0.1,8.0,78500
+Mafeteng,Drought,Critical,Spring,410,1.56,0.12,0.18,0.07,6.0,2792500
+Butha-Buthe,Strong Winds,Critical,Spring,315,2.62,0.14,0.19,0.08,6.5,11719500
+Butha-Buthe,Strong Winds,Moderate,Winter,156,2.62,0.14,0.19,0.08,6.5,5953500
+Berea,Strong Winds,Moderate,Spring,57,2.67,0.1,0.15,0.06,5.5,2254000
+Maseru,Heavy Rainfall,Low,Autumn,27,2.7,0.08,0.12,0.05,4.5,942000
+Mohale's Hoek,Strong Winds,Low,Winter,28,2.96,0.13,0.19,0.07,6.0,1597500
+Berea,Drought,Critical,Summer,306,1.64,0.1,0.15,0.06,5.5,2035000
+Leribe,Strong Winds,Critical,Autumn,471,2.63,0.11,0.16,0.06,5.5,16888500
+Maseru,Drought,Low,Winter,26,1.54,0.08,0.12,0.05,4.5,150000
+Mohale's Hoek,Drought,Moderate,Autumn,132,1.57,0.13,0.19,0.07,6.0,890000
+Butha-Buthe,Strong Winds,Moderate,Winter,145,2.54,0.14,0.19,0.08,6.5,5786500
+Leribe,Strong Winds,Moderate,Summer,84,2.77,0.11,0.16,0.06,5.5,4240000
+Qacha's Nek,Drought,Critical,Spring,375,1.65,0.15,0.22,0.09,7.0,2633500
+Mokhotlong,Heavy Rainfall,Critical,Autumn,387,2.82,0.17,0.24,0.1,8.0,16219500
+Qacha's Nek,Drought,Low,Summer,44,1.45,0.15,0.22,0.09,7.0,299000
+Qacha's Nek,Strong Winds,Critical,Winter,425,2.61,0.15,0.22,0.09,7.0,16173000
+Mohale's Hoek,Strong Winds,Moderate,Spring,95,2.53,0.13,0.19,0.07,6.0,3149500
+Mafeteng,Heavy Rainfall,Moderate,Summer,98,2.9,0.12,0.18,0.07,6.0,4282000
+Mokhotlong,Strong Winds,Low,Spring,12,2.5,0.17,0.24,0.1,8.0,458500
+Qacha's Nek,Strong Winds,Critical,Winter,315,2.62,0.15,0.22,0.09,7.0,11737500
+Mokhotlong,Heavy Rainfall,Moderate,Winter,150,2.96,0.17,0.24,0.1,8.0,6496500
+Mafeteng,Drought,Moderate,Spring,148,1.62,0.12,0.18,0.07,6.0,1012000
+Thaba-Tseka,Strong Winds,Moderate,Summer,166,2.52,0.16,0.23,0.09,7.5,6471500
+Quthing,Strong Winds,Low,Autumn,40,2.7,0.14,0.2,0.08,7.0,1677500
+Mafeteng,Strong Winds,Low,Summer,11,2.82,0.12,0.18,0.07,6.0,457000
+Berea,Heavy Rainfall,Low,Winter,30,2.77,0.1,0.15,0.06,5.5,1211000
+Thaba-Tseka,Strong Winds,Critical,Winter,285,2.56,0.16,0.23,0.09,7.5,10522000
+Leribe,Heavy Rainfall,Low,Summer,33,2.79,0.11,0.16,0.06,5.5,1626500
+Quthing,Strong Winds,Moderate,Spring,162,2.68,0.14,0.2,0.08,7.0,6682000
+Berea,Drought,Low,Summer,37,1.54,0.1,0.15,0.06,5.5,233500
+Berea,Heavy Rainfall,Low,Summer,48,2.88,0.1,0.15,0.06,5.5,2012500
+Qacha's Nek,Strong Winds,Moderate,Winter,171,2.58,0.15,0.22,0.09,7.0,6365000
+Maseru,Heavy Rainfall,Low,Spring,27,2.93,0.08,0.12,0.05,4.5,1002500
+Qacha's Nek,Drought,Low,Summer,47,1.57,0.15,0.22,0.09,7.0,334000
+Mohale's Hoek,Heavy Rainfall,Moderate,Winter,91,2.8,0.13,0.19,0.07,6.0,3789000
+Mafeteng,Heavy Rainfall,Moderate,Summer,145,2.88,0.12,0.18,0.07,6.0,6253000
+Mokhotlong,Drought,Critical,Winter,415,1.54,0.17,0.24,0.1,8.0,2890500
+Leribe,Drought,Moderate,Spring,129,1.68,0.11,0.16,0.06,5.5,847000
+Berea,Strong Winds,Moderate,Winter,161,2.55,0.1,0.15,0.06,5.5,5286000
+Berea,Strong Winds,Moderate,Autumn,63,2.79,0.1,0.15,0.06,5.5,2865500
+Qacha's Nek,Strong Winds,Low,Summer,19,2.74,0.15,0.22,0.09,7.0,834500
+Mokhotlong,Drought,Low,Autumn,30,1.77,0.17,0.24,0.1,8.0,212000
+Qacha's Nek,Drought,Critical,Winter,255,1.62,0.15,0.22,0.09,7.0,1783000
+Berea,Strong Winds,Critical,Winter,431,2.61,0.1,0.15,0.06,5.5,16339000
+Butha-Buthe,Strong Winds,Moderate,Summer,107,2.64,0.14,0.19,0.08,6.5,4693000
+Thaba-Tseka,Heavy Rainfall,Critical,Spring,358,2.78,0.16,0.23,0.09,7.5,14832000
+Maseru,Heavy Rainfall,Critical,Spring,202,2.85,0.08,0.12,0.05,4.5,8192500
+Mafeteng,Heavy Rainfall,Moderate,Winter,127,2.8,0.12,0.18,0.07,6.0,4396000
+Mokhotlong,Strong Winds,Low,Winter,38,2.66,0.17,0.24,0.1,8.0,1444000
+Quthing,Drought,Critical,Winter,422,1.59,0.14,0.2,0.08,7.0,2942000
+Mohale's Hoek,Heavy Rainfall,Low,Winter,45,2.69,0.13,0.19,0.07,6.0,1437000
+Maseru,Strong Winds,Critical,Summer,378,2.66,0.08,0.12,0.05,4.5,14433000
+Leribe,Heavy Rainfall,Moderate,Spring,167,2.77,0.11,0.16,0.06,5.5,6328000
+Mohale's Hoek,Drought,Critical,Summer,275,1.51,0.13,0.19,0.07,6.0,1813000
+Qacha's Nek,Drought,Critical,Winter,438,1.65,0.15,0.22,0.09,7.0,2999500
+Thaba-Tseka,Drought,Critical,Winter,366,1.63,0.16,0.23,0.09,7.5,2590000
+Mohale's Hoek,Heavy Rainfall,Low,Spring,10,2.3,0.13,0.19,0.07,6.0,340000
+Leribe,Heavy Rainfall,Moderate,Autumn,110,2.95,0.11,0.16,0.06,5.5,5193500
+Mafeteng,Drought,Low,Spring,25,1.68,0.12,0.18,0.07,6.0,171000
+Quthing,Strong Winds,Low,Winter,14,2.29,0.14,0.2,0.08,7.0,298500
+Maseru,Heavy Rainfall,Critical,Spring,326,2.84,0.08,0.12,0.05,4.5,12976500
+Thaba-Tseka,Drought,Critical,Winter,388,1.63,0.16,0.23,0.09,7.5,2782000
+Mafeteng,Heavy Rainfall,Moderate,Autumn,144,2.97,0.12,0.18,0.07,6.0,5955000
+Mafeteng,Drought,Critical,Autumn,264,1.56,0.12,0.18,0.07,6.0,1791000
+Quthing,Drought,Critical,Winter,347,1.6,0.14,0.2,0.08,7.0,2411500
+Quthing,Drought,Critical,Summer,466,1.63,0.14,0.2,0.08,7.0,3243000
+Mafeteng,Heavy Rainfall,Low,Spring,33,3.12,0.12,0.18,0.07,6.0,1213000
+Berea,Strong Winds,Moderate,Spring,180,2.62,0.1,0.15,0.06,5.5,6514000
+Butha-Buthe,Heavy Rainfall,Low,Winter,30,2.63,0.14,0.19,0.08,6.5,1627500
+Mohale's Hoek,Strong Winds,Moderate,Summer,108,2.69,0.13,0.19,0.07,6.0,4462500
+Butha-Buthe,Heavy Rainfall,Low,Summer,33,2.76,0.14,0.19,0.08,6.5,1485000
+Thaba-Tseka,Heavy Rainfall,Critical,Winter,462,2.75,0.16,0.23,0.09,7.5,17322000
+Berea,Heavy Rainfall,Low,Spring,46,2.8,0.1,0.15,0.06,5.5,2106500
+Leribe,Strong Winds,Low,Winter,29,2.69,0.11,0.16,0.06,5.5,1060000
+Mafeteng,Drought,Low,Spring,44,1.64,0.12,0.18,0.07,6.0,285500
+Leribe,Strong Winds,Low,Summer,25,2.64,0.11,0.16,0.06,5.5,821500
+Berea,Drought,Low,Spring,43,1.7,0.1,0.15,0.06,5.5,303500
+Mohale's Hoek,Heavy Rainfall,Critical,Winter,424,2.76,0.13,0.19,0.07,6.0,15515500
+Quthing,Strong Winds,Moderate,Summer,175,2.61,0.14,0.2,0.08,7.0,6489000
+Qacha's Nek,Strong Winds,Moderate,Autumn,83,2.57,0.15,0.22,0.09,7.0,3425000
+Quthing,Strong Winds,Low,Spring,42,2.88,0.14,0.2,0.08,7.0,1898000
+Quthing,Drought,Low,Winter,25,1.6,0.14,0.2,0.08,7.0,176000
+Berea,Strong Winds,Critical,Winter,204,2.67,0.1,0.15,0.06,5.5,7042500
+Mafeteng,Strong Winds,Low,Summer,32,2.47,0.12,0.18,0.07,6.0,1234500
+Mokhotlong,Strong Winds,Moderate,Winter,95,2.4,0.17,0.24,0.1,8.0,2823500
+Quthing,Drought,Low,Spring,38,1.53,0.14,0.2,0.08,7.0,249000
+Mafeteng,Heavy Rainfall,Moderate,Spring,91,2.63,0.12,0.18,0.07,6.0,3332000
+Leribe,Drought,Moderate,Spring,134,1.59,0.11,0.16,0.06,5.5,893000
+Mokhotlong,Strong Winds,Critical,Winter,363,2.66,0.17,0.24,0.1,8.0,13321500
+Maseru,Heavy Rainfall,Critical,Autumn,408,2.73,0.08,0.12,0.05,4.5,14386500
+Berea,Strong Winds,Moderate,Winter,109,2.61,0.1,0.15,0.06,5.5,3876000
+Quthing,Drought,Critical,Summer,267,1.58,0.14,0.2,0.08,7.0,1841000
+Berea,Heavy Rainfall,Low,Summer,18,3.0,0.1,0.15,0.06,5.5,766500
+Qacha's Nek,Strong Winds,Low,Winter,44,2.45,0.15,0.22,0.09,7.0,1451500
+Leribe,Drought,Critical,Spring,457,1.6,0.11,0.16,0.06,5.5,2991000
+Thaba-Tseka,Strong Winds,Moderate,Winter,105,2.5,0.16,0.23,0.09,7.5,3369000
+Quthing,Strong Winds,Moderate,Autumn,123,2.44,0.14,0.2,0.08,7.0,3971500
+Mohale's Hoek,Strong Winds,Critical,Autumn,372,2.57,0.13,0.19,0.07,6.0,13793500
+Quthing,Drought,Critical,Summer,228,1.52,0.14,0.2,0.08,7.0,1584500
+Quthing,Drought,Low,Winter,23,1.74,0.14,0.2,0.08,7.0,186000
+Butha-Buthe,Heavy Rainfall,Moderate,Autumn,109,2.79,0.14,0.19,0.08,6.5,3797000
+Maseru,Drought,Critical,Autumn,487,1.61,0.08,0.12,0.05,4.5,2901000
+Leribe,Drought,Moderate,Autumn,140,1.64,0.11,0.16,0.06,5.5,919500
+Mokhotlong,Drought,Low,Winter,14,1.43,0.17,0.24,0.1,8.0,105000
+Mokhotlong,Strong Winds,Critical,Autumn,481,2.68,0.17,0.24,0.1,8.0,18153000
+Mafeteng,Strong Winds,Critical,Spring,331,2.6,0.12,0.18,0.07,6.0,12667000
+Mafeteng,Strong Winds,Moderate,Autumn,87,2.66,0.12,0.18,0.07,6.0,3074500
+Qacha's Nek,Drought,Low,Autumn,50,1.52,0.15,0.22,0.09,7.0,313500
+Mohale's Hoek,Strong Winds,Low,Spring,37,2.41,0.13,0.19,0.07,6.0,1604500
+Mokhotlong,Drought,Low,Spring,32,1.72,0.17,0.24,0.1,8.0,208500
+Butha-Buthe,Heavy Rainfall,Low,Spring,49,2.98,0.14,0.19,0.08,6.5,1805500
+Leribe,Drought,Low,Winter,18,1.44,0.11,0.16,0.06,5.5,112000
+Butha-Buthe,Drought,Critical,Spring,279,1.58,0.14,0.19,0.08,6.5,1937000
+Mokhotlong,Heavy Rainfall,Critical,Summer,493,2.71,0.17,0.24,0.1,8.0,18448000
+Maseru,Strong Winds,Moderate,Winter,93,2.7,0.08,0.12,0.05,4.5,3413000
+Mohale's Hoek,Heavy Rainfall,Moderate,Summer,56,2.91,0.13,0.19,0.07,6.0,2335500
+Mokhotlong,Drought,Moderate,Autumn,92,1.57,0.17,0.24,0.1,8.0,617500
+Quthing,Heavy Rainfall,Critical,Spring,260,2.7,0.14,0.2,0.08,7.0,8738000
+Berea,Heavy Rainfall,Moderate,Winter,99,2.89,0.1,0.15,0.06,5.5,4338500
+Qacha's Nek,Strong Winds,Moderate,Winter,119,2.61,0.15,0.22,0.09,7.0,4607000
+Thaba-Tseka,Drought,Critical,Summer,315,1.62,0.16,0.23,0.09,7.5,2233500
+Berea,Strong Winds,Moderate,Summer,134,2.53,0.1,0.15,0.06,5.5,5039500
+Mafeteng,Strong Winds,Low,Autumn,48,2.73,0.12,0.18,0.07,6.0,2106000
+Berea,Strong Winds,Critical,Winter,371,2.67,0.1,0.15,0.06,5.5,13626000
+Butha-Buthe,Strong Winds,Critical,Winter,291,2.64,0.14,0.19,0.08,6.5,11214000
+Qacha's Nek,Heavy Rainfall,Low,Winter,43,2.84,0.15,0.22,0.09,7.0,2096500
+Maseru,Strong Winds,Low,Winter,42,2.67,0.08,0.12,0.05,4.5,1681500
+Leribe,Heavy Rainfall,Critical,Spring,392,2.8,0.11,0.16,0.06,5.5,15016000
+Maseru,Strong Winds,Low,Autumn,32,2.28,0.08,0.12,0.05,4.5,714000
+Thaba-Tseka,Drought,Critical,Winter,367,1.58,0.16,0.23,0.09,7.5,2593000
+Thaba-Tseka,Strong Winds,Critical,Spring,272,2.59,0.16,0.23,0.09,7.5,9058000
+Qacha's Nek,Heavy Rainfall,Moderate,Spring,139,2.83,0.15,0.22,0.09,7.0,5279000
+Mokhotlong,Heavy Rainfall,Critical,Spring,239,2.82,0.17,0.24,0.1,8.0,8390500
+Leribe,Heavy Rainfall,Critical,Autumn,253,2.74,0.11,0.16,0.06,5.5,8455500
+Leribe,Drought,Low,Summer,36,1.64,0.11,0.16,0.06,5.5,219500
+Mafeteng,Strong Winds,Critical,Spring,212,2.64,0.12,0.18,0.07,6.0,7768500
+Maseru,Heavy Rainfall,Critical,Spring,452,2.83,0.08,0.12,0.05,4.5,18713500
+Qacha's Nek,Strong Winds,Low,Autumn,39,2.31,0.15,0.22,0.09,7.0,1155500
+Mokhotlong,Drought,Low,Winter,16,1.56,0.17,0.24,0.1,8.0,98500
+Maseru,Strong Winds,Moderate,Winter,129,2.49,0.08,0.12,0.05,4.5,4527500
+Mafeteng,Heavy Rainfall,Low,Spring,47,2.68,0.12,0.18,0.07,6.0,1718500
+Maseru,Drought,Low,Summer,19,1.53,0.08,0.12,0.05,4.5,111000
+Mokhotlong,Heavy Rainfall,Critical,Autumn,428,2.8,0.17,0.24,0.1,8.0,16198500
+Mohale's Hoek,Drought,Moderate,Winter,99,1.7,0.13,0.19,0.07,6.0,649000
+Mafeteng,Heavy Rainfall,Low,Spring,14,2.64,0.12,0.18,0.07,6.0,362000
+Mafeteng,Heavy Rainfall,Critical,Spring,434,2.75,0.12,0.18,0.07,6.0,15612000
+Mohale's Hoek,Heavy Rainfall,Low,Spring,21,2.81,0.13,0.19,0.07,6.0,651500
+Mokhotlong,Drought,Low,Winter,43,1.72,0.17,0.24,0.1,8.0,313500
+Mafeteng,Heavy Rainfall,Critical,Winter,458,2.83,0.12,0.18,0.07,6.0,19519000
+Maseru,Heavy Rainfall,Critical,Winter,460,2.76,0.08,0.12,0.05,4.5,17868500
+Maseru,Heavy Rainfall,Moderate,Autumn,173,2.76,0.08,0.12,0.05,4.5,6105500
+Berea,Heavy Rainfall,Critical,Spring,250,2.76,0.1,0.15,0.06,5.5,8655500
+Mafeteng,Drought,Low,Spring,13,1.38,0.12,0.18,0.07,6.0,93000
+Mohale's Hoek,Heavy Rainfall,Moderate,Summer,173,2.83,0.13,0.19,0.07,6.0,7351500
+Thaba-Tseka,Drought,Low,Autumn,20,1.55,0.16,0.23,0.09,7.5,149000
+Quthing,Heavy Rainfall,Moderate,Autumn,124,2.68,0.14,0.2,0.08,7.0,4528500
+Mohale's Hoek,Heavy Rainfall,Low,Winter,18,2.5,0.13,0.19,0.07,6.0,399000
+Quthing,Heavy Rainfall,Low,Summer,31,2.48,0.14,0.2,0.08,7.0,938000
+Butha-Buthe,Strong Winds,Critical,Spring,232,2.56,0.14,0.19,0.08,6.5,9041500
+Mohale's Hoek,Drought,Critical,Autumn,218,1.53,0.13,0.19,0.07,6.0,1410500
+Butha-Buthe,Heavy Rainfall,Moderate,Summer,142,2.89,0.14,0.19,0.08,6.5,5614000
+Qacha's Nek,Heavy Rainfall,Critical,Winter,382,2.82,0.15,0.22,0.09,7.0,15251500
+Quthing,Drought,Critical,Summer,373,1.6,0.14,0.2,0.08,7.0,2578500
+Qacha's Nek,Heavy Rainfall,Moderate,Autumn,174,2.67,0.15,0.22,0.09,7.0,5775500
+Thaba-Tseka,Drought,Moderate,Autumn,110,1.68,0.16,0.23,0.09,7.5,756000
+Mokhotlong,Drought,Critical,Spring,242,1.57,0.17,0.24,0.1,8.0,1674500
+Thaba-Tseka,Heavy Rainfall,Critical,Spring,365,2.83,0.16,0.23,0.09,7.5,14469000
+Maseru,Heavy Rainfall,Moderate,Spring,144,2.92,0.08,0.12,0.05,4.5,6137000
+Mohale's Hoek,Drought,Low,Winter,49,1.49,0.13,0.19,0.07,6.0,307000
+Berea,Drought,Low,Autumn,36,1.47,0.1,0.15,0.06,5.5,248500
+Mafeteng,Drought,Moderate,Autumn,51,1.51,0.12,0.18,0.07,6.0,341000
+Leribe,Strong Winds,Critical,Spring,475,2.63,0.11,0.16,0.06,5.5,18418000
+Leribe,Strong Winds,Low,Summer,50,2.56,0.11,0.16,0.06,5.5,1896000
+Leribe,Drought,Moderate,Winter,122,1.65,0.11,0.16,0.06,5.5,820000
+Berea,Drought,Critical,Spring,380,1.55,0.1,0.15,0.06,5.5,2406000
+Maseru,Heavy Rainfall,Low,Winter,19,2.84,0.08,0.12,0.05,4.5,680000
+Mokhotlong,Strong Winds,Critical,Winter,489,2.61,0.17,0.24,0.1,8.0,18497500
+Qacha's Nek,Strong Winds,Critical,Spring,276,2.59,0.15,0.22,0.09,7.0,10325500
+Quthing,Strong Winds,Low,Spring,17,2.53,0.14,0.2,0.08,7.0,491000
+Leribe,Strong Winds,Low,Summer,35,2.89,0.11,0.16,0.06,5.5,1691500
+Thaba-Tseka,Drought,Critical,Spring,205,1.57,0.16,0.23,0.09,7.5,1404500
+Mohale's Hoek,Strong Winds,Low,Winter,21,2.76,0.13,0.19,0.07,6.0,825000
+Quthing,Heavy Rainfall,Critical,Autumn,296,2.81,0.14,0.2,0.08,7.0,11092000
+Mafeteng,Drought,Moderate,Spring,133,1.49,0.12,0.18,0.07,6.0,918500
+Butha-Buthe,Strong Winds,Low,Winter,48,2.96,0.14,0.19,0.08,6.5,2594500
+Mafeteng,Heavy Rainfall,Critical,Winter,413,2.82,0.12,0.18,0.07,6.0,16452000
+Mohale's Hoek,Heavy Rainfall,Low,Autumn,40,2.92,0.13,0.19,0.07,6.0,1935000
+Quthing,Drought,Moderate,Winter,119,1.69,0.14,0.2,0.08,7.0,849000
+Mafeteng,Drought,Low,Winter,14,1.57,0.12,0.18,0.07,6.0,73000
+Berea,Drought,Critical,Summer,491,1.61,0.1,0.15,0.06,5.5,3194000
+Mafeteng,Heavy Rainfall,Moderate,Autumn,96,2.62,0.12,0.18,0.07,6.0,3176500
+Mokhotlong,Heavy Rainfall,Moderate,Winter,90,2.88,0.17,0.24,0.1,8.0,3636000
+Mohale's Hoek,Drought,Moderate,Spring,200,1.6,0.13,0.19,0.07,6.0,1303500
+Berea,Drought,Moderate,Spring,152,1.49,0.1,0.15,0.06,5.5,938000
+Mafeteng,Heavy Rainfall,Critical,Summer,304,2.88,0.12,0.18,0.07,6.0,12611500
+Mokhotlong,Strong Winds,Moderate,Autumn,182,2.6,0.17,0.24,0.1,8.0,7353500
+Butha-Buthe,Strong Winds,Critical,Winter,308,2.65,0.14,0.19,0.08,6.5,12052000
+Mokhotlong,Heavy Rainfall,Low,Winter,35,2.71,0.17,0.24,0.1,8.0,1136000
+Quthing,Heavy Rainfall,Critical,Winter,391,2.8,0.14,0.2,0.08,7.0,14154000
+Thaba-Tseka,Heavy Rainfall,Low,Summer,29,2.76,0.16,0.23,0.09,7.5,1039000
+Berea,Drought,Low,Winter,41,1.68,0.1,0.15,0.06,5.5,291000
+Thaba-Tseka,Strong Winds,Moderate,Autumn,77,2.58,0.16,0.23,0.09,7.5,3281500
+Maseru,Drought,Moderate,Summer,64,1.56,0.08,0.12,0.05,4.5,362500
+Mokhotlong,Drought,Critical,Autumn,429,1.61,0.17,0.24,0.1,8.0,2929500
+Butha-Buthe,Heavy Rainfall,Moderate,Spring,67,2.87,0.14,0.19,0.08,6.5,2771000
+Mohale's Hoek,Drought,Low,Winter,36,1.53,0.13,0.19,0.07,6.0,253000
+Maseru,Heavy Rainfall,Moderate,Autumn,113,2.73,0.08,0.12,0.05,4.5,4148500
+Quthing,Drought,Moderate,Spring,92,1.63,0.14,0.2,0.08,7.0,667000
+Maseru,Heavy Rainfall,Critical,Autumn,301,2.77,0.08,0.12,0.05,4.5,10567000
+Mokhotlong,Strong Winds,Moderate,Winter,63,2.65,0.17,0.24,0.1,8.0,2011000
+Mokhotlong,Heavy Rainfall,Low,Autumn,43,2.93,0.17,0.24,0.1,8.0,1992500
+Quthing,Drought,Critical,Spring,348,1.64,0.14,0.2,0.08,7.0,2405000
+Leribe,Strong Winds,Critical,Winter,337,2.58,0.11,0.16,0.06,5.5,12106500
+Thaba-Tseka,Strong Winds,Moderate,Spring,113,2.54,0.16,0.23,0.09,7.5,4361500
+Qacha's Nek,Drought,Low,Autumn,20,1.65,0.15,0.22,0.09,7.0,145500
+Leribe,Heavy Rainfall,Moderate,Spring,78,2.74,0.11,0.16,0.06,5.5,2976500
+Berea,Drought,Critical,Spring,223,1.56,0.1,0.15,0.06,5.5,1451000
+Mafeteng,Drought,Moderate,Spring,167,1.59,0.12,0.18,0.07,6.0,1177500
+Mafeteng,Drought,Low,Autumn,17,1.47,0.12,0.18,0.07,6.0,93000
+Butha-Buthe,Strong Winds,Moderate,Spring,115,2.47,0.14,0.19,0.08,6.5,4034000
+Maseru,Heavy Rainfall,Low,Summer,28,3.0,0.08,0.12,0.05,4.5,1167500
+Mohale's Hoek,Drought,Critical,Winter,344,1.58,0.13,0.19,0.07,6.0,2411000
+Mafeteng,Drought,Low,Spring,34,1.47,0.12,0.18,0.07,6.0,239000
+Quthing,Heavy Rainfall,Moderate,Autumn,127,2.82,0.14,0.2,0.08,7.0,4903000
+Quthing,Heavy Rainfall,Low,Winter,14,2.93,0.14,0.2,0.08,7.0,738500
+Mohale's Hoek,Heavy Rainfall,Critical,Summer,303,2.85,0.13,0.19,0.07,6.0,12145500
+Maseru,Heavy Rainfall,Critical,Summer,345,2.82,0.08,0.12,0.05,4.5,13391500
+Mafeteng,Heavy Rainfall,Moderate,Summer,167,2.84,0.12,0.18,0.07,6.0,7509500
+Mokhotlong,Strong Winds,Critical,Winter,246,2.63,0.17,0.24,0.1,8.0,10088500
+Quthing,Heavy Rainfall,Critical,Autumn,353,2.8,0.14,0.2,0.08,7.0,13476500
+Leribe,Strong Winds,Moderate,Winter,64,2.38,0.11,0.16,0.06,5.5,1549000
+Quthing,Strong Winds,Critical,Spring,334,2.61,0.14,0.2,0.08,7.0,12471000
+Mohale's Hoek,Strong Winds,Critical,Autumn,283,2.61,0.13,0.19,0.07,6.0,11157000
+Mohale's Hoek,Heavy Rainfall,Critical,Spring,333,2.83,0.13,0.19,0.07,6.0,13483000
+Mohale's Hoek,Drought,Low,Summer,16,1.5,0.13,0.19,0.07,6.0,102000
+Qacha's Nek,Strong Winds,Low,Summer,31,2.48,0.15,0.22,0.09,7.0,1155000
+Leribe,Strong Winds,Low,Winter,31,2.35,0.11,0.16,0.06,5.5,761000
+Quthing,Heavy Rainfall,Low,Autumn,28,2.64,0.14,0.2,0.08,7.0,959000
+Maseru,Drought,Low,Winter,14,1.64,0.08,0.12,0.05,4.5,88000
+Leribe,Strong Winds,Low,Spring,49,2.67,0.11,0.16,0.06,5.5,1990000
+Quthing,Strong Winds,Low,Autumn,24,2.25,0.14,0.2,0.08,7.0,738000
+Butha-Buthe,Drought,Moderate,Autumn,70,1.63,0.14,0.19,0.08,6.5,473500
+Berea,Heavy Rainfall,Critical,Winter,362,2.79,0.1,0.15,0.06,5.5,14321500
+Berea,Strong Winds,Critical,Autumn,295,2.51,0.1,0.15,0.06,5.5,10796000
+Mohale's Hoek,Strong Winds,Low,Spring,35,2.6,0.13,0.19,0.07,6.0,1461000
+Leribe,Drought,Moderate,Autumn,109,1.7,0.11,0.16,0.06,5.5,771000
+Quthing,Strong Winds,Critical,Winter,381,2.59,0.14,0.2,0.08,7.0,13741500
+Mohale's Hoek,Heavy Rainfall,Critical,Autumn,319,2.64,0.13,0.19,0.07,6.0,10279500
+Maseru,Drought,Critical,Spring,256,1.57,0.08,0.12,0.05,4.5,1457000
+Qacha's Nek,Heavy Rainfall,Low,Autumn,18,2.94,0.15,0.22,0.09,7.0,794000
+Mokhotlong,Strong Winds,Critical,Autumn,289,2.59,0.17,0.24,0.1,8.0,11584000
+Thaba-Tseka,Drought,Moderate,Summer,91,1.73,0.16,0.23,0.09,7.5,691500
+Leribe,Heavy Rainfall,Critical,Autumn,487,2.82,0.11,0.16,0.06,5.5,19359500
+Qacha's Nek,Heavy Rainfall,Critical,Spring,478,2.82,0.15,0.22,0.09,7.0,18613500
+Berea,Strong Winds,Low,Spring,49,2.47,0.1,0.15,0.06,5.5,1768500
+Mohale's Hoek,Strong Winds,Low,Summer,12,2.83,0.13,0.19,0.07,6.0,512500
+Qacha's Nek,Drought,Low,Winter,41,1.59,0.15,0.22,0.09,7.0,290000
+Thaba-Tseka,Heavy Rainfall,Critical,Spring,379,2.88,0.16,0.23,0.09,7.5,16870000
+Butha-Buthe,Strong Winds,Critical,Spring,438,2.6,0.14,0.19,0.08,6.5,16102500
+Quthing,Heavy Rainfall,Low,Autumn,25,2.76,0.14,0.2,0.08,7.0,862000
+Thaba-Tseka,Drought,Moderate,Winter,138,1.57,0.16,0.23,0.09,7.5,925000
+Thaba-Tseka,Drought,Critical,Summer,320,1.57,0.16,0.23,0.09,7.5,2200500
+Maseru,Heavy Rainfall,Low,Summer,28,2.93,0.08,0.12,0.05,4.5,1219500
+Maseru,Drought,Low,Summer,13,1.62,0.08,0.12,0.05,4.5,89500
+Thaba-Tseka,Strong Winds,Low,Summer,21,2.76,0.16,0.23,0.09,7.5,861000
+Mohale's Hoek,Heavy Rainfall,Low,Winter,31,2.9,0.13,0.19,0.07,6.0,1199000
+Butha-Buthe,Strong Winds,Low,Summer,47,2.62,0.14,0.19,0.08,6.5,1907000
+Thaba-Tseka,Drought,Low,Winter,50,1.54,0.16,0.23,0.09,7.5,347500
+Quthing,Strong Winds,Critical,Autumn,409,2.57,0.14,0.2,0.08,7.0,14753000
+Butha-Buthe,Strong Winds,Moderate,Autumn,199,2.65,0.14,0.19,0.08,6.5,7710500
+Quthing,Drought,Low,Summer,18,1.33,0.14,0.2,0.08,7.0,100500
+Qacha's Nek,Strong Winds,Low,Autumn,19,2.68,0.15,0.22,0.09,7.0,940000
+Berea,Heavy Rainfall,Moderate,Spring,182,2.88,0.1,0.15,0.06,5.5,7270000
+Mafeteng,Heavy Rainfall,Low,Summer,46,2.78,0.12,0.18,0.07,6.0,2123000
+Maseru,Drought,Moderate,Spring,155,1.65,0.08,0.12,0.05,4.5,959000
+Thaba-Tseka,Heavy Rainfall,Moderate,Summer,83,2.64,0.16,0.23,0.09,7.5,2484000
+Qacha's Nek,Drought,Moderate,Winter,105,1.66,0.15,0.22,0.09,7.0,753500
+Butha-Buthe,Heavy Rainfall,Critical,Summer,401,2.82,0.14,0.19,0.08,6.5,15106000
+Qacha's Nek,Heavy Rainfall,Moderate,Autumn,92,2.79,0.15,0.22,0.09,7.0,3561500
+Mohale's Hoek,Drought,Moderate,Summer,75,1.73,0.13,0.19,0.07,6.0,533500
+Leribe,Drought,Low,Spring,12,1.25,0.11,0.16,0.06,5.5,67500
+Mohale's Hoek,Heavy Rainfall,Low,Autumn,24,2.71,0.13,0.19,0.07,6.0,681000
+Mohale's Hoek,Strong Winds,Critical,Summer,420,2.52,0.13,0.19,0.07,6.0,14084500
+Quthing,Heavy Rainfall,Low,Winter,34,2.5,0.14,0.2,0.08,7.0,670000
+Mokhotlong,Drought,Moderate,Spring,121,1.6,0.17,0.24,0.1,8.0,845500
+Qacha's Nek,Strong Winds,Critical,Winter,258,2.66,0.15,0.22,0.09,7.0,9251000
+Qacha's Nek,Strong Winds,Low,Autumn,11,2.27,0.15,0.22,0.09,7.0,140500
+Qacha's Nek,Strong Winds,Critical,Summer,449,2.66,0.15,0.22,0.09,7.0,16739500
+Berea,Strong Winds,Low,Summer,35,2.83,0.1,0.15,0.06,5.5,1667000
+Berea,Drought,Low,Spring,16,1.62,0.1,0.15,0.06,5.5,112000
+Mohale's Hoek,Drought,Critical,Winter,488,1.55,0.13,0.19,0.07,6.0,3282000
+Butha-Buthe,Strong Winds,Low,Summer,49,2.78,0.14,0.19,0.08,6.5,2352500
+Berea,Drought,Moderate,Autumn,114,1.65,0.1,0.15,0.06,5.5,753500
+Butha-Buthe,Drought,Moderate,Autumn,115,1.8,0.14,0.19,0.08,6.5,838000
+Quthing,Heavy Rainfall,Critical,Summer,480,2.78,0.14,0.2,0.08,7.0,16837500
+Quthing,Heavy Rainfall,Moderate,Winter,194,2.77,0.14,0.2,0.08,7.0,6781000
+Qacha's Nek,Drought,Low,Winter,18,1.61,0.15,0.22,0.09,7.0,131500
+Leribe,Strong Winds,Critical,Summer,346,2.59,0.11,0.16,0.06,5.5,13814500
+Mokhotlong,Strong Winds,Critical,Winter,216,2.6,0.17,0.24,0.1,8.0,7884000
+Mohale's Hoek,Heavy Rainfall,Critical,Autumn,207,2.84,0.13,0.19,0.07,6.0,9058500
+Thaba-Tseka,Heavy Rainfall,Critical,Spring,420,2.84,0.16,0.23,0.09,7.5,16860500
+Butha-Buthe,Heavy Rainfall,Moderate,Summer,192,2.81,0.14,0.19,0.08,6.5,7386500
+Mokhotlong,Heavy Rainfall,Low,Autumn,36,2.72,0.17,0.24,0.1,8.0,1517000
+Maseru,Heavy Rainfall,Moderate,Autumn,89,2.7,0.08,0.12,0.05,4.5,2992500
+Qacha's Nek,Heavy Rainfall,Critical,Summer,209,2.81,0.15,0.22,0.09,7.0,8678000
+Leribe,Drought,Moderate,Summer,113,1.68,0.11,0.16,0.06,5.5,747500
+Mohale's Hoek,Strong Winds,Moderate,Summer,57,2.68,0.13,0.19,0.07,6.0,2565000
+Qacha's Nek,Strong Winds,Low,Autumn,27,2.74,0.15,0.22,0.09,7.0,1091000
+Maseru,Drought,Critical,Winter,309,1.61,0.08,0.12,0.05,4.5,1841500
+Berea,Drought,Critical,Spring,266,1.6,0.1,0.15,0.06,5.5,1761500
+Thaba-Tseka,Strong Winds,Low,Winter,29,2.79,0.16,0.23,0.09,7.5,1062500
+Mokhotlong,Heavy Rainfall,Moderate,Spring,144,2.74,0.17,0.24,0.1,8.0,4431500
+Quthing,Drought,Low,Summer,35,1.69,0.14,0.2,0.08,7.0,255500
+Butha-Buthe,Drought,Moderate,Autumn,105,1.61,0.14,0.19,0.08,6.5,754000
+Thaba-Tseka,Strong Winds,Critical,Spring,302,2.6,0.16,0.23,0.09,7.5,11274000
+Butha-Buthe,Strong Winds,Low,Spring,44,2.57,0.14,0.19,0.08,6.5,1685500
+Leribe,Strong Winds,Moderate,Winter,189,2.57,0.11,0.16,0.06,5.5,6812000
+Maseru,Drought,Critical,Autumn,449,1.6,0.08,0.12,0.05,4.5,2690000
+Berea,Heavy Rainfall,Low,Spring,18,2.83,0.1,0.15,0.06,5.5,651500
+Thaba-Tseka,Drought,Critical,Summer,270,1.6,0.16,0.23,0.09,7.5,1946500
+Leribe,Heavy Rainfall,Low,Spring,36,2.83,0.11,0.16,0.06,5.5,1448000
+Thaba-Tseka,Strong Winds,Low,Autumn,18,2.78,0.16,0.23,0.09,7.5,720500
+Mafeteng,Strong Winds,Moderate,Winter,131,2.72,0.12,0.18,0.07,6.0,6302500
+Mohale's Hoek,Drought,Low,Autumn,42,1.36,0.13,0.19,0.07,6.0,238500
+Mafeteng,Drought,Moderate,Spring,183,1.55,0.12,0.18,0.07,6.0,1247500
+Mohale's Hoek,Strong Winds,Moderate,Autumn,188,2.64,0.13,0.19,0.07,6.0,7384500
+Berea,Heavy Rainfall,Critical,Spring,442,2.8,0.1,0.15,0.06,5.5,17349000
+Mohale's Hoek,Strong Winds,Critical,Winter,383,2.58,0.13,0.19,0.07,6.0,14450500
+Butha-Buthe,Strong Winds,Low,Autumn,37,2.32,0.14,0.19,0.08,6.5,774500
+Thaba-Tseka,Drought,Low,Winter,40,1.55,0.16,0.23,0.09,7.5,289000
+Maseru,Drought,Low,Spring,43,1.7,0.08,0.12,0.05,4.5,280500
+Butha-Buthe,Strong Winds,Moderate,Winter,117,2.68,0.14,0.19,0.08,6.5,4074000
+Berea,Drought,Low,Summer,39,1.62,0.1,0.15,0.06,5.5,255500
+Butha-Buthe,Drought,Moderate,Spring,80,1.62,0.14,0.19,0.08,6.5,584000
+Maseru,Strong Winds,Moderate,Summer,128,2.58,0.08,0.12,0.05,4.5,4624000
+Maseru,Strong Winds,Low,Spring,34,2.71,0.08,0.12,0.05,4.5,1108000
+Leribe,Strong Winds,Low,Spring,47,2.34,0.11,0.16,0.06,5.5,1335000
+Quthing,Heavy Rainfall,Low,Spring,47,2.83,0.14,0.2,0.08,7.0,2400500
+Mokhotlong,Drought,Low,Summer,26,1.54,0.17,0.24,0.1,8.0,182500
+Mohale's Hoek,Drought,Moderate,Spring,140,1.61,0.13,0.19,0.07,6.0,946500
+Maseru,Drought,Critical,Summer,482,1.6,0.08,0.12,0.05,4.5,2833500
+Quthing,Strong Winds,Low,Winter,46,2.39,0.14,0.2,0.08,7.0,1551500
+Berea,Heavy Rainfall,Moderate,Spring,77,2.61,0.1,0.15,0.06,5.5,2481000
+Qacha's Nek,Heavy Rainfall,Moderate,Winter,87,2.79,0.15,0.22,0.09,7.0,3369000
+Mohale's Hoek,Drought,Moderate,Summer,188,1.6,0.13,0.19,0.07,6.0,1335000
+Mokhotlong,Strong Winds,Critical,Autumn,303,2.55,0.17,0.24,0.1,8.0,10408000
+Mafeteng,Heavy Rainfall,Moderate,Autumn,200,2.75,0.12,0.18,0.07,6.0,7059000
+Leribe,Drought,Low,Spring,10,1.3,0.11,0.16,0.06,5.5,78000
+Mafeteng,Strong Winds,Moderate,Winter,115,2.7,0.12,0.18,0.07,6.0,4706500
+Quthing,Heavy Rainfall,Critical,Winter,235,2.84,0.14,0.2,0.08,7.0,10345000
+Quthing,Heavy Rainfall,Low,Autumn,39,2.9,0.14,0.2,0.08,7.0,1635500
+Thaba-Tseka,Heavy Rainfall,Moderate,Autumn,152,2.86,0.16,0.23,0.09,7.5,6098500
+Mohale's Hoek,Heavy Rainfall,Low,Winter,45,2.98,0.13,0.19,0.07,6.0,1704500
+Quthing,Drought,Moderate,Spring,165,1.64,0.14,0.2,0.08,7.0,1128500
+Leribe,Heavy Rainfall,Moderate,Autumn,167,2.69,0.11,0.16,0.06,5.5,6587000
+Quthing,Strong Winds,Critical,Autumn,340,2.51,0.14,0.2,0.08,7.0,12001000
+Butha-Buthe,Strong Winds,Low,Summer,21,2.95,0.14,0.19,0.08,6.5,1100500
+Maseru,Drought,Low,Summer,22,1.68,0.08,0.12,0.05,4.5,112000
+Leribe,Drought,Moderate,Spring,92,1.6,0.11,0.16,0.06,5.5,607000
+Butha-Buthe,Strong Winds,Low,Spring,48,2.42,0.14,0.19,0.08,6.5,1673000
+Thaba-Tseka,Strong Winds,Low,Winter,32,2.41,0.16,0.23,0.09,7.5,889000
+Butha-Buthe,Strong Winds,Critical,Summer,395,2.59,0.14,0.19,0.08,6.5,15220000
+Quthing,Drought,Low,Winter,23,1.74,0.14,0.2,0.08,7.0,169000
+Mohale's Hoek,Drought,Critical,Autumn,293,1.61,0.13,0.19,0.07,6.0,2029000
+Thaba-Tseka,Drought,Low,Autumn,40,1.8,0.16,0.23,0.09,7.5,294500
+Mafeteng,Drought,Critical,Summer,444,1.66,0.12,0.18,0.07,6.0,3110500
+Butha-Buthe,Heavy Rainfall,Low,Spring,42,2.6,0.14,0.19,0.08,6.5,1273500
+Butha-Buthe,Strong Winds,Moderate,Spring,114,2.55,0.14,0.19,0.08,6.5,4382000
+Butha-Buthe,Strong Winds,Low,Autumn,37,2.76,0.14,0.19,0.08,6.5,1780000
+Butha-Buthe,Drought,Critical,Autumn,407,1.54,0.14,0.19,0.08,6.5,2776500
+Mohale's Hoek,Heavy Rainfall,Low,Winter,11,2.82,0.13,0.19,0.07,6.0,383000
+Quthing,Heavy Rainfall,Low,Spring,16,3.06,0.14,0.2,0.08,7.0,599000
+Thaba-Tseka,Heavy Rainfall,Moderate,Spring,64,2.7,0.16,0.23,0.09,7.5,2486000
+Mokhotlong,Drought,Moderate,Winter,83,1.61,0.17,0.24,0.1,8.0,593000
+Quthing,Drought,Moderate,Spring,130,1.62,0.14,0.2,0.08,7.0,896000
+Mohale's Hoek,Drought,Critical,Spring,220,1.63,0.13,0.19,0.07,6.0,1500500
+Maseru,Heavy Rainfall,Moderate,Summer,177,2.8,0.08,0.12,0.05,4.5,6908000
+Mafeteng,Heavy Rainfall,Critical,Summer,350,2.83,0.12,0.18,0.07,6.0,13694000
+Thaba-Tseka,Strong Winds,Moderate,Spring,192,2.67,0.16,0.23,0.09,7.5,7785500
+Mafeteng,Drought,Moderate,Summer,94,1.61,0.12,0.18,0.07,6.0,663500
+Maseru,Drought,Low,Autumn,23,1.65,0.08,0.12,0.05,4.5,138500
+Maseru,Heavy Rainfall,Low,Autumn,34,2.76,0.08,0.12,0.05,4.5,1456500
+Leribe,Drought,Critical,Winter,201,1.6,0.11,0.16,0.06,5.5,1318000
+Butha-Buthe,Drought,Low,Winter,37,1.73,0.14,0.19,0.08,6.5,248000
+Butha-Buthe,Drought,Low,Autumn,29,1.48,0.14,0.19,0.08,6.5,200500
+Butha-Buthe,Drought,Moderate,Winter,127,1.74,0.14,0.19,0.08,6.5,901000
+Qacha's Nek,Strong Winds,Critical,Summer,447,2.55,0.15,0.22,0.09,7.0,15840000
+Quthing,Strong Winds,Low,Summer,46,2.74,0.14,0.2,0.08,7.0,1954000
+Thaba-Tseka,Drought,Low,Spring,40,1.73,0.16,0.23,0.09,7.5,271000
+Mokhotlong,Strong Winds,Critical,Autumn,378,2.58,0.17,0.24,0.1,8.0,13153500
+Butha-Buthe,Drought,Low,Spring,43,1.58,0.14,0.19,0.08,6.5,280500
+Butha-Buthe,Drought,Critical,Spring,224,1.53,0.14,0.19,0.08,6.5,1476500
+Butha-Buthe,Drought,Low,Autumn,46,1.72,0.14,0.19,0.08,6.5,321000
+Leribe,Drought,Critical,Autumn,490,1.64,0.11,0.16,0.06,5.5,3348000
+Leribe,Heavy Rainfall,Low,Autumn,40,2.52,0.11,0.16,0.06,5.5,1257500
+Maseru,Heavy Rainfall,Low,Summer,31,2.87,0.08,0.12,0.05,4.5,1109000
+Leribe,Drought,Low,Spring,44,1.59,0.11,0.16,0.06,5.5,277500
+Thaba-Tseka,Drought,Critical,Winter,341,1.58,0.16,0.23,0.09,7.5,2392500
+Mokhotlong,Heavy Rainfall,Moderate,Winter,119,2.87,0.17,0.24,0.1,8.0,5247500
+Mafeteng,Heavy Rainfall,Critical,Winter,220,2.82,0.12,0.18,0.07,6.0,8333000
+Quthing,Strong Winds,Low,Spring,43,2.86,0.14,0.2,0.08,7.0,1735000
+Leribe,Heavy Rainfall,Moderate,Summer,144,2.76,0.11,0.16,0.06,5.5,5437000
+Thaba-Tseka,Drought,Low,Summer,43,1.53,0.16,0.23,0.09,7.5,282000
+Mafeteng,Strong Winds,Low,Winter,13,3.08,0.12,0.18,0.07,6.0,631000
+Qacha's Nek,Strong Winds,Moderate,Summer,187,2.71,0.15,0.22,0.09,7.0,7639000
+Mokhotlong,Strong Winds,Low,Autumn,10,2.4,0.17,0.24,0.1,8.0,445500
+Butha-Buthe,Strong Winds,Low,Summer,25,2.8,0.14,0.19,0.08,6.5,1113000
+Mafeteng,Drought,Moderate,Summer,172,1.59,0.12,0.18,0.07,6.0,1103000
+Leribe,Strong Winds,Low,Winter,34,2.94,0.11,0.16,0.06,5.5,1650500
+Mohale's Hoek,Strong Winds,Moderate,Spring,132,2.54,0.13,0.19,0.07,6.0,4861500
+Leribe,Strong Winds,Low,Summer,37,2.41,0.11,0.16,0.06,5.5,1257500
+Mohale's Hoek,Drought,Moderate,Winter,155,1.54,0.13,0.19,0.07,6.0,1014500
+Butha-Buthe,Heavy Rainfall,Critical,Autumn,350,2.8,0.14,0.19,0.08,6.5,12907000
+Quthing,Drought,Critical,Spring,261,1.58,0.14,0.2,0.08,7.0,1801500
+Berea,Drought,Moderate,Spring,199,1.61,0.1,0.15,0.06,5.5,1288500
+Mokhotlong,Strong Winds,Low,Autumn,11,2.82,0.17,0.24,0.1,8.0,471000
+Mokhotlong,Heavy Rainfall,Low,Autumn,14,2.86,0.17,0.24,0.1,8.0,373500
+Quthing,Drought,Critical,Winter,394,1.59,0.14,0.2,0.08,7.0,2722000
+Maseru,Strong Winds,Moderate,Winter,112,2.72,0.08,0.12,0.05,4.5,4531500
+Berea,Drought,Moderate,Winter,153,1.62,0.1,0.15,0.06,5.5,1009000
+Qacha's Nek,Heavy Rainfall,Low,Spring,46,2.67,0.15,0.22,0.09,7.0,1310000
+Leribe,Heavy Rainfall,Moderate,Autumn,54,2.94,0.11,0.16,0.06,5.5,2092500
+Mafeteng,Drought,Low,Spring,16,1.75,0.12,0.18,0.07,6.0,97000
+Mafeteng,Heavy Rainfall,Critical,Autumn,452,2.86,0.12,0.18,0.07,6.0,17575000
+Mohale's Hoek,Drought,Low,Summer,38,1.55,0.13,0.19,0.07,6.0,245500
+Butha-Buthe,Drought,Low,Autumn,20,1.6,0.14,0.19,0.08,6.5,142500
+Quthing,Strong Winds,Critical,Autumn,436,2.66,0.14,0.2,0.08,7.0,17105000
+Qacha's Nek,Heavy Rainfall,Moderate,Autumn,56,2.75,0.15,0.22,0.09,7.0,2114000
+Maseru,Heavy Rainfall,Moderate,Winter,188,2.82,0.08,0.12,0.05,4.5,6795000
+Quthing,Heavy Rainfall,Moderate,Summer,144,2.8,0.14,0.2,0.08,7.0,5122000
+Quthing,Heavy Rainfall,Moderate,Autumn,142,2.91,0.14,0.2,0.08,7.0,5387000
+Maseru,Drought,Critical,Spring,290,1.61,0.08,0.12,0.05,4.5,1711500
+Berea,Drought,Critical,Autumn,460,1.6,0.1,0.15,0.06,5.5,3022500
+Mokhotlong,Drought,Low,Spring,43,1.44,0.17,0.24,0.1,8.0,278500
+Thaba-Tseka,Drought,Moderate,Winter,113,1.45,0.16,0.23,0.09,7.5,821000
+Leribe,Strong Winds,Critical,Spring,488,2.62,0.11,0.16,0.06,5.5,18715000
+Mokhotlong,Heavy Rainfall,Low,Autumn,22,2.91,0.17,0.24,0.1,8.0,1063500
+Butha-Buthe,Heavy Rainfall,Moderate,Winter,110,2.73,0.14,0.19,0.08,6.5,3379500
+Mohale's Hoek,Drought,Critical,Autumn,238,1.55,0.13,0.19,0.07,6.0,1598000
+Mohale's Hoek,Drought,Critical,Summer,277,1.66,0.13,0.19,0.07,6.0,1944000
+Qacha's Nek,Heavy Rainfall,Moderate,Spring,66,2.61,0.15,0.22,0.09,7.0,2255000
+Quthing,Drought,Moderate,Spring,183,1.57,0.14,0.2,0.08,7.0,1291500
+Mokhotlong,Heavy Rainfall,Low,Spring,30,2.6,0.17,0.24,0.1,8.0,671000
+Berea,Heavy Rainfall,Critical,Autumn,402,2.82,0.1,0.15,0.06,5.5,15066000
+Maseru,Strong Winds,Moderate,Autumn,116,2.59,0.08,0.12,0.05,4.5,4137500
+Thaba-Tseka,Strong Winds,Critical,Summer,324,2.58,0.16,0.23,0.09,7.5,10478000
+Maseru,Drought,Low,Summer,43,1.77,0.08,0.12,0.05,4.5,271000
+Quthing,Strong Winds,Low,Summer,17,2.53,0.14,0.2,0.08,7.0,452000
+Maseru,Heavy Rainfall,Low,Spring,16,2.88,0.08,0.12,0.05,4.5,606000
+Qacha's Nek,Strong Winds,Low,Autumn,13,2.54,0.15,0.22,0.09,7.0,461000
+Quthing,Strong Winds,Critical,Summer,288,2.62,0.14,0.2,0.08,7.0,10597500
+Maseru,Drought,Moderate,Autumn,165,1.62,0.08,0.12,0.05,4.5,982000
+Thaba-Tseka,Heavy Rainfall,Moderate,Summer,173,2.73,0.16,0.23,0.09,7.5,6315000
+Qacha's Nek,Strong Winds,Low,Summer,25,2.88,0.15,0.22,0.09,7.0,1025500
+Maseru,Strong Winds,Moderate,Autumn,113,2.65,0.08,0.12,0.05,4.5,4140500
+Qacha's Nek,Drought,Low,Summer,44,1.66,0.15,0.22,0.09,7.0,329000
+Qacha's Nek,Drought,Moderate,Summer,200,1.59,0.15,0.22,0.09,7.0,1396500
+Quthing,Heavy Rainfall,Critical,Spring,312,2.82,0.14,0.2,0.08,7.0,11943000
+Maseru,Drought,Moderate,Summer,79,1.54,0.08,0.12,0.05,4.5,462000
+Mafeteng,Strong Winds,Moderate,Summer,134,2.58,0.12,0.18,0.07,6.0,4322000
+Leribe,Strong Winds,Low,Winter,38,2.53,0.11,0.16,0.06,5.5,960500
+Mokhotlong,Drought,Moderate,Summer,81,1.68,0.17,0.24,0.1,8.0,587000
+Thaba-Tseka,Heavy Rainfall,Low,Autumn,38,2.63,0.16,0.23,0.09,7.5,1334500
+Maseru,Heavy Rainfall,Low,Spring,26,2.77,0.08,0.12,0.05,4.5,878000
+Butha-Buthe,Drought,Low,Winter,10,1.3,0.14,0.19,0.08,6.5,58500
+Thaba-Tseka,Drought,Low,Winter,41,1.73,0.16,0.23,0.09,7.5,307500
+Qacha's Nek,Drought,Moderate,Spring,130,1.61,0.15,0.22,0.09,7.0,928000
+Thaba-Tseka,Heavy Rainfall,Low,Summer,17,2.94,0.16,0.23,0.09,7.5,397000
+Mohale's Hoek,Strong Winds,Moderate,Winter,126,2.42,0.13,0.19,0.07,6.0,3625000
+Butha-Buthe,Drought,Critical,Winter,415,1.59,0.14,0.19,0.08,6.5,2820000
+Leribe,Strong Winds,Moderate,Winter,164,2.79,0.11,0.16,0.06,5.5,7559500
+Maseru,Heavy Rainfall,Moderate,Summer,130,2.79,0.08,0.12,0.05,4.5,5497500
+Berea,Heavy Rainfall,Critical,Autumn,259,2.85,0.1,0.15,0.06,5.5,10216500
+Qacha's Nek,Heavy Rainfall,Critical,Summer,282,2.78,0.15,0.22,0.09,7.0,10848500
+Qacha's Nek,Heavy Rainfall,Low,Winter,32,2.91,0.15,0.22,0.09,7.0,1321500
+Quthing,Strong Winds,Low,Autumn,28,2.75,0.14,0.2,0.08,7.0,951500
+Qacha's Nek,Strong Winds,Moderate,Winter,109,2.49,0.15,0.22,0.09,7.0,3293000
+Butha-Buthe,Heavy Rainfall,Low,Summer,39,2.77,0.14,0.19,0.08,6.5,1521500
+Mokhotlong,Drought,Low,Autumn,21,1.9,0.17,0.24,0.1,8.0,166000
+Quthing,Heavy Rainfall,Critical,Summer,388,2.81,0.14,0.2,0.08,7.0,15365500
+Mohale's Hoek,Drought,Low,Summer,20,1.9,0.13,0.19,0.07,6.0,151000
+Butha-Buthe,Heavy Rainfall,Critical,Winter,356,2.83,0.14,0.19,0.08,6.5,14026000
+Quthing,Drought,Moderate,Spring,99,1.57,0.14,0.2,0.08,7.0,688500
+Butha-Buthe,Drought,Moderate,Spring,133,1.64,0.14,0.19,0.08,6.5,913000
+Mohale's Hoek,Drought,Low,Summer,42,1.69,0.13,0.19,0.07,6.0,295000
+Quthing,Strong Winds,Critical,Summer,225,2.63,0.14,0.2,0.08,7.0,8945000
+Mafeteng,Heavy Rainfall,Moderate,Winter,73,2.73,0.12,0.18,0.07,6.0,1967500
+Leribe,Heavy Rainfall,Critical,Winter,358,2.85,0.11,0.16,0.06,5.5,15434000
+Qacha's Nek,Drought,Moderate,Summer,85,1.56,0.15,0.22,0.09,7.0,594500
+Mokhotlong,Heavy Rainfall,Low,Winter,13,2.69,0.17,0.24,0.1,8.0,593500
+Butha-Buthe,Heavy Rainfall,Low,Summer,18,2.67,0.14,0.19,0.08,6.5,543000
+Thaba-Tseka,Heavy Rainfall,Critical,Winter,424,2.78,0.16,0.23,0.09,7.5,15850500
+Maseru,Drought,Critical,Spring,351,1.57,0.08,0.12,0.05,4.5,2054000
+Maseru,Heavy Rainfall,Moderate,Summer,146,2.88,0.08,0.12,0.05,4.5,5576000
+Butha-Buthe,Drought,Moderate,Winter,62,1.5,0.14,0.19,0.08,6.5,360500
+Mafeteng,Heavy Rainfall,Low,Winter,11,2.55,0.12,0.18,0.07,6.0,417000
+Quthing,Strong Winds,Critical,Spring,298,2.67,0.14,0.2,0.08,7.0,12155000
+Mokhotlong,Strong Winds,Low,Autumn,34,2.35,0.17,0.24,0.1,8.0,933000
+Mafeteng,Strong Winds,Critical,Summer,339,2.49,0.12,0.18,0.07,6.0,11817500
+Maseru,Drought,Low,Winter,12,1.67,0.08,0.12,0.05,4.5,64000
+Qacha's Nek,Drought,Moderate,Summer,191,1.67,0.15,0.22,0.09,7.0,1370000
+Mohale's Hoek,Strong Winds,Moderate,Winter,93,2.56,0.13,0.19,0.07,6.0,3586000
+Mohale's Hoek,Strong Winds,Low,Autumn,44,2.64,0.13,0.19,0.07,6.0,1462000
+Berea,Drought,Critical,Winter,313,1.64,0.1,0.15,0.06,5.5,2185000
+Quthing,Strong Winds,Moderate,Spring,170,2.65,0.14,0.2,0.08,7.0,6762000
+Mafeteng,Drought,Critical,Summer,280,1.57,0.12,0.18,0.07,6.0,1880000
+Maseru,Strong Winds,Moderate,Spring,136,2.6,0.08,0.12,0.05,4.5,5689000
+Mafeteng,Drought,Critical,Autumn,456,1.59,0.12,0.18,0.07,6.0,3130000
+Mokhotlong,Heavy Rainfall,Moderate,Spring,134,2.93,0.17,0.24,0.1,8.0,5523500
+Mafeteng,Heavy Rainfall,Low,Autumn,17,2.65,0.12,0.18,0.07,6.0,767500
+Maseru,Heavy Rainfall,Moderate,Autumn,128,2.84,0.08,0.12,0.05,4.5,4879000
+Butha-Buthe,Heavy Rainfall,Low,Winter,40,2.67,0.14,0.19,0.08,6.5,1017500
+Leribe,Drought,Low,Spring,48,1.58,0.11,0.16,0.06,5.5,325500
+Qacha's Nek,Drought,Critical,Winter,261,1.65,0.15,0.22,0.09,7.0,1854500
+Butha-Buthe,Strong Winds,Critical,Summer,399,2.61,0.14,0.19,0.08,6.5,16227500
+Mohale's Hoek,Drought,Low,Spring,10,1.3,0.13,0.19,0.07,6.0,73000
+Leribe,Strong Winds,Moderate,Winter,145,2.56,0.11,0.16,0.06,5.5,5658500
+Berea,Heavy Rainfall,Moderate,Autumn,146,2.89,0.1,0.15,0.06,5.5,6103000
+Mokhotlong,Drought,Critical,Autumn,298,1.63,0.17,0.24,0.1,8.0,2108500
+Qacha's Nek,Drought,Critical,Winter,247,1.6,0.15,0.22,0.09,7.0,1737500
+Mokhotlong,Heavy Rainfall,Moderate,Spring,83,2.78,0.17,0.24,0.1,8.0,3547000
+Mafeteng,Drought,Critical,Autumn,384,1.55,0.12,0.18,0.07,6.0,2510000
+Thaba-Tseka,Strong Winds,Moderate,Spring,159,2.65,0.16,0.23,0.09,7.5,6600500
+Butha-Buthe,Heavy Rainfall,Moderate,Summer,60,3.0,0.14,0.19,0.08,6.5,2889000
+Butha-Buthe,Heavy Rainfall,Critical,Winter,238,2.71,0.14,0.19,0.08,6.5,8030500
+Mohale's Hoek,Heavy Rainfall,Moderate,Summer,195,2.81,0.13,0.19,0.07,6.0,7883000
+Maseru,Heavy Rainfall,Critical,Winter,241,2.82,0.08,0.12,0.05,4.5,9072000
+Berea,Strong Winds,Critical,Autumn,204,2.63,0.1,0.15,0.06,5.5,8665500
+Thaba-Tseka,Drought,Critical,Summer,353,1.58,0.16,0.23,0.09,7.5,2462500
+Mohale's Hoek,Heavy Rainfall,Critical,Winter,266,2.82,0.13,0.19,0.07,6.0,10167000
+Maseru,Heavy Rainfall,Critical,Spring,275,2.73,0.08,0.12,0.05,4.5,9336000
+Berea,Heavy Rainfall,Moderate,Winter,146,2.86,0.1,0.15,0.06,5.5,6383000
+Mohale's Hoek,Strong Winds,Moderate,Summer,85,2.51,0.13,0.19,0.07,6.0,2865000
+Berea,Drought,Critical,Winter,462,1.59,0.1,0.15,0.06,5.5,3001500
+Mafeteng,Heavy Rainfall,Low,Summer,44,2.93,0.12,0.18,0.07,6.0,1728000
+Mohale's Hoek,Strong Winds,Low,Summer,34,2.59,0.13,0.19,0.07,6.0,1512500
+Maseru,Strong Winds,Low,Winter,47,2.57,0.08,0.12,0.05,4.5,1830000
+Thaba-Tseka,Heavy Rainfall,Moderate,Winter,124,2.8,0.16,0.23,0.09,7.5,5580000
+Butha-Buthe,Strong Winds,Low,Winter,20,2.55,0.14,0.19,0.08,6.5,791000
+Quthing,Heavy Rainfall,Critical,Winter,328,2.8,0.14,0.2,0.08,7.0,12342000
+Maseru,Drought,Low,Autumn,26,1.58,0.08,0.12,0.05,4.5,157000
+Berea,Strong Winds,Low,Spring,40,2.65,0.1,0.15,0.06,5.5,1387500
+Berea,Heavy Rainfall,Moderate,Autumn,128,2.77,0.1,0.15,0.06,5.5,4184000
+Maseru,Drought,Moderate,Autumn,150,1.6,0.08,0.12,0.05,4.5,925500
+Leribe,Heavy Rainfall,Low,Autumn,50,2.76,0.11,0.16,0.06,5.5,1866500
+Leribe,Drought,Low,Summer,39,1.82,0.11,0.16,0.06,5.5,264500
+Mokhotlong,Drought,Critical,Winter,413,1.61,0.17,0.24,0.1,8.0,2875500
+Mafeteng,Drought,Moderate,Winter,138,1.59,0.12,0.18,0.07,6.0,964000
+Qacha's Nek,Drought,Critical,Summer,500,1.61,0.15,0.22,0.09,7.0,3494000
+Mafeteng,Strong Winds,Critical,Summer,330,2.6,0.12,0.18,0.07,6.0,13061000
+Thaba-Tseka,Drought,Low,Summer,18,1.44,0.16,0.23,0.09,7.5,124500
+Quthing,Heavy Rainfall,Moderate,Summer,172,2.76,0.14,0.2,0.08,7.0,6321000
+Leribe,Heavy Rainfall,Low,Autumn,16,2.88,0.11,0.16,0.06,5.5,457500
+Maseru,Strong Winds,Critical,Summer,499,2.58,0.08,0.12,0.05,4.5,17994500
+Mokhotlong,Drought,Critical,Autumn,489,1.62,0.17,0.24,0.1,8.0,3446000
+Qacha's Nek,Heavy Rainfall,Low,Winter,20,2.8,0.15,0.22,0.09,7.0,469000
+Berea,Strong Winds,Low,Spring,31,2.52,0.1,0.15,0.06,5.5,990000
+Mokhotlong,Strong Winds,Critical,Autumn,475,2.57,0.17,0.24,0.1,8.0,16079000
+Qacha's Nek,Heavy Rainfall,Moderate,Spring,116,2.76,0.15,0.22,0.09,7.0,4391000
+Thaba-Tseka,Strong Winds,Low,Spring,28,2.75,0.16,0.23,0.09,7.5,1279500
+Mokhotlong,Heavy Rainfall,Low,Autumn,21,2.48,0.17,0.24,0.1,8.0,673500
+Berea,Strong Winds,Critical,Autumn,365,2.57,0.1,0.15,0.06,5.5,13159000
+Mokhotlong,Heavy Rainfall,Low,Autumn,34,2.94,0.17,0.24,0.1,8.0,1743000
+Mohale's Hoek,Heavy Rainfall,Moderate,Spring,109,2.86,0.13,0.19,0.07,6.0,5186000
+Qacha's Nek,Heavy Rainfall,Moderate,Summer,186,2.86,0.15,0.22,0.09,7.0,7250000
+Thaba-Tseka,Heavy Rainfall,Critical,Winter,472,2.73,0.16,0.23,0.09,7.5,18861000
+Leribe,Heavy Rainfall,Low,Winter,33,3.0,0.11,0.16,0.06,5.5,1843500
+Thaba-Tseka,Drought,Moderate,Winter,131,1.57,0.16,0.23,0.09,7.5,929000
+Leribe,Drought,Low,Summer,43,1.51,0.11,0.16,0.06,5.5,275500
+Mohale's Hoek,Heavy Rainfall,Moderate,Winter,96,2.89,0.13,0.19,0.07,6.0,4084000
+Thaba-Tseka,Strong Winds,Low,Summer,33,2.55,0.16,0.23,0.09,7.5,1269000
+Qacha's Nek,Drought,Low,Autumn,23,1.61,0.15,0.22,0.09,7.0,163500
+Butha-Buthe,Drought,Low,Autumn,39,1.67,0.14,0.19,0.08,6.5,262500
+Quthing,Strong Winds,Low,Spring,21,2.1,0.14,0.2,0.08,7.0,663500
+Leribe,Heavy Rainfall,Moderate,Autumn,194,2.74,0.11,0.16,0.06,5.5,6849500
+Qacha's Nek,Heavy Rainfall,Low,Winter,13,2.23,0.15,0.22,0.09,7.0,180500
+Butha-Buthe,Drought,Moderate,Summer,184,1.57,0.14,0.19,0.08,6.5,1258500
+Mokhotlong,Heavy Rainfall,Critical,Spring,476,2.8,0.17,0.24,0.1,8.0,17487500
+Leribe,Strong Winds,Critical,Summer,216,2.53,0.11,0.16,0.06,5.5,8249500
+Leribe,Drought,Low,Summer,16,1.81,0.11,0.16,0.06,5.5,105500
+Berea,Strong Winds,Moderate,Spring,114,2.7,0.1,0.15,0.06,5.5,4649000
+Mafeteng,Heavy Rainfall,Moderate,Winter,57,2.63,0.12,0.18,0.07,6.0,2404500
+Leribe,Strong Winds,Moderate,Summer,178,2.54,0.11,0.16,0.06,5.5,5307000
+Qacha's Nek,Heavy Rainfall,Critical,Summer,488,2.7,0.15,0.22,0.09,7.0,17223500
+Mafeteng,Heavy Rainfall,Low,Spring,26,2.73,0.12,0.18,0.07,6.0,1060000
+Quthing,Drought,Moderate,Winter,101,1.64,0.14,0.2,0.08,7.0,685000
+Butha-Buthe,Strong Winds,Moderate,Spring,180,2.63,0.14,0.19,0.08,6.5,7934000
+Berea,Drought,Low,Spring,27,1.67,0.1,0.15,0.06,5.5,165500
+Maseru,Heavy Rainfall,Low,Spring,23,2.91,0.08,0.12,0.05,4.5,834000
+Mokhotlong,Drought,Moderate,Spring,63,1.51,0.17,0.24,0.1,8.0,448500
+Mokhotlong,Heavy Rainfall,Low,Summer,14,2.71,0.17,0.24,0.1,8.0,426500
+Thaba-Tseka,Strong Winds,Moderate,Winter,75,2.6,0.16,0.23,0.09,7.5,2900500
+Maseru,Heavy Rainfall,Low,Spring,31,2.87,0.08,0.12,0.05,4.5,1411500
+Thaba-Tseka,Drought,Moderate,Winter,63,1.7,0.16,0.23,0.09,7.5,470500
+Thaba-Tseka,Strong Winds,Low,Winter,28,2.57,0.16,0.23,0.09,7.5,900500
+Mokhotlong,Heavy Rainfall,Critical,Summer,297,2.82,0.17,0.24,0.1,8.0,11055000
+Quthing,Drought,Moderate,Winter,187,1.66,0.14,0.2,0.08,7.0,1286000
+Mafeteng,Heavy Rainfall,Low,Spring,50,2.88,0.12,0.18,0.07,6.0,1801000
+Mafeteng,Heavy Rainfall,Low,Summer,17,2.47,0.12,0.18,0.07,6.0,469500
+Berea,Drought,Critical,Winter,398,1.62,0.1,0.15,0.06,5.5,2598500
+Mafeteng,Drought,Moderate,Autumn,109,1.61,0.12,0.18,0.07,6.0,770500
+Thaba-Tseka,Drought,Critical,Spring,332,1.67,0.16,0.23,0.09,7.5,2384500
+Leribe,Heavy Rainfall,Critical,Summer,277,2.9,0.11,0.16,0.06,5.5,11327500
+Qacha's Nek,Drought,Moderate,Summer,198,1.53,0.15,0.22,0.09,7.0,1351500
+Mokhotlong,Heavy Rainfall,Critical,Spring,382,2.77,0.17,0.24,0.1,8.0,16406500
+Mohale's Hoek,Heavy Rainfall,Critical,Summer,336,2.8,0.13,0.19,0.07,6.0,13953000
+Leribe,Strong Winds,Low,Winter,37,2.49,0.11,0.16,0.06,5.5,1250500
+Leribe,Drought,Low,Summer,17,1.65,0.11,0.16,0.06,5.5,135500
+Mafeteng,Heavy Rainfall,Moderate,Winter,94,2.71,0.12,0.18,0.07,6.0,3371500
+Mohale's Hoek,Heavy Rainfall,Low,Winter,33,2.73,0.13,0.19,0.07,6.0,1284500
+Maseru,Drought,Critical,Winter,415,1.57,0.08,0.12,0.05,4.5,2458500
+Mokhotlong,Drought,Moderate,Winter,114,1.65,0.17,0.24,0.1,8.0,812000
+Leribe,Drought,Moderate,Winter,107,1.64,0.11,0.16,0.06,5.5,705500
+Quthing,Strong Winds,Critical,Summer,482,2.58,0.14,0.2,0.08,7.0,18352000
+Quthing,Heavy Rainfall,Low,Summer,48,2.73,0.14,0.2,0.08,7.0,1274500
+Mokhotlong,Strong Winds,Moderate,Autumn,199,2.57,0.17,0.24,0.1,8.0,7252500
+Berea,Strong Winds,Low,Summer,46,2.65,0.1,0.15,0.06,5.5,2139500
+Maseru,Strong Winds,Low,Winter,50,2.66,0.08,0.12,0.05,4.5,1226000
+Mokhotlong,Drought,Moderate,Winter,140,1.6,0.17,0.24,0.1,8.0,984500
+Leribe,Strong Winds,Moderate,Spring,120,2.36,0.11,0.16,0.06,5.5,3851000
+Qacha's Nek,Drought,Low,Autumn,25,1.56,0.15,0.22,0.09,7.0,164500
+Mohale's Hoek,Strong Winds,Critical,Summer,493,2.61,0.13,0.19,0.07,6.0,18405500
+Berea,Heavy Rainfall,Moderate,Summer,80,2.94,0.1,0.15,0.06,5.5,4165500
+Mafeteng,Heavy Rainfall,Critical,Summer,320,2.84,0.12,0.18,0.07,6.0,13289000
+Qacha's Nek,Strong Winds,Moderate,Winter,130,2.69,0.15,0.22,0.09,7.0,5335500
+Qacha's Nek,Strong Winds,Low,Winter,14,2.43,0.15,0.22,0.09,7.0,499000
+Mafeteng,Heavy Rainfall,Low,Spring,36,2.97,0.12,0.18,0.07,6.0,1241500
+Leribe,Drought,Critical,Summer,203,1.55,0.11,0.16,0.06,5.5,1374000
+Mafeteng,Drought,Low,Autumn,16,1.56,0.12,0.18,0.07,6.0,100000
+Berea,Drought,Moderate,Spring,77,1.65,0.1,0.15,0.06,5.5,528500
+Quthing,Drought,Moderate,Spring,88,1.65,0.14,0.2,0.08,7.0,602000
+Thaba-Tseka,Heavy Rainfall,Moderate,Winter,135,2.91,0.16,0.23,0.09,7.5,5445000
+Maseru,Heavy Rainfall,Critical,Autumn,494,2.82,0.08,0.12,0.05,4.5,21455000
+Qacha's Nek,Heavy Rainfall,Low,Spring,30,3.07,0.15,0.22,0.09,7.0,1233000
+Maseru,Drought,Moderate,Autumn,79,1.57,0.08,0.12,0.05,4.5,486500
+Qacha's Nek,Strong Winds,Critical,Summer,396,2.56,0.15,0.22,0.09,7.0,14609500
+Maseru,Strong Winds,Critical,Summer,255,2.6,0.08,0.12,0.05,4.5,9945500
+Qacha's Nek,Strong Winds,Critical,Winter,352,2.55,0.15,0.22,0.09,7.0,11782000
+Mohale's Hoek,Strong Winds,Moderate,Summer,106,2.76,0.13,0.19,0.07,6.0,4325000
+Thaba-Tseka,Heavy Rainfall,Low,Winter,11,2.45,0.16,0.23,0.09,7.5,143500
+Maseru,Strong Winds,Low,Autumn,48,2.29,0.08,0.12,0.05,4.5,1407500
+Berea,Heavy Rainfall,Critical,Spring,274,2.91,0.1,0.15,0.06,5.5,10669500
+Mohale's Hoek,Drought,Moderate,Autumn,103,1.6,0.13,0.19,0.07,6.0,672000
+Quthing,Heavy Rainfall,Critical,Spring,362,2.78,0.14,0.2,0.08,7.0,14677000
+Berea,Drought,Low,Winter,36,1.33,0.1,0.15,0.06,5.5,200500
+Mokhotlong,Heavy Rainfall,Moderate,Summer,160,2.62,0.17,0.24,0.1,8.0,4645500
+Leribe,Drought,Low,Winter,19,1.42,0.11,0.16,0.06,5.5,110500
+Berea,Heavy Rainfall,Moderate,Autumn,166,2.8,0.1,0.15,0.06,5.5,6470500
+Qacha's Nek,Heavy Rainfall,Low,Winter,18,3.28,0.15,0.22,0.09,7.0,1012500
+Berea,Drought,Critical,Spring,345,1.63,0.1,0.15,0.06,5.5,2385500
+Butha-Buthe,Heavy Rainfall,Low,Winter,30,2.77,0.14,0.19,0.08,6.5,1137000
+Mokhotlong,Strong Winds,Critical,Winter,307,2.66,0.17,0.24,0.1,8.0,12116000
+Maseru,Strong Winds,Low,Summer,42,2.69,0.08,0.12,0.05,4.5,1124000
+Maseru,Strong Winds,Moderate,Summer,139,2.66,0.08,0.12,0.05,4.5,4575500
+Leribe,Strong Winds,Critical,Summer,249,2.56,0.11,0.16,0.06,5.5,8764500
+Mokhotlong,Heavy Rainfall,Moderate,Summer,179,2.8,0.17,0.24,0.1,8.0,6871500
+Qacha's Nek,Strong Winds,Moderate,Spring,71,2.65,0.15,0.22,0.09,7.0,2588000
+Butha-Buthe,Drought,Moderate,Winter,126,1.6,0.14,0.19,0.08,6.5,861000
+Qacha's Nek,Strong Winds,Low,Autumn,18,3.06,0.15,0.22,0.09,7.0,990500
+Quthing,Heavy Rainfall,Low,Summer,24,2.79,0.14,0.2,0.08,7.0,1384500
+Thaba-Tseka,Strong Winds,Critical,Autumn,444,2.61,0.16,0.23,0.09,7.5,16076500
+Quthing,Strong Winds,Low,Spring,16,2.56,0.14,0.2,0.08,7.0,479000
+Mohale's Hoek,Drought,Critical,Autumn,221,1.57,0.13,0.19,0.07,6.0,1497000
+Qacha's Nek,Strong Winds,Critical,Winter,497,2.62,0.15,0.22,0.09,7.0,18582000
+Quthing,Heavy Rainfall,Critical,Spring,224,2.84,0.14,0.2,0.08,7.0,8485000
+Mafeteng,Heavy Rainfall,Low,Autumn,32,2.88,0.12,0.18,0.07,6.0,1272500
+Mafeteng,Drought,Low,Spring,22,1.36,0.12,0.18,0.07,6.0,137500
+Qacha's Nek,Strong Winds,Moderate,Autumn,157,2.62,0.15,0.22,0.09,7.0,6318000
+Butha-Buthe,Heavy Rainfall,Moderate,Winter,51,2.9,0.14,0.19,0.08,6.5,2379500
+Mokhotlong,Strong Winds,Low,Autumn,42,2.43,0.17,0.24,0.1,8.0,1153500
+Mokhotlong,Drought,Low,Summer,24,1.62,0.17,0.24,0.1,8.0,168500
+Butha-Buthe,Drought,Moderate,Winter,105,1.67,0.14,0.19,0.08,6.5,739000
+Mohale's Hoek,Heavy Rainfall,Moderate,Spring,139,2.8,0.13,0.19,0.07,6.0,6010000
+Berea,Drought,Low,Spring,44,1.7,0.1,0.15,0.06,5.5,312500
+Qacha's Nek,Heavy Rainfall,Moderate,Winter,200,2.82,0.15,0.22,0.09,7.0,7831000
+Qacha's Nek,Heavy Rainfall,Moderate,Spring,197,2.74,0.15,0.22,0.09,7.0,7272000
+Butha-Buthe,Drought,Critical,Spring,245,1.57,0.14,0.19,0.08,6.5,1689000
+Qacha's Nek,Heavy Rainfall,Moderate,Spring,186,2.85,0.15,0.22,0.09,7.0,7753500
+Mohale's Hoek,Heavy Rainfall,Low,Winter,34,3.0,0.13,0.19,0.07,6.0,1586000
+Maseru,Drought,Moderate,Winter,99,1.62,0.08,0.12,0.05,4.5,570000
+Butha-Buthe,Heavy Rainfall,Moderate,Winter,75,2.65,0.14,0.19,0.08,6.5,2446000
+Qacha's Nek,Strong Winds,Critical,Spring,380,2.48,0.15,0.22,0.09,7.0,13266500
+Thaba-Tseka,Heavy Rainfall,Low,Autumn,47,2.83,0.16,0.23,0.09,7.5,1900500
+Mafeteng,Heavy Rainfall,Moderate,Winter,177,2.76,0.12,0.18,0.07,6.0,6320000
+Maseru,Drought,Critical,Summer,374,1.6,0.08,0.12,0.05,4.5,2191500
+Maseru,Heavy Rainfall,Low,Spring,19,2.32,0.08,0.12,0.05,4.5,597000
+Mafeteng,Heavy Rainfall,Low,Summer,41,2.59,0.12,0.18,0.07,6.0,1637000
+Mokhotlong,Strong Winds,Moderate,Autumn,114,2.6,0.17,0.24,0.1,8.0,4117500
+Mohale's Hoek,Drought,Critical,Summer,478,1.6,0.13,0.19,0.07,6.0,3307000
+Mafeteng,Drought,Low,Winter,48,1.5,0.12,0.18,0.07,6.0,314500
+Maseru,Strong Winds,Critical,Winter,490,2.63,0.08,0.12,0.05,4.5,18923500
+Butha-Buthe,Heavy Rainfall,Critical,Winter,276,2.76,0.14,0.19,0.08,6.5,9711000
+Mafeteng,Drought,Low,Winter,26,1.77,0.12,0.18,0.07,6.0,193500
+Mohale's Hoek,Heavy Rainfall,Critical,Spring,413,2.72,0.13,0.19,0.07,6.0,14272000
+Berea,Drought,Critical,Autumn,233,1.58,0.1,0.15,0.06,5.5,1518500
+Maseru,Drought,Low,Winter,37,1.49,0.08,0.12,0.05,4.5,217000
+Butha-Buthe,Drought,Critical,Summer,225,1.6,0.14,0.19,0.08,6.5,1512500
+Mafeteng,Strong Winds,Low,Spring,37,2.73,0.12,0.18,0.07,6.0,1256000
+Thaba-Tseka,Strong Winds,Moderate,Summer,131,2.68,0.16,0.23,0.09,7.5,5434000
+Mokhotlong,Strong Winds,Critical,Spring,429,2.66,0.17,0.24,0.1,8.0,17688000
+Thaba-Tseka,Drought,Low,Autumn,44,1.66,0.16,0.23,0.09,7.5,303000
+Quthing,Heavy Rainfall,Critical,Spring,438,2.82,0.14,0.2,0.08,7.0,16902000
+Maseru,Drought,Moderate,Winter,121,1.62,0.08,0.12,0.05,4.5,753500
+Mafeteng,Drought,Moderate,Autumn,169,1.51,0.12,0.18,0.07,6.0,1087500
+Qacha's Nek,Heavy Rainfall,Moderate,Winter,79,2.8,0.15,0.22,0.09,7.0,2755500
+Butha-Buthe,Drought,Low,Autumn,46,1.46,0.14,0.19,0.08,6.5,336000
+Thaba-Tseka,Heavy Rainfall,Low,Autumn,47,2.68,0.16,0.23,0.09,7.5,1711500
+Butha-Buthe,Drought,Low,Spring,43,1.47,0.14,0.19,0.08,6.5,291000
+Berea,Heavy Rainfall,Low,Spring,48,2.79,0.1,0.15,0.06,5.5,1456000
+Leribe,Heavy Rainfall,Critical,Summer,321,2.81,0.11,0.16,0.06,5.5,12319500
+Mafeteng,Drought,Moderate,Spring,121,1.65,0.12,0.18,0.07,6.0,824500
+Leribe,Drought,Low,Winter,50,1.64,0.11,0.16,0.06,5.5,321000
+Mafeteng,Drought,Moderate,Spring,183,1.58,0.12,0.18,0.07,6.0,1218500
+Mokhotlong,Drought,Low,Autumn,13,1.46,0.17,0.24,0.1,8.0,74500
+Leribe,Strong Winds,Low,Spring,10,3.1,0.11,0.16,0.06,5.5,423000
+Butha-Buthe,Heavy Rainfall,Moderate,Autumn,143,2.89,0.14,0.19,0.08,6.5,7397000
+Mafeteng,Heavy Rainfall,Low,Summer,50,2.88,0.12,0.18,0.07,6.0,2313500
+Mokhotlong,Strong Winds,Moderate,Autumn,167,2.54,0.17,0.24,0.1,8.0,5474000
+Thaba-Tseka,Drought,Critical,Spring,415,1.63,0.16,0.23,0.09,7.5,2896500
+Qacha's Nek,Strong Winds,Critical,Spring,358,2.62,0.15,0.22,0.09,7.0,13303500
+Mokhotlong,Strong Winds,Moderate,Spring,174,2.54,0.17,0.24,0.1,8.0,6455000
+Mohale's Hoek,Drought,Moderate,Winter,98,1.64,0.13,0.19,0.07,6.0,656500
+Mafeteng,Strong Winds,Moderate,Summer,189,2.63,0.12,0.18,0.07,6.0,6984500
+Berea,Heavy Rainfall,Critical,Summer,396,2.77,0.1,0.15,0.06,5.5,14822000
+Mokhotlong,Heavy Rainfall,Moderate,Winter,135,2.68,0.17,0.24,0.1,8.0,3837000
+Butha-Buthe,Strong Winds,Critical,Summer,343,2.61,0.14,0.19,0.08,6.5,14102000
+Qacha's Nek,Strong Winds,Moderate,Summer,196,2.6,0.15,0.22,0.09,7.0,7823500
+Qacha's Nek,Drought,Moderate,Spring,191,1.55,0.15,0.22,0.09,7.0,1303000
+Thaba-Tseka,Drought,Low,Autumn,11,1.91,0.16,0.23,0.09,7.5,85500
+Butha-Buthe,Strong Winds,Low,Winter,13,2.69,0.14,0.19,0.08,6.5,565000
+Qacha's Nek,Strong Winds,Moderate,Spring,187,2.54,0.15,0.22,0.09,7.0,7094000
+Mohale's Hoek,Heavy Rainfall,Critical,Summer,458,2.83,0.13,0.19,0.07,6.0,18327000
+Quthing,Strong Winds,Critical,Summer,383,2.55,0.14,0.2,0.08,7.0,15294500
+Maseru,Drought,Low,Autumn,46,1.61,0.08,0.12,0.05,4.5,291000
+Berea,Heavy Rainfall,Moderate,Winter,185,2.94,0.1,0.15,0.06,5.5,7252500
+Mohale's Hoek,Heavy Rainfall,Critical,Spring,397,2.84,0.13,0.19,0.07,6.0,15983000
+Berea,Strong Winds,Critical,Summer,351,2.61,0.1,0.15,0.06,5.5,14087000
+Quthing,Heavy Rainfall,Critical,Winter,482,2.74,0.14,0.2,0.08,7.0,17100500
+Quthing,Strong Winds,Low,Summer,48,2.75,0.14,0.2,0.08,7.0,2285000
+Butha-Buthe,Heavy Rainfall,Moderate,Winter,162,2.75,0.14,0.19,0.08,6.5,6310000
+Mokhotlong,Drought,Low,Summer,43,1.4,0.17,0.24,0.1,8.0,283000
+Maseru,Strong Winds,Low,Summer,15,2.93,0.08,0.12,0.05,4.5,695000
+Berea,Heavy Rainfall,Low,Winter,27,2.74,0.1,0.15,0.06,5.5,924500
+Mohale's Hoek,Drought,Moderate,Spring,70,1.6,0.13,0.19,0.07,6.0,462000
+Leribe,Drought,Low,Spring,20,1.8,0.11,0.16,0.06,5.5,144000
+Mafeteng,Strong Winds,Moderate,Winter,61,2.72,0.12,0.18,0.07,6.0,2522500
+Mafeteng,Drought,Moderate,Winter,122,1.64,0.12,0.18,0.07,6.0,822000
+Leribe,Drought,Moderate,Spring,87,1.62,0.11,0.16,0.06,5.5,584500
+Berea,Strong Winds,Moderate,Winter,105,2.57,0.1,0.15,0.06,5.5,3594500
+Butha-Buthe,Heavy Rainfall,Moderate,Winter,150,2.78,0.14,0.19,0.08,6.5,5842000
+Leribe,Strong Winds,Low,Summer,43,2.77,0.11,0.16,0.06,5.5,1957500
+Maseru,Drought,Moderate,Winter,55,1.51,0.08,0.12,0.05,4.5,347000
+Maseru,Strong Winds,Low,Winter,49,2.78,0.08,0.12,0.05,4.5,2147500
+Thaba-Tseka,Drought,Critical,Summer,296,1.6,0.16,0.23,0.09,7.5,2074500
+Leribe,Heavy Rainfall,Critical,Winter,339,2.77,0.11,0.16,0.06,5.5,12670000
+Berea,Heavy Rainfall,Moderate,Summer,173,2.79,0.1,0.15,0.06,5.5,7445000
+Thaba-Tseka,Heavy Rainfall,Critical,Autumn,284,2.8,0.16,0.23,0.09,7.5,11803000
+Mohale's Hoek,Drought,Moderate,Autumn,137,1.68,0.13,0.19,0.07,6.0,912500
+Quthing,Drought,Moderate,Winter,195,1.62,0.14,0.2,0.08,7.0,1318500
+Qacha's Nek,Strong Winds,Moderate,Autumn,157,2.63,0.15,0.22,0.09,7.0,6761500
+Mohale's Hoek,Heavy Rainfall,Moderate,Autumn,113,2.63,0.13,0.19,0.07,6.0,3046500
+Leribe,Heavy Rainfall,Moderate,Winter,85,2.75,0.11,0.16,0.06,5.5,3053500
+Leribe,Drought,Moderate,Summer,162,1.57,0.11,0.16,0.06,5.5,1079500
+Leribe,Drought,Critical,Winter,303,1.57,0.11,0.16,0.06,5.5,1947000
+Leribe,Heavy Rainfall,Moderate,Spring,74,3.0,0.11,0.16,0.06,5.5,3823500
+Quthing,Heavy Rainfall,Low,Winter,22,2.86,0.14,0.2,0.08,7.0,974000
+Quthing,Strong Winds,Moderate,Summer,121,2.55,0.14,0.2,0.08,7.0,4385000
+Mohale's Hoek,Drought,Moderate,Autumn,119,1.78,0.13,0.19,0.07,6.0,793500
+Mohale's Hoek,Drought,Moderate,Autumn,79,1.62,0.13,0.19,0.07,6.0,518000
+Butha-Buthe,Heavy Rainfall,Low,Autumn,14,2.0,0.14,0.19,0.08,6.5,241500
+Thaba-Tseka,Heavy Rainfall,Low,Spring,30,2.7,0.16,0.23,0.09,7.5,1127500
+Mafeteng,Drought,Low,Autumn,41,1.56,0.12,0.18,0.07,6.0,298000
+Berea,Drought,Low,Summer,35,1.49,0.1,0.15,0.06,5.5,214000
+Berea,Drought,Moderate,Summer,175,1.65,0.1,0.15,0.06,5.5,1173000
+Mohale's Hoek,Strong Winds,Low,Summer,48,2.44,0.13,0.19,0.07,6.0,1632000
+Leribe,Drought,Low,Spring,33,1.67,0.11,0.16,0.06,5.5,215000
+Mokhotlong,Drought,Low,Summer,50,1.62,0.17,0.24,0.1,8.0,349000
+Thaba-Tseka,Strong Winds,Critical,Autumn,435,2.63,0.16,0.23,0.09,7.5,15428000
+Qacha's Nek,Strong Winds,Critical,Summer,238,2.68,0.15,0.22,0.09,7.0,9398000
+Quthing,Heavy Rainfall,Low,Spring,38,2.89,0.14,0.2,0.08,7.0,1857500
+Quthing,Drought,Critical,Autumn,205,1.6,0.14,0.2,0.08,7.0,1408000
+Mohale's Hoek,Strong Winds,Critical,Summer,371,2.6,0.13,0.19,0.07,6.0,15137500
+Berea,Heavy Rainfall,Critical,Summer,316,2.85,0.1,0.15,0.06,5.5,12548500
+Berea,Strong Winds,Moderate,Autumn,125,2.58,0.1,0.15,0.06,5.5,3852000
+Mokhotlong,Strong Winds,Low,Winter,47,2.74,0.17,0.24,0.1,8.0,2236000
+Qacha's Nek,Strong Winds,Low,Winter,34,2.62,0.15,0.22,0.09,7.0,1477500
+Mafeteng,Heavy Rainfall,Moderate,Spring,151,2.75,0.12,0.18,0.07,6.0,5312500
+Qacha's Nek,Strong Winds,Moderate,Spring,106,2.61,0.15,0.22,0.09,7.0,4288000
+Maseru,Drought,Critical,Winter,235,1.56,0.08,0.12,0.05,4.5,1437500
+Quthing,Strong Winds,Critical,Summer,416,2.67,0.14,0.2,0.08,7.0,16233500
+Berea,Heavy Rainfall,Low,Winter,50,2.84,0.1,0.15,0.06,5.5,2300500
+Berea,Strong Winds,Moderate,Autumn,69,2.51,0.1,0.15,0.06,5.5,2461000
+Mokhotlong,Drought,Critical,Winter,263,1.6,0.17,0.24,0.1,8.0,1834500
+Berea,Heavy Rainfall,Low,Summer,42,2.76,0.1,0.15,0.06,5.5,1570000
+Butha-Buthe,Drought,Critical,Spring,391,1.58,0.14,0.19,0.08,6.5,2659000
+Thaba-Tseka,Drought,Moderate,Autumn,122,1.67,0.16,0.23,0.09,7.5,879500
+Qacha's Nek,Strong Winds,Critical,Spring,412,2.57,0.15,0.22,0.09,7.0,15381500
+Quthing,Drought,Low,Winter,50,1.56,0.14,0.2,0.08,7.0,326500
+Mokhotlong,Strong Winds,Low,Spring,43,2.35,0.17,0.24,0.1,8.0,1219000
+Mohale's Hoek,Heavy Rainfall,Moderate,Autumn,68,2.78,0.13,0.19,0.07,6.0,1938000
+Mohale's Hoek,Heavy Rainfall,Low,Spring,10,2.7,0.13,0.19,0.07,6.0,472000
+Mohale's Hoek,Drought,Low,Winter,24,1.71,0.13,0.19,0.07,6.0,170500
+Thaba-Tseka,Drought,Critical,Autumn,267,1.64,0.16,0.23,0.09,7.5,1942000
+Qacha's Nek,Heavy Rainfall,Critical,Autumn,205,2.81,0.15,0.22,0.09,7.0,8376500
+Quthing,Strong Winds,Critical,Spring,385,2.57,0.14,0.2,0.08,7.0,13752500
+Quthing,Drought,Critical,Summer,474,1.59,0.14,0.2,0.08,7.0,3255500
+Leribe,Heavy Rainfall,Moderate,Winter,87,2.69,0.11,0.16,0.06,5.5,2897500
+Butha-Buthe,Strong Winds,Low,Summer,26,2.65,0.14,0.19,0.08,6.5,567500
+Thaba-Tseka,Heavy Rainfall,Low,Spring,37,2.81,0.16,0.23,0.09,7.5,1387000
+Berea,Heavy Rainfall,Low,Autumn,39,2.77,0.1,0.15,0.06,5.5,1312000
+Maseru,Strong Winds,Low,Spring,44,2.59,0.08,0.12,0.05,4.5,1588000
+Qacha's Nek,Strong Winds,Critical,Winter,401,2.6,0.15,0.22,0.09,7.0,15090500
+Qacha's Nek,Drought,Moderate,Spring,79,1.57,0.15,0.22,0.09,7.0,548000
+Butha-Buthe,Heavy Rainfall,Critical,Summer,225,2.89,0.14,0.19,0.08,6.5,9193500
+Berea,Drought,Low,Autumn,49,1.55,0.1,0.15,0.06,5.5,318000
+Mohale's Hoek,Heavy Rainfall,Moderate,Autumn,112,2.81,0.13,0.19,0.07,6.0,4240000
+Leribe,Heavy Rainfall,Critical,Winter,316,2.88,0.11,0.16,0.06,5.5,13095000
+Leribe,Strong Winds,Low,Winter,32,2.56,0.11,0.16,0.06,5.5,1354500
+Leribe,Drought,Low,Winter,31,1.77,0.11,0.16,0.06,5.5,203500
+Thaba-Tseka,Heavy Rainfall,Moderate,Spring,116,2.77,0.16,0.23,0.09,7.5,4760500
+Thaba-Tseka,Heavy Rainfall,Critical,Winter,453,2.86,0.16,0.23,0.09,7.5,18741500
+Maseru,Drought,Low,Winter,25,1.36,0.08,0.12,0.05,4.5,150000
+Mokhotlong,Drought,Critical,Spring,420,1.58,0.17,0.24,0.1,8.0,2872500
+Quthing,Heavy Rainfall,Critical,Winter,254,2.79,0.14,0.2,0.08,7.0,10154000
+Thaba-Tseka,Strong Winds,Low,Spring,23,2.87,0.16,0.23,0.09,7.5,745000
+Mohale's Hoek,Heavy Rainfall,Low,Spring,39,2.64,0.13,0.19,0.07,6.0,926000
+Mokhotlong,Strong Winds,Low,Spring,33,2.55,0.17,0.24,0.1,8.0,1093500
+Mohale's Hoek,Drought,Low,Summer,13,1.54,0.13,0.19,0.07,6.0,99000
+Qacha's Nek,Heavy Rainfall,Low,Autumn,18,3.06,0.15,0.22,0.09,7.0,741500
+Maseru,Strong Winds,Low,Spring,49,2.51,0.08,0.12,0.05,4.5,1459500
+Quthing,Strong Winds,Low,Autumn,49,2.55,0.14,0.2,0.08,7.0,1428500
+Qacha's Nek,Heavy Rainfall,Critical,Summer,333,2.85,0.15,0.22,0.09,7.0,14159000
+Quthing,Heavy Rainfall,Critical,Summer,430,2.81,0.14,0.2,0.08,7.0,17351500
+Thaba-Tseka,Drought,Critical,Winter,282,1.5,0.16,0.23,0.09,7.5,1925500
+Mohale's Hoek,Heavy Rainfall,Low,Autumn,13,2.92,0.13,0.19,0.07,6.0,273000
+Qacha's Nek,Strong Winds,Moderate,Autumn,168,2.53,0.15,0.22,0.09,7.0,5860500
+Qacha's Nek,Drought,Low,Spring,10,1.4,0.15,0.22,0.09,7.0,78000
+Maseru,Heavy Rainfall,Critical,Spring,256,2.82,0.08,0.12,0.05,4.5,10509000
+Butha-Buthe,Drought,Critical,Summer,347,1.63,0.14,0.19,0.08,6.5,2365000
+Mohale's Hoek,Strong Winds,Low,Spring,15,2.87,0.13,0.19,0.07,6.0,659500
+Mokhotlong,Strong Winds,Low,Winter,22,2.64,0.17,0.24,0.1,8.0,1039500
+Quthing,Heavy Rainfall,Moderate,Winter,146,2.82,0.14,0.2,0.08,7.0,6095000
+Qacha's Nek,Drought,Critical,Summer,299,1.59,0.15,0.22,0.09,7.0,2074000
+Mafeteng,Drought,Critical,Winter,494,1.59,0.12,0.18,0.07,6.0,3380000
+Leribe,Strong Winds,Critical,Winter,395,2.65,0.11,0.16,0.06,5.5,16433000
+Berea,Strong Winds,Moderate,Autumn,140,2.56,0.1,0.15,0.06,5.5,5103500
+Leribe,Drought,Moderate,Winter,60,1.55,0.11,0.16,0.06,5.5,389500
+Qacha's Nek,Strong Winds,Critical,Autumn,487,2.66,0.15,0.22,0.09,7.0,18299500
+Qacha's Nek,Heavy Rainfall,Low,Summer,18,2.28,0.15,0.22,0.09,7.0,550500
+Leribe,Heavy Rainfall,Critical,Winter,201,2.88,0.11,0.16,0.06,5.5,8275000
+Butha-Buthe,Drought,Critical,Summer,265,1.59,0.14,0.19,0.08,6.5,1831500
+Mohale's Hoek,Drought,Moderate,Summer,100,1.64,0.13,0.19,0.07,6.0,695000
+Maseru,Heavy Rainfall,Critical,Summer,373,2.83,0.08,0.12,0.05,4.5,13610000
+Maseru,Drought,Low,Winter,46,1.67,0.08,0.12,0.05,4.5,306000
+Mokhotlong,Strong Winds,Low,Spring,28,2.61,0.17,0.24,0.1,8.0,1032000
+Mohale's Hoek,Heavy Rainfall,Critical,Spring,246,2.73,0.13,0.19,0.07,6.0,8855500
+Butha-Buthe,Drought,Critical,Winter,451,1.59,0.14,0.19,0.08,6.5,3072000
+Qacha's Nek,Strong Winds,Low,Winter,16,2.62,0.15,0.22,0.09,7.0,823000
+Qacha's Nek,Heavy Rainfall,Moderate,Summer,96,2.83,0.15,0.22,0.09,7.0,3696500
+Thaba-Tseka,Strong Winds,Critical,Autumn,203,2.7,0.16,0.23,0.09,7.5,8552000
+Mohale's Hoek,Strong Winds,Critical,Autumn,403,2.66,0.13,0.19,0.07,6.0,16225000
+Maseru,Strong Winds,Critical,Summer,269,2.64,0.08,0.12,0.05,4.5,9876000
+Mokhotlong,Heavy Rainfall,Critical,Autumn,464,2.84,0.17,0.24,0.1,8.0,19432000
+Butha-Buthe,Drought,Moderate,Summer,97,1.54,0.14,0.19,0.08,6.5,666500
+Maseru,Heavy Rainfall,Moderate,Winter,92,2.71,0.08,0.12,0.05,4.5,3639500
+Maseru,Heavy Rainfall,Low,Summer,28,2.57,0.08,0.12,0.05,4.5,991500
+Quthing,Heavy Rainfall,Critical,Summer,362,2.84,0.14,0.2,0.08,7.0,13599000
+Quthing,Drought,Critical,Summer,226,1.65,0.14,0.2,0.08,7.0,1556000
+Butha-Buthe,Strong Winds,Low,Autumn,20,2.6,0.14,0.19,0.08,6.5,943500
+Mafeteng,Strong Winds,Moderate,Summer,126,2.63,0.12,0.18,0.07,6.0,4423500
+Maseru,Strong Winds,Moderate,Spring,145,2.5,0.08,0.12,0.05,4.5,4606500
+Berea,Drought,Critical,Winter,480,1.56,0.1,0.15,0.06,5.5,3121000

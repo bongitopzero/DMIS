@@ -108,16 +108,16 @@ export default function Sidebar() {
                   <span>Budget Allocation</span>
                 </Link>
               </li>
-              <li className={isActive("/audit-trail")}>
-                <Link to="/audit-trail">
-                  <BarChart3 size={20} />
-                  <span>Finance Audit Trail</span>
-                </Link>
-              </li>
               <li className={isActive("/forecasting")}>
                 <Link to="/forecasting">
                   <TrendingUp size={20} />
                   <span>Forecasting</span>
+                </Link>
+              </li>
+              <li className={isActive("/prediction-history")}>
+                <Link to="/prediction-history">
+                  <BarChart3 size={20} />
+                  <span>Prediction History</span>
                 </Link>
               </li>
             </>

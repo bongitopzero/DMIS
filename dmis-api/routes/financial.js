@@ -47,7 +47,9 @@ router.get('/:disasterId', protect, financialController.getBudgetsByDisaster);
  */
 router.put('/:id/approve', protect, async (req, res) => {
   try {
-    const user = JSON.parse(req.headers.user || '{}');
+    const user = req.headers.user
+      ? JSON.parse(req.headers.user)
+      : req.user || {};
     if (!['Finance Officer', 'Administrator'].includes(user.role)) {
       return res.status(403).json({ message: 'Insufficient permissions to approve budget' });
     }
@@ -84,6 +86,41 @@ router.put('/:id/void', protect, async (req, res) => {
  * Role: All protectd users
  */
 router.get('/:disasterId/breakdown', protect, financialController.getBudgetBreakdownByDisaster);
+
+/**
+ * POST /api/budgets/national
+ * Create or update national budget
+ * Role: Finance Officer, Administrator
+ */
+router.post('/national', protect, async (req, res) => {
+  try {
+    const user = req.headers.user
+      ? JSON.parse(req.headers.user)
+      : req.user || {};
+    console.log('User attempting national budget save:', {
+      id: user._id || user.id,
+      role: user.role,
+      name: user.name,
+      fromHeaders: !!req.headers.user,
+      fromReqUser: !!req.user
+    });
+    
+    if (!['Finance Officer', 'Administrator'].includes(user.role)) {
+      console.log('Permission denied for role:', user.role);
+      return res.status(403).json({ 
+        message: 'Insufficient permissions to manage national budget',
+        requiredRoles: ['Finance Officer', 'Administrator'],
+        userRole: user.role
+      });
+    }
+    
+    console.log('Permission granted, proceeding with budget save');
+    await financialController.createNationalBudget(req, res);
+  } catch (error) {
+    console.error('Route error:', error);
+    res.status(500).json({ message: 'Route error', error: error.message });
+  }
+});
 
 /**
  * EXPENSE ROUTES
@@ -227,6 +264,25 @@ router.get('/allocation-budget-impact/:disasterId', protect, async (req, res) =>
     }
     
     await financialController.getAllocationBudgetImpact(req, res);
+  } catch (error) {
+    console.error('Route error:', error);
+    res.status(500).json({ message: 'Route error', error: error.message });
+  }
+});
+
+/**
+ * GET /api/budgets/envelope-status
+ * Get status of all budget envelopes with allocated/committed amounts
+ * Role: Finance Officer, Administrator
+ */
+router.get('/envelope-status/all', protect, async (req, res) => {
+  try {
+    const user = JSON.parse(req.headers.user || '{}');
+    if (!['Finance Officer', 'Administrator'].includes(user.role)) {
+      return res.status(403).json({ message: 'Insufficient permissions to view envelope status' });
+    }
+    
+    await financialController.getEnvelopeStatus(req, res);
   } catch (error) {
     console.error('Route error:', error);
     res.status(500).json({ message: 'Route error', error: error.message });
