@@ -59,7 +59,7 @@ export default function DisasterEvents() {
       "Livestock Feed",
       "Seeds",
       "Shelter",
-      "Cash Assistance",
+      ,
     ],
     heavy_rainfall: [
       "Shelter",

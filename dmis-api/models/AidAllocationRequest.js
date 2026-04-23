@@ -123,6 +123,24 @@ const aidAllocationRequestSchema = new mongoose.Schema(
       disbursementMethod: String,
       referenceNumber: String,
     },
+    // Budget Tracking
+    fundedFromReserve: {
+      type: Boolean,
+      default: false,
+    },
+    budgetDeductionDetails: {
+      disasterEnvelopeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'DisasterBudgetEnvelope',
+      },
+      envelopeType: String, // "disaster_envelope" or "strategic_reserve"
+      deductedAmount: Number,
+      deductedDate: Date,
+      deductedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    },
   },
   {
     timestamps: true,

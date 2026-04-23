@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 import Disaster from '../models/Disaster.js';
 import Incident from '../models/Incident.js';
 import Allocation from '../models/BudgetAllocation.js';
-import YearlySummary from '../models/YearlySummary.js';
 
 dotenv.config();
 

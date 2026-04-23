@@ -1,22 +1,16 @@
 import mongoose from 'mongoose';
 
-/**
- * AllocationPlan Schema
- * Comprehensive plan for disaster aid allocation with itemized procurement
- */
 const allocationPlanSchema = new mongoose.Schema(
   {
     planId: {
       type: String,
-      required: [true, 'Plan ID is required'],
+      required: true,
       unique: true,
-      index: true,
     },
     disasterId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Disaster',
-      required: [true, 'Disaster ID is required'],
-      index: true,
+      required: true,
     },
     planName: {
       type: String,
@@ -24,26 +18,25 @@ const allocationPlanSchema = new mongoose.Schema(
     },
     planDate: {
       type: Date,
-      required: true,
       default: Date.now,
     },
-    // Plan Summary
-    totalHouseholdsAssessed: Number,
-    totalHouseholdsCovered: Number,
-    totalBudgetRequired: {
+    totalHouseholdsAssessed: {
       type: Number,
-      required: true,
       default: 0,
     },
-    // Itemized Allocation
+    totalHouseholdsCovered: {
+      type: Number,
+      default: 0,
+    },
+    totalBudgetRequired: {
+      type: Number,
+      default: 0,
+    },
     allocations: [
       {
         householdId: String,
         householdName: String,
-        aidAllocationRequestId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'AidAllocationRequest',
-        },
+        aidAllocationRequestId: mongoose.Schema.Types.ObjectId,
         compositeScore: Number,
         aidTier: String,
         packages: [
@@ -53,13 +46,11 @@ const allocationPlanSchema = new mongoose.Schema(
             quantity: Number,
             unitCost: Number,
             totalCost: Number,
-            category: String,
           },
         ],
         subtotal: Number,
       },
     ],
-    // Procurement Breakdown
     procurementSummary: [
       {
         packageId: String,
@@ -68,71 +59,51 @@ const allocationPlanSchema = new mongoose.Schema(
         totalQuantity: Number,
         unitCost: Number,
         totalCost: Number,
-        vendors: [
-          {
-            vendorName: String,
-            quantity: Number,
-            unitPrice: Number,
-            totalPrice: Number,
-            contactInfo: String,
-          },
-        ],
       },
     ],
-    // Vulnerability Distribution
     vulnerabilityDistribution: {
-      tier0_3: { count: Number, percentage: Number },
-      tier4_6: { count: Number, percentage: Number },
-      tier7_9: { count: Number, percentage: Number },
-      tier10Plus: { count: Number, percentage: Number },
+      tier0_3: {
+        count: Number,
+        percentage: String,
+      },
+      tier4_6: {
+        count: Number,
+        percentage: String,
+      },
+      tier7_9: {
+        count: Number,
+        percentage: String,
+      },
+      tier10Plus: {
+        count: Number,
+        percentage: String,
+      },
     },
-    // Disaster Type Breakdown
     disasterTypeBreakdown: {
-      heavyRainfall: { count: Number, totalCost: Number },
-      strongWinds: { count: Number, totalCost: Number },
-      drought: { count: Number, totalCost: Number },
+      heavyRainfall: {
+        count: Number,
+        totalCost: Number,
+      },
+      strongWinds: {
+        count: Number,
+        totalCost: Number,
+      },
+      drought: {
+        count: Number,
+        totalCost: Number,
+      },
     },
-    // Status
     status: {
       type: String,
-      enum: ['Draft', 'Pending Review', 'Approved', 'In Progress', 'Completed', 'Voided'],
+      enum: ['Draft', 'Submitted', 'Approved', 'Implemented'],
       default: 'Draft',
-      index: true,
     },
-    approvalStatus: {
-      approvedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      },
-      approvalDate: Date,
-      reviewComments: String,
-    },
-    // Execution Tracking
-    executionStatus: {
-      startDate: Date,
-      expectedCompletionDate: Date,
-      actualCompletionDate: Date,
-      percentageComplete: { type: Number, default: 0, min: 0, max: 100 },
-    },
-    // Audit & Governance
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
     },
-    lastModifiedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    },
-    notes: String,
   },
-  {
-    timestamps: true,
-    collection: 'allocation_plans',
-  }
+  { timestamps: true, collection: 'allocationplans' }
 );
-
-// Index for finding plans by disaster
-allocationPlanSchema.index({ disasterId: 1, status: 1 });
 
 export default mongoose.model('AllocationPlan', allocationPlanSchema);

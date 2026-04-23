@@ -96,6 +96,17 @@ export const ToastContainer = ({ toasts = [], onRemove }) => {
   );
 };
 
+export function ToastHost() {
+  const [toasts, setToasts] = React.useState([]);
+
+  React.useEffect(() => {
+    const unsubscribe = ToastManager.subscribe(setToasts);
+    return unsubscribe;
+  }, []);
+
+  return <ToastContainer toasts={toasts} onRemove={(id) => ToastManager.remove(id)} />;
+}
+
 /**
  * Toast Manager - Utility to show toasts
  */

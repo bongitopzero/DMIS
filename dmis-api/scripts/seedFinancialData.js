@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Disaster from "../models/Disaster.js";
 import BudgetAllocation from "../models/BudgetAllocation.js";
-import Expense from "../models/Expense.js";
 
 dotenv.config();
 

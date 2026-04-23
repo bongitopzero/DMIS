@@ -14,24 +14,36 @@ export default function FinanceDashboard() {
       setError("");
       try {
         const results = await Promise.allSettled([
-          API.get("/finance/summary"),
-          API.get("/finance/risk"),
-          API.get("/forecast/generate"),
+          API.get("/budgets/envelope-status/all"),
+          API.get("/allocation/disaster-summary"),
         ]);
 
-        if (results[0].status === "fulfilled") {
-          setSummary(results[0].value.data);
-        } else {
-          setError("Failed to load finance summary");
-        }
+        const envelopes = results[0].status === "fulfilled" ? results[0].value.data : {};
+        const disasterSummary = results[1].status === "fulfilled" ? results[1].value.data : [];
 
-        if (results[1].status === "fulfilled") {
-          setRisk(results[1].value.data);
-        }
+        // Sum all envelope totals and committed
+        const totalAllocated = Object.values(envelopes).reduce((s, e) => s + (e.total || 0), 0);
+        const totalCommitted = Object.values(envelopes).reduce((s, e) => s + (e.allocated || 0), 0);
+        const totalRemaining = Object.values(envelopes).reduce((s, e) => s + (e.remaining || 0), 0);
 
-        if (results[2].status === "fulfilled") {
-          setForecast(results[2].value.data);
-        }
+        // Sum disbursed amounts from disaster summary
+        const totalDisbursed = disasterSummary.reduce((s, d) => s + (d.totalAmount || 0), 0);
+        const totalHouseholds = disasterSummary.reduce((s, d) => s + (d.totalHouseholds || 0), 0);
+        const totalPackages = disasterSummary.reduce((s, d) => s + (d.totalPackages || 0), 0);
+
+        setSummary({
+          budget: {
+            allocatedBudget: totalAllocated,
+            committedFunds: totalCommitted,
+            spentFunds: totalDisbursed,
+            remainingBudget: totalRemaining,
+            fiscalYear: "2026/2027",
+          },
+          totalApproved: totalDisbursed,
+          totalRequested: totalCommitted,
+          pendingRequests: totalHouseholds,
+          totalPackages,
+        });
       } catch (err) {
         setError("Failed to load finance data");
       } finally {
@@ -61,18 +73,19 @@ export default function FinanceDashboard() {
   const approvedTotal = summary?.totalApproved ?? 0;
   const requestedTotal = summary?.totalRequested ?? 0;
   const pendingCount = summary?.pendingRequests ?? 0;
+const totalPackages = summary?.totalPackages ?? 0;
 
   const budgetTotal = Math.max(allocatedBudget, 1);
   const unapprovedTotal = Math.max(requestedTotal - approvedTotal, 0);
   const notSpentTotal = Math.max(allocatedBudget - spentFunds, 0);
 
-  const kpis = [
-    { label: "Allocated Budget", value: allocatedBudget },
-    { label: "Committed Funds", value: committedFunds },
-    { label: "Spent Funds", value: spentFunds },
-    { label: "Remaining Budget", value: remainingBudget },
-    { label: "Total Requested", value: requestedTotal },
-    { label: "Pending Requests", value: pendingCount, isCount: true },
+ const kpis = [
+    { label: "Total Allocated (All Disasters)", value: allocatedBudget },
+    { label: "Total Spent (All Disasters)", value: spentFunds },
+    { label: "Remaining", value: remainingBudget },
+    { label: "Pending Approval", value: pendingCount, isCount: true },
+    { label: "Total Committed", value: committedFunds },
+    { label: "Total Packages Distributed", value: totalPackages, isCount: true },
   ];
 
   const barSeries = [

@@ -1,80 +1,72 @@
 import mongoose from 'mongoose';
 
-/**
- * BudgetAllocation Schema
- * Stores budget allocations for specific disaster relief categories
- * 
- * Rules:
- * - Immutable after approval
- * - Track approval process
- * - Prevent deletion
- */
-const BudgetAllocationSchema = new mongoose.Schema(
+const budgetAllocationSchema = new mongoose.Schema(
   {
     disasterId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Disaster',
-      required: [true, 'Disaster ID is required'],
-      index: true,
+      required: true,
     },
     category: {
       type: String,
-      required: [true, 'Budget category is required'],
-      enum: [
-        'Food & Water',
-        'Medical Supplies',
-        'Shelter & Housing',
-        'Transportation',
-        'Communication',
-        'Security',
-        'Infrastructure',
-        'Education',
-        'Livelihood Support',
-        'Other'
-      ],
-      index: true,
+      required: true,
+      enum: ['Shelter', 'Food', 'Water', 'Health', 'Livelihood', 'Education', 'Other'],
     },
     allocatedAmount: {
       type: Number,
-      required: [true, 'Allocated amount is required'],
-      min: [0, 'Amount cannot be negative'],
-      validate: {
-        validator: function(v) {
-          return !isNaN(v) && v > 0;
-        },
-        message: 'Allocated amount must be a positive number'
-      }
-    },
-    approvedBy: {
-      type: String,
-      required: [true, 'Approver name/ID is required'],
-    },
-    approvalDate: {
-      type: Date,
-      required: [true, 'Approval date is required'],
+      required: true,
+      min: 0,
     },
     approvalStatus: {
       type: String,
       enum: ['Pending', 'Approved', 'Rejected'],
       default: 'Pending',
-      index: true,
     },
-    rejectionReason: {
+    approvedBy: {
       type: String,
       default: null,
     },
+    approvalDate: {
+      type: Date,
+      default: null,
+    },
     createdBy: {
-      type: String,
-      required: [true, 'Creator ID is required'],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
     description: {
       type: String,
-      maxlength: 500,
+      default: null,
     },
     fiscalYear: {
       type: String,
       required: true,
     },
+    amountDeducted: {
+      type: Number,
+      default: 0,
+    },
+    reserveUsed: {
+      type: Number,
+      default: 0,
+    },
+    deductionHistory: [
+      {
+        deductedAmount: Number,
+        deductedDate: Date,
+        allocationRequestId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'AidAllocationRequest',
+        },
+        deductedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+        reason: String,
+        fundedFromReserve: Boolean,
+      },
+    ],
     isVoided: {
       type: Boolean,
       default: false,
@@ -92,40 +84,10 @@ const BudgetAllocationSchema = new mongoose.Schema(
       default: null,
     },
   },
-  {
-    timestamps: true,
-    collection: 'budgets'
-  }
+  { timestamps: true }
 );
 
-// Prevent deletion of budget records
-BudgetAllocationSchema.statics.deleteOne = function() {
-  throw new Error('Budget records cannot be deleted. Use void instead.');
-};
+// Compound index to prevent duplicate allocation for same disaster/category
+budgetAllocationSchema.index({ disasterId: 1, category: 1, approvalStatus: 1, isVoided: 1 });
 
-BudgetAllocationSchema.statics.deleteMany = function() {
-  throw new Error('Budget records cannot be deleted. Use void instead.');
-};
-
-// Index for finding active budgets by disaster and category
-BudgetAllocationSchema.index({ disasterId: 1, category: 1, approvalStatus: 1 });
-
-// Calculate remaining budget (virtual field)
-BudgetAllocationSchema.virtual('remainingBudget').get(function() {
-  return this.allocatedAmount;
-});
-
-// Prevent editing after approval
-BudgetAllocationSchema.pre('findByIdAndUpdate', function(next) {
-  const update = this.getUpdate();
-  
-  // Check if trying to update approved budget
-  this.model.findById(this.getQuery()._id).then(doc => {
-    if (doc && doc.approvalStatus === 'Approved' && !update.$set?.isVoided) {
-      throw new Error('Cannot edit budget after approval. Create a new allocation instead.');
-    }
-    next();
-  }).catch(next);
-});
-
-export default mongoose.model('BudgetAllocation', BudgetAllocationSchema);
+export default mongoose.model('BudgetAllocation', budgetAllocationSchema);

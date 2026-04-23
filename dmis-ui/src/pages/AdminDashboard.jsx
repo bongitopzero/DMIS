@@ -414,7 +414,7 @@ const AdminDashboard = () => {
           <div className="info-box">
             <strong>Current Role Permissions:</strong>
             <ul>
-              <li><strong>Coordinator:</strong> Review, verify, and update incident status; Access to GIS, analysis, forecasting (no financial approval)</li>
+              <li><strong>Coordinator:</strong> Review, verify, and update incident status; Access to GIS and analysis (no financial approval)</li>
               <li><strong>Finance Officer:</strong> Fund management, financial tracking, and analysis</li>
               <li><strong>Data Clerk:</strong> Submit incidents from ministries; Full incident data entry, GIS mapping, and analysis</li>
               <li><strong>Administrator:</strong> User management and system settings only</li>

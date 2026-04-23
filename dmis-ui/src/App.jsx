@@ -14,18 +14,19 @@ import FundManagement from "./pages/FundManagement.jsx";
 import FinancialDashboard from "./pages/FinancialDashboard.jsx";
 import AidAllocation from "./pages/AidAllocation.jsx";
 import BudgetAllocation from "./pages/BudgetAllocation.jsx";
-import FinanceAuditTrail from "./pages/FinanceAuditTrail.jsx";
 import ApprovedDisasters from "./pages/ApprovedDisasters.jsx";
 import MapPage from "./pages/MapPage";
 import Analysis from "./pages/Analysis.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import SystemSettings from "./pages/SystemSettings.jsx";
 import Forecasting from "./pages/Forecasting.jsx";
+import PredictionHistory from "./pages/PredictionHistory.jsx";
 import Settings from "./pages/Settings";
 
 import Sidebar from "./components/sidebar";
 import Navbar from "./components/navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { ToastHost } from "./components/Toast";
 import { ThemeProvider, useTheme } from "./contexts/ThemeContext";
 import { MapProvider } from "./context/MapContext";
 
@@ -57,6 +58,7 @@ function Layout({ children }) {
 >
       
         <Navbar />
+        <ToastHost />
         <main
           className="flex-1 overflow-y-auto"
           style={{
@@ -120,17 +122,6 @@ function App() {
               <ProtectedRoute allowedRoles={["Finance Officer"]}>
                 <Layout>
                   <BudgetAllocation />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/audit-trail"
-            element={
-              <ProtectedRoute allowedRoles={["Finance Officer"]}>
-                <Layout>
-                  <FinanceAuditTrail />
                 </Layout>
               </ProtectedRoute>
             }
@@ -230,6 +221,17 @@ function App() {
               <ProtectedRoute allowedRoles={["Coordinator", "Finance Officer"]}>
                 <Layout>
                   <Forecasting />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/prediction-history"
+            element={
+              <ProtectedRoute allowedRoles={["Coordinator", "Finance Officer"]}>
+                <Layout>
+                  <PredictionHistory />
                 </Layout>
               </ProtectedRoute>
             }

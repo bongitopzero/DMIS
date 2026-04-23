@@ -3,6 +3,9 @@
   margin: 0;
   background-color: transparent;
   min-height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header */
@@ -68,9 +71,16 @@
   border-radius: 0;
   padding: 1rem;
   min-height: auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Form Section */
+.form-section {
+  width: 100%;
+}
+
 .form-section h3 {
   font-size: 1.1rem;
   font-weight: 600;
@@ -163,6 +173,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  width: 100%;
 }
 
 .progress-container {
@@ -441,6 +452,9 @@
   background: white;
   border-radius: 0.75rem;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 .summary-section h3 {
@@ -469,6 +483,8 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  width: 100%;
+  margin-top: 1.5rem;
 }
 
 .disaster-summary-card {
@@ -477,6 +493,7 @@
   border-radius: 0.75rem;
   overflow: hidden;
   transition: all 0.3s ease;
+  width: 100%;
 }
 
 .disaster-summary-card:hover {

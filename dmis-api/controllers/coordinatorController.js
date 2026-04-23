@@ -1,8 +1,6 @@
 import Disaster from '../models/Disaster.js';
 import Incident from '../models/Incident.js';
-import Fund from '../models/Fund.js';
-import Allocation from '../models/BudgetAllocation.js';
-import YearlySummary from '../models/YearlySummary.js';
+import BudgetAllocation from '../models/BudgetAllocation.js';
 
 function startOfYear(year) {
   return new Date(Date.UTC(year, 0, 1));
@@ -33,20 +31,19 @@ export async function getOverview(req, res) {
       totalRequestedFunds += Number(d.totalEstimatedRequirement || 0);
     }
 
-    // Sum allocations and funds from collections if they exist
+    // Sum allocations from BudgetAllocation collection
     let totalAllocatedFunds = 0;
     try {
-      const allocs = await Allocation.aggregate([
+      const allocs = await BudgetAllocation.aggregate([
         { $match: { createdAt: { $gte: start, $lt: end } } },
-        { $group: { _id: null, sum: { $sum: '$amount' } } }
+        { $group: { _id: null, sum: { $sum: '$allocatedAmount' } } }
       ]);
       totalAllocatedFunds = allocs?.[0]?.sum || 0;
     } catch (e) {
       // collection may not exist; ignore
     }
 
-    // Return current year live metrics + past years stored summaries
-    const pastSummaries = await YearlySummary.find().sort({ year: -1 }).limit(10);
+    // Return current year live metrics (no past year summaries since YearlySummary removed)
 
     const overview = {
       currentYear: {
@@ -58,7 +55,7 @@ export async function getOverview(req, res) {
         totalAllocatedFunds,
         totalRequestedFunds,
       },
-      pastYears: pastSummaries,
+      pastYears: [],
     };
 
     res.json(overview);

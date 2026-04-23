@@ -88,6 +88,7 @@ export default function NewDisasterReport() {
   const [toasts, setToasts] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [summaryFilter, setSummaryFilter] = useState("needs-attention");
   const [deleteTargetInfo, setDeleteTargetInfo] = useState(null);
 
   const [headerData, setHeaderData] = useState({
@@ -1172,8 +1173,79 @@ export default function NewDisasterReport() {
                 <p>No disasters recorded yet. Create a new disaster report to get started.</p>
               </div>
             ) : (
-              <div className="disasters-summary-list">
-                {savedDisasters.map((disaster) => {
+              <>
+                {/* Summary Filter Tabs */}
+                <div style={{ marginBottom: '2rem' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                    {[
+                      { key: "needs-attention", label: "Needs Attention" },
+                      { key: "submitted", label: "Submitted" },
+                      { key: "verified-approved", label: "Verified & Approved" }
+                    ].map(tab => {
+                      const count = savedDisasters.filter(d => {
+                        if (tab.key === "needs-attention") return d.status === "reported";
+                        if (tab.key === "submitted") return d.status === "submitted";
+                        if (tab.key === "verified-approved") return d.status === "verified";
+                        return false;
+                      }).length;
+
+                      return (
+                        <button
+                          key={tab.key}
+                          onClick={() => setSummaryFilter(tab.key)}
+                          style={{
+                            padding: '0.5rem 1rem',
+                            borderRadius: '0.375rem',
+                            border: 'none',
+                            fontSize: '0.875rem',
+                            fontWeight: '500',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            backgroundColor: summaryFilter === tab.key ? '#1e3a5f' : '#e5e7eb',
+                            color: summaryFilter === tab.key ? 'white' : '#374151',
+                            position: 'relative'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (summaryFilter !== tab.key) {
+                              e.target.style.backgroundColor = '#d1d5db';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (summaryFilter !== tab.key) {
+                              e.target.style.backgroundColor = '#e5e7eb';
+                            }
+                          }}
+                        >
+                          {tab.label}
+                          <span
+                            style={{
+                              marginLeft: '0.5rem',
+                              backgroundColor: summaryFilter === tab.key ? 'rgba(255,255,255,0.2)' : '#9ca3af',
+                              color: summaryFilter === tab.key ? 'white' : 'white',
+                              padding: '0.125rem 0.375rem',
+                              borderRadius: '0.25rem',
+                              fontSize: '0.75rem',
+                              fontWeight: '600'
+                            }}
+                          >
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="disasters-summary-list">
+                  {savedDisasters
+                    .filter(d => {
+                      if (summaryFilter === "needs-attention") return d.status === "reported";
+                      if (summaryFilter === "submitted") return d.status === "submitted";
+                      if (summaryFilter === "verified-approved") return d.status === "verified";
+                      return true;
+                    })
+                    .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date))
+                    .map((disaster) => {
                   return (
                     <div key={disaster._id} className="disaster-summary-card">
                       {/* Disaster Summary */}
@@ -1394,6 +1466,7 @@ export default function NewDisasterReport() {
                   );
                 })}
               </div>
+              </>
             )}
           </div>
         )}

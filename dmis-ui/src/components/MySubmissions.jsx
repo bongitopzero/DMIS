@@ -6,7 +6,7 @@ import "./MySubmissions.css";
 export default function MySubmissions() {
   const [disasters, setDisasters] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeFilter, setActiveFilter] = useState("needs-attention");
 
   useEffect(() => {
     fetchMySubmissions();
@@ -28,13 +28,21 @@ export default function MySubmissions() {
     }
   };
 
-  const filteredDisasters = disasters.filter(d => {
-    if (activeFilter === "all") return true;
-    if (activeFilter === "pending") return d.status === "reported" || d.status === "submitted";
-    if (activeFilter === "approved") return d.status === "verified";
-    if (activeFilter === "rejected") return d.status === "closed";
-    return true;
-  });
+  // Calculate counts for each tab
+  const tabCounts = {
+    "needs-attention": disasters.filter(d => d.status === "closed").length,
+    "submitted": disasters.filter(d => d.status === "reported" || d.status === "submitted").length,
+    "verified-approved": disasters.filter(d => d.status === "verified").length,
+  };
+
+  const filteredDisasters = disasters
+    .filter(d => {
+      if (activeFilter === "needs-attention") return d.status === "closed";
+      if (activeFilter === "submitted") return d.status === "reported" || d.status === "submitted";
+      if (activeFilter === "verified-approved") return d.status === "verified";
+      return true;
+    })
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by most recent first
 
   const getStatusBadgeStyle = (status) => {
     const styles = {
@@ -65,10 +73,14 @@ export default function MySubmissions() {
 
         {/* Filter Tabs */}
         <div className="flex gap-2 mb-6">
-          {['all', 'pending', 'approved', 'rejected'].map(tab => (
+          {[
+            { key: "needs-attention", label: "Needs Attention" },
+            { key: "submitted", label: "Submitted" },
+            { key: "verified-approved", label: "Verified & Approved" }
+          ].map(tab => (
             <button
-              key={tab}
-              onClick={() => setActiveFilter(tab)}
+              key={tab.key}
+              onClick={() => setActiveFilter(tab.key)}
               style={{
                 padding: '0.5rem 1rem',
                 borderRadius: '0.375rem',
@@ -77,21 +89,35 @@ export default function MySubmissions() {
                 fontWeight: '500',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                backgroundColor: activeFilter === tab ? '#1e3a5f' : '#e5e7eb',
-                color: activeFilter === tab ? 'white' : '#374151'
+                backgroundColor: activeFilter === tab.key ? '#1e3a5f' : '#e5e7eb',
+                color: activeFilter === tab.key ? 'white' : '#374151',
+                position: 'relative'
               }}
               onMouseEnter={(e) => {
-                if (activeFilter !== tab) {
+                if (activeFilter !== tab.key) {
                   e.target.style.backgroundColor = '#d1d5db';
                 }
               }}
               onMouseLeave={(e) => {
-                if (activeFilter !== tab) {
+                if (activeFilter !== tab.key) {
                   e.target.style.backgroundColor = '#e5e7eb';
                 }
               }}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab.label}
+              <span
+                style={{
+                  marginLeft: '0.5rem',
+                  backgroundColor: activeFilter === tab.key ? 'rgba(255,255,255,0.2)' : '#9ca3af',
+                  color: activeFilter === tab.key ? 'white' : 'white',
+                  padding: '0.125rem 0.375rem',
+                  borderRadius: '0.25rem',
+                  fontSize: '0.75rem',
+                  fontWeight: '600'
+                }}
+              >
+                {tabCounts[tab.key]}
+              </span>
             </button>
           ))}
         </div>
