@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FileText, Users, BarChart3, ChevronDown, ChevronUp, Plus, X, Eye, Save, Edit, Trash2 } from "lucide-react";
+import { FileText, Users, BarChart3, ChevronDown, ChevronUp, Eye, Save, Edit, Trash2 } from "lucide-react";
 import API from "../api/axios";
 import { ToastManager, ToastContainer } from "./Toast";
 import "./NewDisasterReport.css";
@@ -81,7 +81,6 @@ export default function NewDisasterReport() {
   const [households, setHouseholds] = useState([]);
   const [expandedHousehold, setExpandedHousehold] = useState(null);
   const [editingHouseholdIndex, setEditingHouseholdIndex] = useState(null);
-  const [autoSaved, setAutoSaved] = useState(false);
   const [savedDisasters, setSavedDisasters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [expandedDisaster, setExpandedDisaster] = useState(null);
@@ -90,6 +89,7 @@ export default function NewDisasterReport() {
   const [deleteTargetId, setDeleteTargetId] = useState(null);
   const [summaryFilter, setSummaryFilter] = useState("needs-attention");
   const [deleteTargetInfo, setDeleteTargetInfo] = useState(null);
+  const [dateError, setDateError] = useState("");
 
   const [headerData, setHeaderData] = useState({
     disasterType: "",
@@ -109,6 +109,9 @@ export default function NewDisasterReport() {
     sourceOfIncome: "Low (≤ M3,000/mo)",
     damageDescription: "",
     damageSeverityLevel: 2,
+    structuralDamage: "",
+    circumstances: [],
+    customDamageDescription: "",
   });
 
   const disasterTypes = [
@@ -138,6 +141,60 @@ export default function NewDisasterReport() {
     "High (≥ M10,001/mo)",
   ];
 
+  const structuralDamageOptions = [
+    { value: "still_habitable", label: "Still habitable — partial damage" },
+    { value: "roof_blown", label: "Roof blown off — uninhabitable" },
+    { value: "roof_damaged", label: "Roof damaged — walls intact" },
+    { value: "completely_destroyed", label: "Completely destroyed — total loss" },
+    { value: "collapsed", label: "Collapsed — no rooms usable" },
+    { value: "minor_damage", label: "Minor damage — rooms habitable" },
+    { value: "other", label: "Other (specify)" },
+  ];
+
+  const circumstancesOptions = [
+    { value: "infant_child", label: "Has infant / child under 5" },
+    { value: "disabled", label: "Disabled / wheelchair-bound member" },
+    { value: "bedridden", label: "Bedridden member needing medical attention" },
+    { value: "injured", label: "Members injured" },
+    { value: "no_water", label: "No clean water access" },
+  ];
+
+  const generateDamageDescription = (structural, circums, customDescription = "") => {
+    const parts = [];
+
+    // Structural damage text
+    const structuralMap = {
+      "still_habitable": "House is still habitable, partially damaged with some rooms habitable.",
+      "roof_blown": "Roof blown off, no roof remaining. House is uninhabitable.",
+      "roof_damaged": "Roof damaged but walls intact. House partially usable.",
+      "completely_destroyed": "House completely destroyed, total loss. Uninhabitable.",
+      "collapsed": "House collapsed. Uninhabitable, no rooms usable.",
+      "minor_damage": "Minor damage, rooms habitable, structure sound.",
+      "other": customDescription || "Custom structural damage description.",
+    };
+
+    if (structural && structuralMap[structural]) {
+      parts.push(structuralMap[structural]);
+    }
+
+    // Circumstances text
+    const circumstancesMap = {
+      "infant_child": "Household has infant or young child under 5.",
+      "disabled": "A household member is disabled or wheelchair-bound.",
+      "bedridden": "A household member is bedridden and requires medical attention.",
+      "injured": "Household members were injured during the disaster.",
+      "no_water": "No access to clean water, water supply damaged.",
+    };
+
+    circums.forEach(c => {
+      if (circumstancesMap[c]) {
+        parts.push(circumstancesMap[c]);
+      }
+    });
+
+    return parts.join(" ");
+  };
+
   // Map income categories to representative numeric values for calculations
   const getIncomeFromCategory = (category) => {
     if (category.includes("Low")) return 2500; // Mid-range for Low
@@ -153,6 +210,33 @@ export default function NewDisasterReport() {
     if (category.includes("Middle")) return "Middle (M3,001–M10,000/mo)";
     if (category.includes("High")) return "High (≥ M10,001/mo)";
     return category; // Return as-is if already formatted
+  };
+
+  // Validate disaster date
+  const validateDisasterDate = (dateString) => {
+    if (!dateString) return null;
+
+    const selectedDate = new Date(dateString);
+    const today = new Date();
+
+    // Reset time to start of day for date-only comparison
+    const selectedDateOnly = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+    const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    // Check if date is today or in the future
+    if (selectedDateOnly >= todayOnly) {
+      return "Disaster date cannot be today or in the future.";
+    }
+
+    // Check if date is older than 1 month
+    const oneMonthAgo = new Date(todayOnly);
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+    if (selectedDateOnly < oneMonthAgo) {
+      return "Disaster must be reported within one month of occurrence.";
+    }
+
+    return null; // Valid date
   };
 
   // Fetch saved disasters on component mount
@@ -205,14 +289,54 @@ export default function NewDisasterReport() {
       ...prev,
       [name]: value,
     }));
+
+    // Validate disaster date in real-time
+    if (name === "dateOfOccurrence") {
+      const error = validateDisasterDate(value);
+      setDateError(error);
+    }
   };
 
   const handleHouseholdChange = (e) => {
     const { name, value } = e.target;
-    setHouseholdForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setHouseholdForm((prev) => {
+      const updated = {
+        ...prev,
+        [name]: value,
+      };
+
+      // Regenerate damage description if custom damage description changed
+      if (name === "customDamageDescription" && prev.structuralDamage === "other") {
+        updated.damageDescription = generateDamageDescription(prev.structuralDamage, prev.circumstances, value);
+      }
+
+      return updated;
+    });
+  };
+
+  const handleStructuralDamageChange = (value) => {
+    const newStructural = value;
+    setHouseholdForm((prev) => {
+      const customDesc = newStructural === "other" ? prev.customDamageDescription : "";
+      return {
+        ...prev,
+        structuralDamage: newStructural,
+        damageDescription: generateDamageDescription(newStructural, prev.circumstances, customDesc),
+      };
+    });
+  };
+
+  const handleCircumstancesChange = (value) => {
+    setHouseholdForm((prev) => {
+      const newCircumstances = prev.circumstances.includes(value)
+        ? prev.circumstances.filter(c => c !== value)
+        : [...prev.circumstances, value];
+      return {
+        ...prev,
+        circumstances: newCircumstances,
+        damageDescription: generateDamageDescription(prev.structuralDamage, newCircumstances),
+      };
+    });
   };
 
   const handleContinueToHouseholds = () => {
@@ -258,6 +382,8 @@ export default function NewDisasterReport() {
       sourceOfIncome: "Low (≤ M3,000/mo)",
       damageDescription: "",
       damageSeverityLevel: 2,
+      structuralDamage: "",
+      circumstances: [],
     });
   };
 
@@ -273,6 +399,8 @@ export default function NewDisasterReport() {
       sourceOfIncome: "Low (≤ M3,000/mo)",
       damageDescription: "",
       damageSeverityLevel: 2,
+      structuralDamage: "",
+      circumstances: [],
     });
   };
 
@@ -295,6 +423,8 @@ export default function NewDisasterReport() {
       sourceOfIncome: "Low (≤ M3,000/mo)",
       damageDescription: "",
       damageSeverityLevel: 2,
+      structuralDamage: "",
+      circumstances: [],
     });
     ToastManager.success("Household added successfully");
   };
@@ -320,6 +450,22 @@ export default function NewDisasterReport() {
     }
     if (!headerData.district) {
       ToastManager.error("Please select a district");
+      return;
+    }
+    if (!headerData.dateOfOccurrence) {
+      ToastManager.error("Please select a date of occurrence");
+      return;
+    }
+
+    // Validate disaster date
+    const dateValidationError = validateDisasterDate(headerData.dateOfOccurrence);
+    if (dateValidationError) {
+      ToastManager.error(dateValidationError);
+      return;
+    }
+
+    if (!headerData.severityLevel) {
+      ToastManager.error("Please select a severity level");
       return;
     }
     if (!headerData.numberOfHouseholdsAffected) {
@@ -507,6 +653,8 @@ export default function NewDisasterReport() {
         sourceOfIncome: "Low (≤ M3,000/mo)",
         damageDescription: "",
         damageSeverityLevel: 2,
+        structuralDamage: "",
+        circumstances: [],
       });
       setActiveTab("summary");
 
@@ -628,6 +776,8 @@ export default function NewDisasterReport() {
         sourceOfIncome: incomeMap[hh.incomeCategory] || "Low (≤ M3,000/mo)",
         damageDescription: hh.damageDescription || "",
         damageSeverityLevel: hh.damageSeverityLevel || 2,
+        structuralDamage: "",
+        circumstances: [],
       }));
       setHouseholds(loadedHouseholds);
       
@@ -642,11 +792,11 @@ export default function NewDisasterReport() {
         sourceOfIncome: "Low (≤ M3,000/mo)",
         damageDescription: "",
         damageSeverityLevel: 2,
+        structuralDamage: "",
+        circumstances: [],
       });
     }
 
-    // Reset autoSaved to allow re-saving
-    setAutoSaved(false);
     setExpandedDisaster(null);
     
     // Switch to header tab for editing
@@ -657,10 +807,6 @@ export default function NewDisasterReport() {
   const maxHouseholds = parseInt(headerData.numberOfHouseholdsAffected) || 16;
   const householdsProgress = (households.length / maxHouseholds) * 100;
 
-  // Reset autosave flag when header changed (new disaster)
-  useEffect(() => {
-    setAutoSaved(false);
-  }, [headerData.numberOfHouseholdsAffected, headerData.disasterType, headerData.district, headerData.dateOfOccurrence]);
 
   return (
     <div className="new-disaster-report p-6" style={{ margin: "0" }}>
@@ -749,7 +895,21 @@ export default function NewDisasterReport() {
                   name="dateOfOccurrence"
                   value={headerData.dateOfOccurrence}
                   onChange={handleHeaderChange}
+                  style={{
+                    borderColor: dateError ? '#dc2626' : '#d1d5db',
+                    boxShadow: dateError ? '0 0 0 1px #dc2626' : 'none'
+                  }}
                 />
+                {dateError && (
+                  <div style={{
+                    color: '#dc2626',
+                    fontSize: '0.875rem',
+                    marginTop: '0.25rem',
+                    fontWeight: '500'
+                  }}>
+                    {dateError}
+                  </div>
+                )}
               </div>
 
               <div className="form-group">
@@ -940,18 +1100,84 @@ export default function NewDisasterReport() {
                           </div>
 
                           <div className="form-group full-width">
-                            <label>Damage Description</label>
-                            <textarea
-                              value={editingHouseholdIndex === index ? householdForm.damageDescription : household.damageDescription}
+                            <label>Structural Damage</label>
+                            <select
+                              value={editingHouseholdIndex === index ? householdForm.structuralDamage : household.structuralDamage}
                               onChange={(e) => {
                                 if (editingHouseholdIndex === index) {
-                                  setHouseholdForm({ ...householdForm, damageDescription: e.target.value });
+                                  handleStructuralDamageChange(e.target.value);
                                 }
                               }}
-                              placeholder="Brief description of damage"
-                              rows="3"
-                              style={editingHouseholdIndex === index ? { backgroundColor: '#fff', cursor: 'text' } : { backgroundColor: '#f3f4f6', cursor: 'not-allowed', color: '#9ca3af' }}
-                            />
+                              style={editingHouseholdIndex === index ? { backgroundColor: '#fff', cursor: 'pointer' } : { backgroundColor: '#f3f4f6', cursor: 'not-allowed', color: '#9ca3af' }}
+                              disabled={editingHouseholdIndex !== index}
+                            >
+                              <option value="">Select structural damage type</option>
+                              {structuralDamageOptions.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </option>
+                              ))}
+                            </select>
+                            {editingHouseholdIndex === index && householdForm.structuralDamage === "other" && (
+                              <input
+                                type="text"
+                                name="customDamageDescription"
+                                value={householdForm.customDamageDescription}
+                                onChange={handleHouseholdChange}
+                                placeholder="Describe the structural damage"
+                                style={{
+                                  marginTop: '0.5rem',
+                                  width: '100%',
+                                  padding: '0.5rem',
+                                  border: '1px solid #d1d5db',
+                                  borderRadius: '0.375rem',
+                                  fontSize: '0.9rem'
+                                }}
+                              />
+                            )}
+                            {editingHouseholdIndex !== index && household.structuralDamage === "other" && household.customDamageDescription && (
+                              <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#6b7280' }}>
+                                Custom: {household.customDamageDescription}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="form-group full-width">
+                            <label>Household Circumstances</label>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                              {circumstancesOptions.map((opt) => (
+                                <label key={opt.value} style={{ display: 'flex', alignItems: 'center', cursor: editingHouseholdIndex === index ? 'pointer' : 'not-allowed', fontSize: '0.9rem' }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={editingHouseholdIndex === index ? householdForm.circumstances.includes(opt.value) : household.circumstances?.includes(opt.value)}
+                                    onChange={() => {
+                                      if (editingHouseholdIndex === index) {
+                                        handleCircumstancesChange(opt.value);
+                                      }
+                                    }}
+                                    disabled={editingHouseholdIndex !== index}
+                                    style={{ marginRight: '0.5rem', cursor: editingHouseholdIndex === index ? 'pointer' : 'not-allowed' }}
+                                  />
+                                  {opt.label}
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="form-group full-width">
+                            <label>Generated Damage Description (Read-only)</label>
+                            <div style={{
+                              backgroundColor: '#f3f4f6',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '0.375rem',
+                              padding: '0.75rem',
+                              minHeight: '3rem',
+                              fontSize: '0.9rem',
+                              color: '#374151',
+                              wordWrap: 'break-word'
+                            }}>
+                              {editingHouseholdIndex === index ? householdForm.damageDescription : household.damageDescription || "(No damage description generated yet)"}
+                            </div>
                           </div>
                         </div>
 
@@ -1122,14 +1348,68 @@ export default function NewDisasterReport() {
                 </div>
 
                 <div className="form-group full-width">
-                  <label>Damage Description</label>
-                  <textarea
-                    name="damageDescription"
-                    value={householdForm.damageDescription}
-                    onChange={handleHouseholdChange}
-                    placeholder="Brief description of damage"
-                    rows="3"
-                  />
+                  <label>Structural Damage</label>
+                  <select
+                    value={householdForm.structuralDamage}
+                    onChange={(e) => handleStructuralDamageChange(e.target.value)}
+                  >
+                    <option value="">Select structural damage type</option>
+                    {structuralDamageOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                  {householdForm.structuralDamage === "other" && (
+                    <input
+                      type="text"
+                      name="customDamageDescription"
+                      value={householdForm.customDamageDescription}
+                      onChange={handleHouseholdChange}
+                      placeholder="Describe the structural damage"
+                      style={{
+                        marginTop: '0.5rem',
+                        width: '100%',
+                        padding: '0.5rem',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.9rem'
+                      }}
+                    />
+                  )}
+                </div>
+
+                <div className="form-group full-width">
+                  <label>Household Circumstances</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {circumstancesOptions.map((opt) => (
+                      <label key={opt.value} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '0.9rem' }}>
+                        <input
+                          type="checkbox"
+                          checked={householdForm.circumstances.includes(opt.value)}
+                          onChange={() => handleCircumstancesChange(opt.value)}
+                          style={{ marginRight: '0.5rem', cursor: 'pointer' }}
+                        />
+                        {opt.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="form-group full-width">
+                  <label>Generated Damage Description (Read-only)</label>
+                  <div style={{
+                    backgroundColor: '#f3f4f6',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '0.375rem',
+                    padding: '0.75rem',
+                    minHeight: '3rem',
+                    fontSize: '0.9rem',
+                    color: '#374151',
+                    wordWrap: 'break-word'
+                  }}>
+                    {householdForm.damageDescription || "(No damage description generated yet)"}
+                  </div>
                 </div>
               </div>
 
