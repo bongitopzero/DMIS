@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import axios from '../api/axios';
-import { Settings, Shield } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import './AdminDashboard.css';
 
 const SystemSettings = () => {
@@ -18,8 +17,6 @@ const SystemSettings = () => {
   const handleSaveSettings = async (e) => {
     e.preventDefault();
     try {
-      // Placeholder: persist to backend if endpoint exists
-      // await axios.post('/admin/settings', systemSettings);
       setSuccess('System settings updated successfully!');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
