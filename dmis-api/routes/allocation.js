@@ -34,6 +34,14 @@ router.get('/packages', protect, (req, res) => {
   allocationController.getAssistancePackages(req, res);
 });
 
+router.get('/summary', protect, (req, res) => {
+  allocationController.getGlobalAllocationSummary(req, res);
+});
+
+router.get('/disaster-summary', protect, (req, res) => {
+  allocationController.getAllocationDisasterSummary(req, res);
+});
+
 /**
  * HOUSEHOLD ASSESSMENT ROUTES
  */
@@ -287,6 +295,12 @@ router.get('/dashboard-stats/:disasterId', protect, (req, res) => {
 });
 
 /**
+ * GET /api/allocation/summary
+ * Get global allocation totals across all disasters
+ */
+
+
+/**
  * POST /api/allocation/approve-ineligible-disaster
  * Approve a disaster assessment when NO households are eligible for aid
  * Creates marker record so disaster appears as "processed" in summary dashboard
@@ -303,15 +317,5 @@ router.post(
   }
 );
 
-/**
- * GET /api/allocation/disaster-summary
- * Get summary of disbursed allocations grouped by disaster type
- * Shows total amounts and disaster details for each type
- * 
- * Role: All authenticated users
- */
-router.get('/disaster-summary', protect, (req, res) => {
-  allocationController.getDisasterSummary(req, res);
-});
 
 export default router;

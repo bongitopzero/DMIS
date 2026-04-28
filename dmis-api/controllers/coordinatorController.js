@@ -1,5 +1,6 @@
 import Disaster from '../models/Disaster.js';
 import Incident from '../models/Incident.js';
+import Budget from '../models/Budget.js';
 import BudgetAllocation from '../models/BudgetAllocation.js';
 
 function startOfYear(year) {
@@ -31,16 +32,39 @@ export async function getOverview(req, res) {
       totalRequestedFunds += Number(d.totalEstimatedRequirement || 0);
     }
 
-    // Sum allocations from BudgetAllocation collection
+    // Sum approved budget allocations for the current fiscal year
     let totalAllocatedFunds = 0;
     try {
       const allocs = await BudgetAllocation.aggregate([
-        { $match: { createdAt: { $gte: start, $lt: end } } },
+        {
+          $match: {
+            fiscalYear: { $in: [currentYear.toString(), `${currentYear}/${currentYear + 1}`] },
+            approvalStatus: 'Approved',
+            isVoided: false,
+          }
+        },
         { $group: { _id: null, sum: { $sum: '$allocatedAmount' } } }
       ]);
       totalAllocatedFunds = allocs?.[0]?.sum || 0;
     } catch (e) {
       // collection may not exist; ignore
+    }
+
+    // Fallback to Budget envelope totals when BudgetAllocation is empty
+    if (!totalAllocatedFunds) {
+      try {
+        const envelopeTotals = await Budget.aggregate([
+          {
+            $match: {
+              fiscalYear: { $in: [currentYear, currentYear.toString()] },
+            }
+          },
+          { $group: { _id: null, sum: { $sum: '$allocatedBudget' } } }
+        ]);
+        totalAllocatedFunds = envelopeTotals?.[0]?.sum || totalAllocatedFunds;
+      } catch (e) {
+        // collection may not exist; ignore
+      }
     }
 
     // Return current year live metrics (no past year summaries since YearlySummary removed)

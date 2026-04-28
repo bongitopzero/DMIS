@@ -11,9 +11,10 @@ import NewDisasterReport from "./components/NewDisasterReport";
 import MySubmissions from "./components/MySubmissions";
 
 import FundManagement from "./pages/FundManagement.jsx";
-import FinancialDashboard from "./pages/FinancialDashboard.jsx";
+import FinancialDashboard from "./pages/FinanceDashboard.jsx";
 import AidAllocation from "./pages/AidAllocation.jsx";
 import BudgetAllocation from "./pages/BudgetAllocation.jsx";
+import FinanceAuditTrail from "./pages/FinanceAuditTrail.jsx";
 import ApprovedDisasters from "./pages/ApprovedDisasters.jsx";
 import MapPage from "./pages/MapPage";
 import Analysis from "./pages/Analysis.jsx";
@@ -122,6 +123,17 @@ function App() {
               <ProtectedRoute allowedRoles={["Finance Officer"]}>
                 <Layout>
                   <BudgetAllocation />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/audit-trail"
+            element={
+              <ProtectedRoute allowedRoles={["Finance Officer"]}>
+                <Layout>
+                  <FinanceAuditTrail />
                 </Layout>
               </ProtectedRoute>
             }

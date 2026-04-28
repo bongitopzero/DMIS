@@ -11,11 +11,17 @@ import forecastingRoutes from "./routes/forecasting.js";
 import financialRoutes from "./routes/financial.js";
 import predictionRoutes from "./routes/prediction.js";
 import allocationRoutes from "./routes/allocation.js";
+import fundsRoutes from "./routes/funds.js";
 import incidentRoutes from "./routes/incidents.js";
 import coordinatorRoutes from "./routes/coordinator.js";
 import allocationController from "./controllers/allocationController.js";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+dotenv.config({ path: `${__dirname}/.env` });
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -31,7 +37,7 @@ app.use("/api/disasters", disasterRoutes);
 app.use("/api/prediction", predictionRoutes);
 app.use("/api/forecasting", forecastingRoutes);
 app.use("/api/financial", financialRoutes);
-app.use("/api/budgets", financialRoutes); // Also mount financial routes at /api/budgets for compatibility
+app.use("/api/funds", fundsRoutes);
 app.use("/api/allocation", allocationRoutes);
 app.use("/api/incidents", incidentRoutes);
 app.use("/api/coordinator", coordinatorRoutes);

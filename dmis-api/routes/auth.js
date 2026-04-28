@@ -48,7 +48,7 @@ router.post("/register", async (req, res) => {
 
 // Login
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
   try {
     const user = await User.findOne({ email });
@@ -56,6 +56,15 @@ router.post("/login", async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid password" });
+
+    const normalizedRequestedRole = role?.trim().toLowerCase();
+    const normalizedStoredRole = user.role?.trim().toLowerCase();
+
+    if (role && normalizedStoredRole !== normalizedRequestedRole) {
+      return res.status(400).json({
+        message: `Selected role (${role}) does not match your account role (${user.role}). Please choose the correct role.`,
+      });
+    }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",

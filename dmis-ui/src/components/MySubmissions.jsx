@@ -6,7 +6,7 @@ import "./MySubmissions.css";
 export default function MySubmissions() {
   const [disasters, setDisasters] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeFilter, setActiveFilter] = useState("needs-attention");
+  const [activeFilter, setActiveFilter] = useState("pending submission");
 
   useEffect(() => {
     fetchMySubmissions();
@@ -30,15 +30,15 @@ export default function MySubmissions() {
 
   // Calculate counts for each tab
   const tabCounts = {
-    "needs-attention": disasters.filter(d => d.status === "closed").length,
-    "submitted": disasters.filter(d => d.status === "reported" || d.status === "submitted").length,
+    "pending submission": disasters.filter(d => ["reported", "pending submission"].includes(d.status)).length,
+    "submitted": disasters.filter(d => d.status === "submitted").length,
     "verified-approved": disasters.filter(d => d.status === "verified").length,
   };
 
   const filteredDisasters = disasters
     .filter(d => {
-      if (activeFilter === "needs-attention") return d.status === "closed";
-      if (activeFilter === "submitted") return d.status === "reported" || d.status === "submitted";
+      if (activeFilter === "pending submission") return ["reported", "pending submission"].includes(d.status);
+      if (activeFilter === "submitted") return d.status === "submitted";
       if (activeFilter === "verified-approved") return d.status === "verified";
       return true;
     })
@@ -74,7 +74,7 @@ export default function MySubmissions() {
         {/* Filter Tabs */}
         <div className="flex gap-2 mb-6">
           {[
-            { key: "needs-attention", label: "Needs Attention" },
+            { key: "pending submission", label: "Pending Submission" },
             { key: "submitted", label: "Submitted" },
             { key: "verified-approved", label: "Verified & Approved" }
           ].map(tab => (

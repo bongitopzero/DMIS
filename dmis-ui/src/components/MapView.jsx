@@ -132,7 +132,7 @@ export default function MapView({ disasters, selectedDisaster }) {
     } else {
       console.warn("⚠️  MapView: No disasters provided!");
     }
-  }, [disasters.length]);
+  }, [disasters]);
 
   const styleDistrict = (feature) => ({
     fill: false,

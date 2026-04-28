@@ -37,11 +37,13 @@ export default function BudgetAllocation() {
   const [savingBudget, setSavingBudget] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [summaryData, setSummaryData] = useState([]);
+  const [budgetStatus, setBudgetStatus] = useState(null);
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
 
   useEffect(() => {
     fetchDisasters();
+    fetchBudgetStatus();
     fetchDisasterSummary();
   }, []);
 
@@ -54,11 +56,31 @@ export default function BudgetAllocation() {
     }
   };
 
+  const fetchBudgetStatus = async () => {
+    try {
+      const res = await API.get("/financial/envelope-status/all");
+      const data = res.data || {};
+      const fiscalYearKey = Object.keys(data)[0];
+      const activeBudget = data[fiscalYearKey] || null;
+
+      if (activeBudget) {
+        setNationalExpenditure(activeBudget.allocatedBudget || initialNationalExpenditure);
+        setBudgetStatus(activeBudget);
+      }
+    } catch (err) {
+      console.error("Error fetching budget status:", err);
+    }
+  };
+
   const fetchDisasterSummary = async () => {
     try {
       setLoadingSummary(true);
       const res = await API.get("/allocation/disaster-summary");
-      setSummaryData(res.data || []);
+      const data = res.data;
+      const safeSummary = Array.isArray(data)
+        ? data.map((item) => ({ disasters: [], totalPackages: 0, ...item }))
+        : [];
+      setSummaryData(safeSummary);
     } catch (err) {
       console.error("Error fetching disaster summary:", err);
       setSummaryData([]);
@@ -70,10 +92,14 @@ export default function BudgetAllocation() {
   const handleSaveNationalBudget = async () => {
     try {
       setSavingBudget(true);
-      await API.post("/budgets/national", {
+      const res = await API.post("/budgets/national", {
         amount: nationalExpenditure,
         fiscalYear: "2026/2027",
       });
+      const savedBudget = res.data?.budget;
+      if (savedBudget) {
+        setBudgetStatus(savedBudget);
+      }
       ToastManager.success("National budget saved successfully");
     } catch (err) {
       console.error("Error saving budget:", err);
@@ -107,6 +133,10 @@ export default function BudgetAllocation() {
 
   const committedTotal = envelopePartitions.reduce((sum, p) => sum + (p.allocated || 0), 0);
   const totalBudget = envelopePartitions.reduce((sum, p) => sum + (p.total || 0), 0);
+  const budgetAllocated = budgetStatus?.allocatedBudget ?? totalBudget;
+  const budgetCommitted = budgetStatus?.committedFunds ?? committedTotal;
+  const budgetRemaining = budgetStatus?.remainingBudget ?? Math.max(0, budgetAllocated - budgetCommitted);
+  const summaryItems = Array.isArray(summaryData) ? summaryData : [];
 
   return (
     <div className="budget-allocation-container">
@@ -124,7 +154,7 @@ export default function BudgetAllocation() {
           <div className="status-box-text">
             <h3>Active Budget FY 2026</h3>
             <p>
-              Allocated: {formatCurrency(committedTotal)} | Committed: {formatCurrency(committedTotal)} | Remaining: {formatCurrency(totalBudget - committedTotal)}
+              National Budget: {formatCurrency(budgetAllocated)} | Committed: {formatCurrency(budgetCommitted)} | Remaining: {formatCurrency(budgetRemaining)}
             </p>
           </div>
         </div>
@@ -216,11 +246,11 @@ export default function BudgetAllocation() {
 
         {loadingSummary ? (
           <p style={{ color: "#718096" }}>Loading summary...</p>
-        ) : summaryData.length === 0 ? (
+        ) : summaryItems.length === 0 ? (
           <p style={{ color: "#718096" }}>No disbursed allocations found.</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-            {summaryData.map((typeSummary) => (
+            {summaryItems.map((typeSummary) => (
               <div
                 key={typeSummary.type}
                 style={{
@@ -256,7 +286,7 @@ export default function BudgetAllocation() {
                         borderRadius: "999px",
                       }}
                     >
-                      {typeSummary.disasters.length} disaster{typeSummary.disasters.length !== 1 ? "s" : ""}
+                      {(typeSummary.disasters?.length ?? 0)} disaster{(typeSummary.disasters?.length ?? 0) !== 1 ? "s" : ""}
                     </span>
                   </div>
 
@@ -274,10 +304,10 @@ export default function BudgetAllocation() {
                       Used: <strong style={{ color: "#2d3748" }}>{formatCurrency(typeSummary.totalAmount)}</strong>
                     </span>
                     <span>
-                      Households: <strong style={{ color: "#2d3748" }}>{typeSummary.totalHouseholds?.toLocaleString()}</strong>
+                      Households: <strong style={{ color: "#2d3748" }}>{typeSummary.totalHouseholds?.toLocaleString() || 0}</strong>
                     </span>
                     <span>
-                      Packages: <strong style={{ color: "#2d3748" }}>{typeSummary.totalPackages}</strong>
+                      Packages: <strong style={{ color: "#2d3748" }}>{typeSummary.totalPackages ?? 0}</strong>
                     </span>
                   </div>
 
@@ -304,88 +334,32 @@ export default function BudgetAllocation() {
                 {/* Expandable Detail Table */}
                 {selectedType === typeSummary.type && (
                   <div style={{ padding: "0 1.25rem 1.25rem" }}>
-                    <table
-                      style={{
-                        width: "100%",
-                        borderCollapse: "collapse",
-                        fontSize: "0.85rem",
-                        marginTop: "0.75rem",
-                      }}
-                    >
-                      <thead>
-                        <tr style={{ borderBottom: "2px solid #e2e8f0" }}>
-                          <th style={{ textAlign: "left", padding: "0.5rem 0.75rem", color: "#718096", fontWeight: 600 }}>
-                            Disaster ID
-                          </th>
-                          <th style={{ textAlign: "left", padding: "0.5rem 0.75rem", color: "#718096", fontWeight: 600 }}>
-                            Type
-                          </th>
-                          <th style={{ textAlign: "right", padding: "0.5rem 0.75rem", color: "#718096", fontWeight: 600 }}>
-                            Households
-                          </th>
-                          <th style={{ textAlign: "right", padding: "0.5rem 0.75rem", color: "#718096", fontWeight: 600 }}>
-                            Packages
-                          </th>
-                          <th style={{ textAlign: "right", padding: "0.5rem 0.75rem", color: "#718096", fontWeight: 600 }}>
-                            Amount
-                          </th>
-                          <th style={{ textAlign: "left", padding: "0.5rem 0.75rem", color: "#718096", fontWeight: 600 }}>
-                            Date
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                    {(typeSummary.disasters?.length ?? 0) > 0 ? (
+                      <div style={{ display: "grid", gap: "0.75rem", marginTop: "0.75rem" }}>
                         {typeSummary.disasters.map((disaster) => (
-                          <tr
-                            key={disaster.id}
-                            style={{ borderBottom: "1px solid #f0f4f8" }}
+                          <div
+                            key={disaster.id || disaster._id || `${typeSummary.type}-${typeSummary.totalAmount}`}
+                            style={{
+                              padding: "1rem",
+                              border: "1px solid #e2e8f0",
+                              borderRadius: "0.5rem",
+                              backgroundColor: "#f8fafc",
+                            }}
                           >
-                            <td
-                              style={{
-                                padding: "0.6rem 0.75rem",
-                                fontFamily: "monospace",
-                                fontSize: "0.78rem",
-                                color: "#4a5568",
-                              }}
-                            >
-                              {disaster.incidentName || disaster.id}
-                            </td>
-                            <td style={{ padding: "0.6rem 0.75rem" }}>
-                              <span
-                                style={{
-                                  backgroundColor: "#ebf8ff",
-                                  color: "#2b6cb0",
-                                  padding: "0.15rem 0.5rem",
-                                  borderRadius: "999px",
-                                  fontSize: "0.75rem",
-                                }}
-                              >
-                                {typeSummary.type}
-                              </span>
-                            </td>
-                            <td style={{ padding: "0.6rem 0.75rem", textAlign: "right" }}>
-                              {(disaster.households || 0).toLocaleString()}
-                            </td>
-                            <td style={{ padding: "0.6rem 0.75rem", textAlign: "right" }}>
-                              {disaster.packages || 0}
-                            </td>
-                            <td
-                              style={{
-                                padding: "0.6rem 0.75rem",
-                                textAlign: "right",
-                                fontWeight: 600,
-                                color: "#2d3748",
-                              }}
-                            >
-                              {formatCurrency(disaster.totalAmount)}
-                            </td>
-                            <td style={{ padding: "0.6rem 0.75rem", color: "#718096" }}>
-                              {new Date(disaster.dateAllocated).toLocaleDateString()}
-                            </td>
-                          </tr>
+                            <div style={{ fontWeight: 600, color: "#2d3748" }}>
+                              {disaster.incidentName || disaster.id || disaster._id}
+                            </div>
+                            <div style={{ color: "#4a5568", fontSize: "0.9rem", marginTop: "0.35rem" }}>
+                              Households: {(disaster.households || 0).toLocaleString()} | Packages: {disaster.packages || 0} | Amount: {formatCurrency(disaster.totalAmount)}
+                            </div>
+                          </div>
                         ))}
-                      </tbody>
-                    </table>
+                      </div>
+                    ) : (
+                      <div style={{ padding: "1rem", color: "#4a5568", backgroundColor: "#f7fafc", borderRadius: "0.5rem" }}>
+                        No detailed disaster records are available for this summary item.
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

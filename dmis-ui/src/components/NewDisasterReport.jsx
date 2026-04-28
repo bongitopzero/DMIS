@@ -87,7 +87,7 @@ export default function NewDisasterReport() {
   const [toasts, setToasts] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
-  const [summaryFilter, setSummaryFilter] = useState("needs-attention");
+  const [summaryFilter, setSummaryFilter] = useState("pending submission");
   const [deleteTargetInfo, setDeleteTargetInfo] = useState(null);
   const [dateError, setDateError] = useState("");
 
@@ -152,11 +152,10 @@ export default function NewDisasterReport() {
   ];
 
   const circumstancesOptions = [
-    { value: "infant_child", label: "Has infant / child under 5" },
-    { value: "disabled", label: "Disabled / wheelchair-bound member" },
-    { value: "bedridden", label: "Bedridden member needing medical attention" },
+    { value: "infant_child", label: "children under 5" },
+    { value: "disabled", label: "Disabled members" },
     { value: "injured", label: "Members injured" },
-    { value: "no_water", label: "No clean water access" },
+    { value: "no_water", label: "No water access" },
   ];
 
   const generateDamageDescription = (structural, circums, customDescription = "") => {
@@ -526,6 +525,7 @@ export default function NewDisasterReport() {
         needs: "See household assessments",
         numberOfHouseholdsAffected: parseInt(headerData.numberOfHouseholdsAffected) || households.length,
         occurrenceDate: headerData.dateOfOccurrence,
+        severity: headerData.severityLevel.toLowerCase(),
       };
 
       console.log("💾 Creating disaster with payload:", disasterPayload);
@@ -1143,10 +1143,16 @@ export default function NewDisasterReport() {
                           </div>
 
                           <div className="form-group full-width">
-                            <label>Household Circumstances</label>
+                            <label>
+                              Household Circumstances
+                              <span style={{ display: 'block', marginTop: '0.25rem', fontSize: '0.85rem', color: '#6b7280' }}>
+                                Tick all circumstances that apply to this household.
+                              </span>
+                            </label>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                               {circumstancesOptions.map((opt) => (
-                                <label key={opt.value} style={{ display: 'flex', alignItems: 'center', cursor: editingHouseholdIndex === index ? 'pointer' : 'not-allowed', fontSize: '0.9rem' }}>
+                                <label key={opt.value} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', cursor: editingHouseholdIndex === index ? 'pointer' : 'not-allowed', fontSize: '0.9rem', width: '100%' }}>
+                                  <span style={{ lineHeight: 1.4, flex: 1, minWidth: 0, marginRight: '0.5rem' }}>{opt.label}</span>
                                   <input
                                     type="checkbox"
                                     checked={editingHouseholdIndex === index ? householdForm.circumstances.includes(opt.value) : household.circumstances?.includes(opt.value)}
@@ -1156,9 +1162,8 @@ export default function NewDisasterReport() {
                                       }
                                     }}
                                     disabled={editingHouseholdIndex !== index}
-                                    style={{ marginRight: '0.5rem', cursor: editingHouseholdIndex === index ? 'pointer' : 'not-allowed' }}
+                                    style={{ cursor: editingHouseholdIndex === index ? 'pointer' : 'not-allowed', flexShrink: 0 }}
                                   />
-                                  {opt.label}
                                 </label>
                               ))}
                             </div>
@@ -1380,17 +1385,22 @@ export default function NewDisasterReport() {
                 </div>
 
                 <div className="form-group full-width">
-                  <label>Household Circumstances</label>
+                  <label>
+                    Household Circumstances
+                    <span style={{ display: 'block', marginTop: '0.25rem', fontSize: '0.85rem', color: '#6b7280' }}>
+                      Tick all circumstances that apply to this household.
+                    </span>
+                  </label>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {circumstancesOptions.map((opt) => (
-                      <label key={opt.value} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '0.9rem' }}>
+                      <label key={opt.value} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', cursor: 'pointer', fontSize: '0.9rem', width: '100%' }}>
+                        <span style={{ lineHeight: 1.4, flex: 1, minWidth: 0, marginRight: '0.5rem' }}>{opt.label}</span>
                         <input
                           type="checkbox"
                           checked={householdForm.circumstances.includes(opt.value)}
                           onChange={() => handleCircumstancesChange(opt.value)}
-                          style={{ marginRight: '0.5rem', cursor: 'pointer' }}
+                          style={{ cursor: 'pointer', flexShrink: 0 }}
                         />
-                        {opt.label}
                       </label>
                     ))}
                   </div>
@@ -1458,12 +1468,12 @@ export default function NewDisasterReport() {
                 <div style={{ marginBottom: '2rem' }}>
                   <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
                     {[
-                      { key: "needs-attention", label: "Needs Attention" },
+                      { key: "pending submission", label: "Pending Submission" },
                       { key: "submitted", label: "Submitted" },
                       { key: "verified-approved", label: "Verified & Approved" }
                     ].map(tab => {
-                      const count = savedDisasters.filter(d => {
-                        if (tab.key === "needs-attention") return d.status === "reported";
+                      const count = savedDisasters.filter((d) => {
+                        if (tab.key === "pending submission") return ["pending submission", "reported"].includes(d.status);
                         if (tab.key === "submitted") return d.status === "submitted";
                         if (tab.key === "verified-approved") return d.status === "verified";
                         return false;
@@ -1518,8 +1528,8 @@ export default function NewDisasterReport() {
 
                 <div className="disasters-summary-list">
                   {savedDisasters
-                    .filter(d => {
-                      if (summaryFilter === "needs-attention") return d.status === "reported";
+                    .filter((d) => {
+                      if (summaryFilter === "pending submission") return ["pending submission", "reported"].includes(d.status);
                       if (summaryFilter === "submitted") return d.status === "submitted";
                       if (summaryFilter === "verified-approved") return d.status === "verified";
                       return true;
@@ -1542,7 +1552,7 @@ export default function NewDisasterReport() {
                           </div>
                           <div>
                             <span style={{ fontSize: '0.85rem', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Date:</span>
-                            <span style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginLeft: '0.5rem' }}>{new Date(disaster.date || disaster.createdAt).toLocaleDateString()}</span>
+                            <span style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginLeft: '0.5rem' }}>{new Date(disaster.occurrenceDate || disaster.date || disaster.createdAt).toLocaleDateString()}</span>
                           </div>
                           <div>
                             <span style={{ fontSize: '0.85rem', fontWeight: '600', color: '#6b7280', textTransform: 'uppercase' }}>Severity:</span>
@@ -1612,7 +1622,7 @@ export default function NewDisasterReport() {
                             </div>
                             <div className="detail-item">
                               <label>Date of Occurrence:</label>
-                              <span>{new Date(disaster.date || disaster.createdAt).toLocaleDateString()}</span>
+                              <span>{new Date(disaster.occurrenceDate || disaster.date || disaster.createdAt).toLocaleDateString()}</span>
                             </div>
                             <div className="detail-item">
                               <label>Severity:</label>

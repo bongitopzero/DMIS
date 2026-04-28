@@ -36,9 +36,14 @@ export default function Login() {
       const res = await API.post("/auth/login", {
         email,
         password,
+        role,
       });
 
       console.log("✅ Login successful. Response:", res.data);
+
+      if (res.data.role !== role) {
+        throw new Error(`Selected role (${role}) does not match account role (${res.data.role}).`);
+      }
 
       const userData = {
         token: res.data.token,
@@ -57,7 +62,7 @@ export default function Login() {
       const roleRoutes = {
         "Coordinator": "/dashboard",
         "Finance Officer": "/finance-dashboard",
-        "Data Clerk": "/my-submissions",
+        "Data Clerk": "/disaster-events",
         "Administrator": "/admin-dashboard",
       };
 

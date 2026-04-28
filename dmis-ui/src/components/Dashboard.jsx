@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import MapView from "./MapView";
-import RecentDisasters from "./RecentDisasters";
 import API from "../api/axios";
-import { ToastManager } from "./Toast";
 import { getIncidentCoordinates } from "../utils/locationUtils";
 import { useMapContext } from "../context/MapContext";
 
@@ -13,7 +11,6 @@ export default function Dashboard() {
   // Dashboard state - uses context data
   const [disasters, setDisasters] = useState([]);
   const [selectedDisaster, setSelectedDisaster] = useState(null);
-  const [loading, setLoading] = useState(contextData.loading);
   const [error, setError] = useState(contextData.error);
   const [disastersByType, setDisastersByType] = useState({});
   const [financialByMonth, setFinancialByMonth] = useState({});
@@ -36,14 +33,13 @@ export default function Dashboard() {
         `📊 Dashboard synced: ${transformed.length} disasters from MapContext`
       );
       setDisasters(transformed);
-      setLoading(false);
       setError(contextData.error || "");
 
       if (transformed.length > 0 && !selectedDisaster) {
         setSelectedDisaster(transformed[0]);
       }
     }
-  }, [contextData.incidentsData, contextData.loading, contextData.error]);
+  }, [contextData.incidentsData, contextData.loading, contextData.error, selectedDisaster]);
 
   useEffect(() => {
     fetchDashboardStats();
@@ -58,8 +54,10 @@ export default function Dashboard() {
   const fetchCoordinatorOverview = async () => {
     try {
       const res = await API.get("/coordinator/overview");
+      console.log("Coordinator overview data:", res.data);
       setOverview(res.data || null);
     } catch (err) {
+      console.error("Coordinator overview error:", err);
       // quietly ignore if endpoint not available or not authorized
       console.debug("Coordinator overview not available:", err?.message || err);
     }
@@ -80,8 +78,6 @@ export default function Dashboard() {
   };
 
   /* ================= Summary Stats ================= */
-  const activeIncidents = disasters.length;
-  
   // Calculate statistics from actual data
   const calculateStats = () => {
     const stats = {
@@ -101,7 +97,7 @@ export default function Dashboard() {
       // Count by severity
       if (d.severity) {
         const severity = d.severity.toLowerCase();
-        if (severity.includes('critical') || severity === 'high' && d.status !== 'closed') {
+        if (severity.includes('critical') || (severity === 'high' && d.status !== 'closed')) {
           stats.bySeverity.critical = (stats.bySeverity.critical || 0) + 1;
         } else if (severity.includes('high')) {
           stats.bySeverity.high = (stats.bySeverity.high || 0) + 1;
@@ -158,39 +154,24 @@ export default function Dashboard() {
       };
     });
 
-  // Calculate actual allocated funds from data
-  const calculateAllocatedFunds = () => {
-    let total = 0;
-    disasters.forEach(d => {
-      if (d.allocatedBudget) {
-        total += parseFloat(d.allocatedBudget) || 0;
-      }
-    });
-    return total / 1000000; // Convert to millions
+  const parseAffectedHouseholds = (value) => {
+    if (typeof value === "number") return value;
+    if (!value) return 0;
+    const digits = value.toString().replace(/[^0-9]/g, "");
+    return digits ? parseInt(digits, 10) : 0;
   };
 
-  // Calculate actual requested funds
-  const calculateRequestedFunds = () => {
-    let total = 0;
-    disasters.forEach(d => {
-      if (d.requestedBudget) {
-        total += parseFloat(d.requestedBudget) || 0;
-      } else if (d.estimatedCost) {
-        total += parseFloat(d.estimatedCost) || 0;
-      }
-    });
-    return total / 1000000; // Convert to millions
-  };
+  const totalHouseholdsAffected = disasters.reduce((sum, d) => {
+    return (
+      sum +
+      parseAffectedHouseholds(
+        d.numberOfHouseholdsAffected || d.households || d.affectedHouseholds || d.affectedPopulation
+      )
+    );
+  }, 0);
 
-  const totalAllocated = calculateAllocatedFunds();
-  const totalRequested = calculateRequestedFunds();
-  const totalSpent = totalAllocated * 0.65; // Estimate 65% of allocated is spent
-
-  // Count critical disasters
-  const criticalDisasters = disasters.filter(d => 
-    d.severity?.toLowerCase().includes('critical') || 
-    (d.severity?.toLowerCase().includes('high') && d.status !== 'closed')
-  ).length;
+  const totalDisasters = overview?.currentYear?.disastersCount ?? disasters.length;
+  const totalDistrictsAffected = Object.keys(stats.byDistrict).length;
 
   return (
     <div className="min-h-screen bg-slate-50 p-6">
@@ -199,27 +180,19 @@ export default function Dashboard() {
         <p className="text-sm text-muted">National Disaster Overview</p>
       </div>
 
-      {/* Summary Cards - 4 columns */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      {/* Summary Cards - 3 columns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <SummaryCard
-          title="Current Year Incidents"
-          value={overview?.currentYear?.incidentsCount ?? activeIncidents}
-          subtitle={`${stats.byStatus.verified || 0} verified · ${stats.byStatus.submitted || 0} pending`}
+          title="Total Disasters"
+          value={totalDisasters}
+        />
+        <SummaryCard
+          title="Affected Households"
+          value={totalHouseholdsAffected}
         />
         <SummaryCard
           title="Districts Affected"
-          value={Object.keys(stats.byDistrict).length}
-          subtitle={`${stats.bySeverity.high || 0} high · ${stats.bySeverity.critical || 0} critical`}
-        />
-        <SummaryCard
-          title="Allocated Funds"
-          value={totalAllocated > 0 ? `M ${totalAllocated.toFixed(1)}` : "M 0"}
-          subtitle={totalRequested > 0 ? `Requested: M ${totalRequested.toFixed(1)}` : "No requests"}
-        />
-        <SummaryCard
-          title="Critical Disasters"
-          value={criticalDisasters}
-          subtitle={`${stats.byStatus.responding || 0} active responses`}
+          value={totalDistrictsAffected}
         />
       </div>
 
